@@ -16,28 +16,31 @@
 
 package com.android.cellbroadcastreceiver;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.backup.BackupManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.UserManager;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
 import android.provider.Settings;
+import android.support.v14.preference.PreferenceFragment;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
+import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.TwoStatePreference;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 /**
  * Settings activity for the cell broadcast receiver.
  */
-public class CellBroadcastSettings extends PreferenceActivity {
+public class CellBroadcastSettings extends Activity {
 
     private static final String TAG = "CellBroadcastSettings";
 
@@ -52,11 +55,14 @@ public class CellBroadcastSettings extends PreferenceActivity {
     // Speak contents of alert after playing the alert sound.
     public static final String KEY_ENABLE_ALERT_SPEECH = "enable_alert_speech";
 
-    // Preference category for emergency alert and CMAS settings.
-    public static final String KEY_CATEGORY_ALERT_SETTINGS = "category_alert_settings";
+    // Always play at full volume when playing the alert sound.
+    public static final String KEY_USE_FULL_VOLUME = "use_full_volume";
 
-    // Preference category for ETWS related settings.
-    public static final String KEY_CATEGORY_ETWS_SETTINGS = "category_etws_settings";
+    // Preference category for emergency alert and CMAS settings.
+    public static final String KEY_CATEGORY_EMERGENCY_ALERTS = "category_emergency_alerts";
+
+    // Preference category for alert preferences.
+    public static final String KEY_CATEGORY_ALERT_PREFERENCES = "category_alert_preferences";
 
     // Whether to display CMAS extreme threat notifications (default is enabled).
     public static final String KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS =
@@ -78,12 +84,10 @@ public class CellBroadcastSettings extends PreferenceActivity {
     // Whether to display CMAS monthly test messages (default is disabled).
     public static final String KEY_ENABLE_CMAS_TEST_ALERTS = "enable_cmas_test_alerts";
 
-    // Preference category for Brazil specific settings.
-    public static final String KEY_CATEGORY_BRAZIL_SETTINGS = "category_brazil_settings";
-
-    // Preference key for whether to enable channel 50 notifications
-    // Enabled by default for phones sold in Brazil, otherwise this setting may be hidden.
-    public static final String KEY_ENABLE_CHANNEL_50_ALERTS = "enable_channel_50_alerts";
+    // Preference key for whether to enable area update information notifications
+    // Enabled by default for phones sold in Brazil and India, otherwise this setting may be hidden.
+    public static final String KEY_ENABLE_AREA_UPDATE_INFO_ALERTS =
+            "enable_area_update_info_alerts";
 
     // Preference key for initial opt-in/opt-out dialog.
     public static final String KEY_SHOW_CMAS_OPT_OUT_DIALOG = "show_cmas_opt_out_dialog";
@@ -91,8 +95,11 @@ public class CellBroadcastSettings extends PreferenceActivity {
     // Alert reminder interval ("once" = single 2 minute reminder).
     public static final String KEY_ALERT_REMINDER_INTERVAL = "alert_reminder_interval";
 
-    // Brazil country code
-    private static final String COUNTRY_BRAZIL = "br";
+    // Preference key for emergency alerts history
+    public static final String KEY_EMERGENCY_ALERT_HISTORY = "emergency_alert_history";
+
+    // For watch layout
+    private static final String KEY_WATCH_ALERT_REMINDER = "watch_alert_reminder";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,9 +111,12 @@ public class CellBroadcastSettings extends PreferenceActivity {
             return;
         }
 
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new CellBroadcastSettingsFragment()).commit();
+        // We only add new CellBroadcastSettingsFragment if no fragment is restored.
+        Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
+        if (fragment == null) {
+            getFragmentManager().beginTransaction().add(android.R.id.content,
+                    new CellBroadcastSettingsFragment()).commit();
+        }
     }
 
     /**
@@ -114,50 +124,89 @@ public class CellBroadcastSettings extends PreferenceActivity {
      */
     public static class CellBroadcastSettingsFragment extends PreferenceFragment {
 
-        private CheckBoxPreference mExtremeCheckBox;
-        private CheckBoxPreference mSevereCheckBox;
-        private CheckBoxPreference mAmberCheckBox;
-        private CheckBoxPreference mEmergencyCheckBox;
+        private TwoStatePreference mExtremeCheckBox;
+        private TwoStatePreference mSevereCheckBox;
+        private TwoStatePreference mAmberCheckBox;
+        private TwoStatePreference mEmergencyCheckBox;
         private ListPreference mReminderInterval;
-        private CheckBoxPreference mSpeechCheckBox;
-        private CheckBoxPreference mEtwsTestCheckBox;
-        private CheckBoxPreference mChannel50CheckBox;
-        private CheckBoxPreference mCmasTestCheckBox;
+        private TwoStatePreference mSpeechCheckBox;
+        private TwoStatePreference mFullVolumeCheckBox;
+        private TwoStatePreference mEtwsTestCheckBox;
+        private TwoStatePreference mAreaUpdateInfoCheckBox;
+        private TwoStatePreference mCmasTestCheckBox;
+        private Preference mAlertHistory;
         private PreferenceCategory mAlertCategory;
-        private PreferenceCategory mETWSSettingCategory;
+        private PreferenceCategory mAlertPreferencesCategory;
+        private PreferenceCategory mDevSettingCategory;
         private boolean mDisableSevereWhenExtremeDisabled = true;
 
+        // WATCH
+        private TwoStatePreference mAlertReminder;
+
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.preferences);
+            PackageManager pm = getActivity().getPackageManager();
+            if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                addPreferencesFromResource(R.xml.watch_preferences);
+            } else {
+                addPreferencesFromResource(R.xml.preferences);
+            }
 
             PreferenceScreen preferenceScreen = getPreferenceScreen();
 
-            mExtremeCheckBox = (CheckBoxPreference)
+            mExtremeCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS);
-            mSevereCheckBox = (CheckBoxPreference)
+            mSevereCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS);
-            mAmberCheckBox = (CheckBoxPreference)
+            mAmberCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_CMAS_AMBER_ALERTS);
-            mEmergencyCheckBox = (CheckBoxPreference)
+            mEmergencyCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_EMERGENCY_ALERTS);
             mReminderInterval = (ListPreference)
                     findPreference(KEY_ALERT_REMINDER_INTERVAL);
-            mSpeechCheckBox = (CheckBoxPreference)
+            mSpeechCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_ALERT_SPEECH);
-            mEtwsTestCheckBox = (CheckBoxPreference)
+            mFullVolumeCheckBox = (TwoStatePreference)
+                    findPreference(KEY_USE_FULL_VOLUME);
+            mEtwsTestCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_ETWS_TEST_ALERTS);
-            mChannel50CheckBox = (CheckBoxPreference)
-                    findPreference(KEY_ENABLE_CHANNEL_50_ALERTS);
-            mCmasTestCheckBox = (CheckBoxPreference)
+            mAreaUpdateInfoCheckBox = (TwoStatePreference)
+                    findPreference(KEY_ENABLE_AREA_UPDATE_INFO_ALERTS);
+            mCmasTestCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_CMAS_TEST_ALERTS);
-            mAlertCategory = (PreferenceCategory)
-                    findPreference(KEY_CATEGORY_ALERT_SETTINGS);
-            mETWSSettingCategory = (PreferenceCategory)
-                    findPreference(KEY_CATEGORY_ETWS_SETTINGS);
+            mAlertHistory = findPreference(KEY_EMERGENCY_ALERT_HISTORY);
+            mAlertPreferencesCategory = (PreferenceCategory)
+                    findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
+            mDevSettingCategory = (PreferenceCategory)
+                    findPreference(KEY_CATEGORY_DEV_SETTINGS);
+
+            if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                mAlertReminder = (TwoStatePreference)
+                        findPreference(KEY_WATCH_ALERT_REMINDER);
+                if (Integer.valueOf(mReminderInterval.getValue()) == 0) {
+                    mAlertReminder.setChecked(false);
+                } else {
+                    mAlertReminder.setChecked(true);
+                }
+                mAlertReminder.setOnPreferenceChangeListener((p, newVal) -> {
+                    try {
+                        mReminderInterval.setValueIndex((Boolean) newVal ? 1 : 3);
+                    } catch (IndexOutOfBoundsException e) {
+                        mReminderInterval.setValue(String.valueOf(0));
+                        Log.w(TAG, "Setting default value");
+                    }
+                    return true;
+                });
+                PreferenceScreen watchScreen = (PreferenceScreen)
+                        findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
+                watchScreen.removePreference(mReminderInterval);
+            } else {
+                mAlertCategory = (PreferenceCategory)
+                        findPreference(KEY_CATEGORY_EMERGENCY_ALERTS);
+            }
+
 
             mDisableSevereWhenExtremeDisabled = isFeatureEnabled(getContext(),
                     CarrierConfigManager.KEY_DISABLE_SEVERE_WHEN_EXTREME_DISABLED_BOOL, true);
@@ -171,7 +220,7 @@ public class CellBroadcastSettings extends PreferenceActivity {
 
                             if (mDisableSevereWhenExtremeDisabled) {
                                 if (pref.getKey().equals(KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS)) {
-                                    boolean isExtremeAlertChecked = (Boolean)newValue;
+                                    boolean isExtremeAlertChecked = (Boolean) newValue;
                                     if (mSevereCheckBox != null) {
                                         mSevereCheckBox.setEnabled(isExtremeAlertChecked);
                                         mSevereCheckBox.setChecked(false);
@@ -179,6 +228,13 @@ public class CellBroadcastSettings extends PreferenceActivity {
                                 }
                             }
 
+                            if (pref.getKey().equals(KEY_ENABLE_EMERGENCY_ALERTS)) {
+                                boolean isEnableAlerts = (Boolean) newValue;
+                                setAlertsEnabled(isEnableAlerts);
+                            }
+
+                            // Notify backup manager a backup pass is needed.
+                            new BackupManager(getContext()).dataChanged();
                             return true;
                         }
                     };
@@ -188,7 +244,6 @@ public class CellBroadcastSettings extends PreferenceActivity {
                     Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0;
 
             Resources res = getResources();
-            boolean showEtwsSettings = res.getBoolean(R.bool.show_etws_settings);
 
             initReminderIntervalList();
 
@@ -198,71 +253,63 @@ public class CellBroadcastSettings extends PreferenceActivity {
             boolean emergencyAlertOnOffOptionEnabled = isFeatureEnabled(getContext(),
                     CarrierConfigManager.KEY_ALWAYS_SHOW_EMERGENCY_ALERT_ONOFF_BOOL, false);
 
-            if (enableDevSettings || showEtwsSettings || emergencyAlertOnOffOptionEnabled) {
+            if (enableDevSettings || emergencyAlertOnOffOptionEnabled) {
                 // enable/disable all alerts except CMAS presidential alerts.
                 if (mEmergencyCheckBox != null) {
                     mEmergencyCheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
                 }
+                // If allow alerts are disabled, we turn all sub-alerts off. If it's enabled, we
+                // leave them as they are.
+                if (!mEmergencyCheckBox.isChecked()) {
+                    setAlertsEnabled(false);
+                }
             } else {
-                mAlertCategory.removePreference(mEmergencyCheckBox);
+                preferenceScreen.removePreference(mEmergencyCheckBox);
             }
 
             // Show alert settings and ETWS categories for ETWS builds and developer mode.
-            if (enableDevSettings || showEtwsSettings) {
-
+            if (enableDevSettings) {
                 if (forceDisableEtwsCmasTest) {
-                    // Remove ETWS test preference.
-                    preferenceScreen.removePreference(mETWSSettingCategory);
-
-                    PreferenceCategory devSettingCategory =
-                            (PreferenceCategory) findPreference(KEY_CATEGORY_DEV_SETTINGS);
-
-                    // Remove CMAS test preference.
-                    if (devSettingCategory != null) {
-                        devSettingCategory.removePreference(mCmasTestCheckBox);
+                    if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                        // Remove CMAS and ETWS test preferences
+                        preferenceScreen.removePreference(mCmasTestCheckBox);
+                        preferenceScreen.removePreference(mEtwsTestCheckBox);
+                    } else {
+                        if (mDevSettingCategory != null) {
+                            // Remove ETWS test preference.
+                            mDevSettingCategory.removePreference(mEtwsTestCheckBox);
+                            // Remove CMAS test preference.
+                            mDevSettingCategory.removePreference(mCmasTestCheckBox);
+                        }
                     }
                 }
             } else {
-                mAlertCategory.removePreference(mSpeechCheckBox);
-                // Remove ETWS test preference category.
-                preferenceScreen.removePreference(mETWSSettingCategory);
+                if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                    preferenceScreen.removePreference(mCmasTestCheckBox);
+                    preferenceScreen.removePreference(mEtwsTestCheckBox);
+                } else {
+                    preferenceScreen.removePreference(mDevSettingCategory);
+                }
             }
 
             if (!res.getBoolean(R.bool.show_cmas_settings)) {
                 // Remove CMAS preference items in emergency alert category.
-                mAlertCategory.removePreference(mExtremeCheckBox);
-                mAlertCategory.removePreference(mSevereCheckBox);
-                mAlertCategory.removePreference(mAmberCheckBox);
-            }
-
-            TelephonyManager tm = (TelephonyManager) getContext().getSystemService(
-                    Context.TELEPHONY_SERVICE);
-
-            // We display channel 50 enable/disable menu if one of the followings is true
-            // 1. The setting through resource overlay is set to true.
-            // 2. At least one SIM inserted is Brazilian SIM.
-
-            boolean enableChannel50Support = res.getBoolean(R.bool.show_brazil_settings);
-
-            if (!enableChannel50Support) {
-                SubscriptionManager sm = SubscriptionManager.from(getContext());
-                for (int subId : sm.getActiveSubscriptionIdList()) {
-                    if (COUNTRY_BRAZIL.equals(tm.getSimCountryIso(subId))) {
-                        enableChannel50Support = true;
-                        break;
-                    }
+                if (mAlertCategory != null) {
+                    mAlertCategory.removePreference(mExtremeCheckBox);
+                    mAlertCategory.removePreference(mSevereCheckBox);
+                    mAlertCategory.removePreference(mAmberCheckBox);
                 }
             }
 
-            if (!enableChannel50Support) {
-                preferenceScreen.removePreference(findPreference(KEY_CATEGORY_BRAZIL_SETTINGS));
-            }
-            if (!enableDevSettings) {
-                preferenceScreen.removePreference(findPreference(KEY_CATEGORY_DEV_SETTINGS));
+            if (!Resources.getSystem().getBoolean(
+                    com.android.internal.R.bool.config_showAreaUpdateInfoSettings)) {
+                if (mAlertCategory != null) {
+                    mAlertCategory.removePreference(mAreaUpdateInfoCheckBox);
+                }
             }
 
-            if (mChannel50CheckBox != null) {
-                mChannel50CheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
+            if (mAreaUpdateInfoCheckBox != null) {
+                mAreaUpdateInfoCheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
             }
             if (mEtwsTestCheckBox != null) {
                 mEtwsTestCheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
@@ -284,6 +331,19 @@ public class CellBroadcastSettings extends PreferenceActivity {
             }
             if (mCmasTestCheckBox != null) {
                 mCmasTestCheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
+            }
+
+            if (mAlertHistory != null) {
+                mAlertHistory.setOnPreferenceClickListener(
+                        new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(final Preference preference) {
+                                final Intent intent = new Intent(getContext(),
+                                        CellBroadcastListActivity.class);
+                                startActivity(intent);
+                                return true;
+                            }
+                        });
             }
         }
 
@@ -319,6 +379,32 @@ public class CellBroadcastSettings extends PreferenceActivity {
                             return true;
                         }
                     });
+        }
+
+
+        private void setAlertsEnabled(boolean alertsEnabled) {
+            if (mSevereCheckBox != null) {
+                mSevereCheckBox.setEnabled(alertsEnabled);
+                mSevereCheckBox.setChecked(alertsEnabled);
+            }
+            if (mExtremeCheckBox != null) {
+                mExtremeCheckBox.setEnabled(alertsEnabled);
+                mExtremeCheckBox.setChecked(alertsEnabled);
+            }
+            if (mAmberCheckBox != null) {
+                mAmberCheckBox.setEnabled(alertsEnabled);
+                mAmberCheckBox.setChecked(alertsEnabled);
+            }
+            if (mAreaUpdateInfoCheckBox != null) {
+                mAreaUpdateInfoCheckBox.setEnabled(alertsEnabled);
+                mAreaUpdateInfoCheckBox.setChecked(alertsEnabled);
+            }
+            if (mAlertPreferencesCategory != null) {
+                mAlertPreferencesCategory.setEnabled(alertsEnabled);
+            }
+            if (mDevSettingCategory != null) {
+                mDevSettingCategory.setEnabled(alertsEnabled);
+            }
         }
     }
 
