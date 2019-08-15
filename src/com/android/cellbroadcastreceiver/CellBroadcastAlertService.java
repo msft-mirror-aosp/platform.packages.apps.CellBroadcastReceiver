@@ -46,6 +46,7 @@ import android.telephony.SmsCbEtwsInfo;
 import android.telephony.SmsCbLocation;
 import android.telephony.SmsCbMessage;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -246,6 +247,19 @@ public class CellBroadcastAlertService extends Service {
      * @return True if the message should be displayed to the user
      */
     private boolean shouldDisplayMessage(CellBroadcastMessage cbm) {
+        TelephonyManager tm =
+                ((TelephonyManager)
+                                getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE))
+                        .createForSubscriptionId(cbm.getSubId());
+        if (tm.getEmergencyCallbackMode()
+                && CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(
+                                getApplicationContext())
+                        .getBoolean(R.bool.ignore_messages_in_ecbm)) {
+            // Ignore the message in ECBM.
+            // It is for LTE only mode. For 1xRTT, incoming pages should be ignored in the modem.
+            Log.d(TAG, "ignoring alert of type " + cbm.getServiceCategory() + " in ECBM");
+            return false;
+        }
         // Check if the channel is enabled by the user or configuration.
         if (!isChannelEnabled(cbm)) {
             Log.d(TAG, "ignoring alert of type " + cbm.getServiceCategory()
@@ -450,9 +464,9 @@ public class CellBroadcastAlertService extends Service {
         // Check if the messages are on additional channels enabled by the resource config.
         // If those channels are enabled by the carrier, but the device is actually roaming, we
         // should not allow the messages.
-        ArrayList<CellBroadcastChannelRange> ranges = CellBroadcastChannelManager
-                .getInstance().getCellBroadcastChannelRanges(getApplicationContext(),
-                R.array.additional_cbs_channels_strings);
+        ArrayList<CellBroadcastChannelRange> ranges =
+                CellBroadcastChannelManager.getCellBroadcastChannelRanges(
+                        getApplicationContext(), R.array.additional_cbs_channels_strings);
 
         if (ranges != null) {
             for (CellBroadcastChannelRange range : ranges) {
