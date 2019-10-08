@@ -15,14 +15,14 @@
 -->
 <configuration description="Run CellBroadcastReceiver Unit Test Cases.">
     <target_preparer class="com.android.tradefed.targetprep.TestAppInstallSetup">
-        <option name="test-file-name" value="CellBroadcastReceiverUnitTests.apk" />
+        <option name="test-file-name" value="CellBroadcastReceiverPlatformUnitTests.apk" />
     </target_preparer>
 
     <option name="test-suite-tag" value="apct" />
     <option name="test-tag" value="CellBroadcastReceiverUnitTests" />
     <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
         <option name="package" value="com.android.cellbroadcastreceiver.tests.unit" />
-        <option name="runner" value="android.support.test.runner.AndroidJUnitRunner" />
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
         <option name="hidden-api-checks" value="false"/>
     </test>
 </configuration>
