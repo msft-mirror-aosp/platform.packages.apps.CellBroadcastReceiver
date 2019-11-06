@@ -16,6 +16,7 @@
 
 package com.android.cellbroadcastreceiver;
 
+import android.annotation.NonNull;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -40,8 +41,6 @@ import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
-
-import com.android.settingslib.development.DevelopmentSettingsEnabler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,6 +80,11 @@ public class CellBroadcastSettings extends Activity {
 
     // Preference category for alert preferences.
     public static final String KEY_CATEGORY_ALERT_PREFERENCES = "category_alert_preferences";
+
+    // Show checkbox for Presidential alerts in settings
+    // Whether to display CMAS presidential alert notifications (always enabled).
+    public static final String KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS =
+            "enable_cmas_presidential_alerts";
 
     // Whether to display CMAS extreme threat notifications (default is enabled).
     public static final String KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS =
@@ -184,6 +188,9 @@ public class CellBroadcastSettings extends Activity {
         // WATCH
         private TwoStatePreference mAlertReminder;
 
+        // Show checkbox for Presidential alerts in settings
+        private TwoStatePreference mPresidentialCheckBox;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 
@@ -224,6 +231,10 @@ public class CellBroadcastSettings extends Activity {
             mAlertHistory = findPreference(KEY_EMERGENCY_ALERT_HISTORY);
             mDevSettingCategory = (PreferenceCategory)
                     findPreference(KEY_CATEGORY_DEV_SETTINGS);
+
+            // Show checkbox for Presidential alerts in settings
+            mPresidentialCheckBox = (TwoStatePreference)
+                    findPreference(KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS);
 
             if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
                 mAlertReminder = (TwoStatePreference)
@@ -286,9 +297,10 @@ public class CellBroadcastSettings extends Activity {
 
             // Show extra settings when developer options is enabled in settings.
             boolean enableDevSettings =
-                    DevelopmentSettingsEnabler.isDevelopmentSettingsEnabled(getContext());
+                    DevelopmentSettingsHelper.isDevelopmentSettingsEnabled(getContext());
 
-            Resources res = getResourcesForDefaultSmsSubscriptionId(getContext());
+            Resources res = CellBroadcastSettings.getResources(getContext(),
+                    SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
             initReminderIntervalList();
 
             boolean emergencyAlertOnOffOptionEnabled = isFeatureEnabled(getContext(),
@@ -311,8 +323,20 @@ public class CellBroadcastSettings extends Activity {
             boolean hideTestAlertMenu = CellBroadcastSettings.isFeatureEnabled(getContext(),
                     CarrierConfigManager.KEY_CARRIER_FORCE_DISABLE_ETWS_CMAS_TEST_BOOL, false);
 
+            CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
+                    getContext(), SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+
+            boolean isTestAlertsAvailable = !channelManager.getCellBroadcastChannelRanges(
+                    R.array.required_monthly_test_range_strings).isEmpty()
+                    || !channelManager.getCellBroadcastChannelRanges(
+                            R.array.exercise_alert_range_strings).isEmpty()
+                    || !channelManager.getCellBroadcastChannelRanges(
+                            R.array.operator_defined_alert_range_strings).isEmpty()
+                    || !channelManager.getCellBroadcastChannelRanges(
+                            R.array.etws_test_alerts_range_strings).isEmpty();
+
             // Check if we want to hide the test alert toggle.
-            if (hideTestAlertMenu || !enableDevSettings || !isTestAlertsAvailable()) {
+            if (hideTestAlertMenu || !enableDevSettings || !isTestAlertsAvailable) {
                 if (mTestCheckBox != null) {
                     mAlertCategory.removePreference(mTestCheckBox);
                 }
@@ -344,9 +368,20 @@ public class CellBroadcastSettings extends Activity {
             }
 
             // Remove preferences based on range configurations
-            if (CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(),
-                    R.array.public_safety_messages_channels_range_strings).isEmpty()) {
+            if (channelManager.getCellBroadcastChannelRanges(
+                    R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
+                // Remove ambert alert
+                if (mAlertCategory != null) {
+                    if (mAmberCheckBox != null) {
+                        mAlertCategory.removePreference(mAmberCheckBox);
+                    }
+                }
+            }
+
+            // Remove preferences based on range configurations
+            if (channelManager.getCellBroadcastChannelRanges(
+                    R.array.public_safety_messages_channels_range_strings).isEmpty() ||
+                    !res.getBoolean(R.bool.show_public_safety_settings)) {
                 // Remove public safety messages
                 if (mAlertCategory != null) {
                     if (mPublicSafetyMessagesChannelCheckBox != null) {
@@ -355,8 +390,8 @@ public class CellBroadcastSettings extends Activity {
                 }
             }
 
-            if (CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(), R.array.emergency_alerts_channels_range_strings).isEmpty()) {
+            if (channelManager.getCellBroadcastChannelRanges(
+                    R.array.emergency_alerts_channels_range_strings).isEmpty()) {
                 // Remove emergency alert messages
                 if (mAlertCategory != null) {
                     if (mEmergencyAlertsCheckBox != null) {
@@ -365,8 +400,7 @@ public class CellBroadcastSettings extends Activity {
                 }
             }
 
-            if (CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(),
+            if (channelManager.getCellBroadcastChannelRanges(
                     R.array.state_local_test_alert_range_strings).isEmpty()) {
                 // Remove state local test messages
                 if (mAlertCategory != null) {
@@ -433,22 +467,18 @@ public class CellBroadcastSettings extends Activity {
                             }
                         });
             }
-        }
 
-        private boolean isTestAlertsAvailable() {
-            return !CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(), R.array.required_monthly_test_range_strings).isEmpty()
-                    || !CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(), R.array.exercise_alert_range_strings).isEmpty()
-                    || !CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(), R.array.operator_defined_alert_range_strings)
-                    .isEmpty()
-                    || !CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                    this.getContext(), R.array.etws_test_alerts_range_strings).isEmpty();
+            // Show checkbox for Presidential alerts in settings
+            if (!res.getBoolean(R.bool.show_presidential_alerts_in_settings)) {
+                if (mAlertCategory != null) {
+                    mAlertCategory.removePreference(mPresidentialCheckBox);
+                }
+            }
         }
 
         private void initReminderIntervalList() {
-            Resources res = getResourcesForDefaultSmsSubscriptionId(getContext());
+            Resources res = CellBroadcastSettings.getResources(
+                    getContext(), SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
 
             String[] activeValues =
                     res.getStringArray(R.array.alert_reminder_interval_active_values);
@@ -521,20 +551,11 @@ public class CellBroadcastSettings extends Activity {
     }
 
     public static boolean isFeatureEnabled(Context context, String feature, boolean defaultValue) {
-        int subId = SubscriptionManager.getDefaultSmsSubscriptionId();
-        if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-            subId = SubscriptionManager.getDefaultSubscriptionId();
-            if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                return defaultValue;
-            }
-        }
-
         CarrierConfigManager configManager =
                 (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
 
         if (configManager != null) {
-            PersistableBundle carrierConfig = configManager.getConfigForSubId(subId);
-
+            PersistableBundle carrierConfig = configManager.getConfig();
             if (carrierConfig != null) {
                 return carrierConfig.getBoolean(feature, defaultValue);
             }
@@ -543,13 +564,18 @@ public class CellBroadcastSettings extends Activity {
         return defaultValue;
     }
 
-    public static Resources getResourcesForDefaultSmsSubscriptionId(Context context) {
-        int subId = SubscriptionManager.getDefaultSmsSubscriptionId();
-        if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-            subId = SubscriptionManager.getDefaultSubscriptionId();
-            if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                return context.getResources();
-            }
+    /**
+     * Get the device resource based on SIM
+     *
+     * @param context Context
+     * @param subId Subscription index
+     *
+     * @return The resource
+     */
+    public static @NonNull Resources getResources(@NonNull Context context, int subId) {
+        if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
+                || !SubscriptionManager.isValidSubscriptionId(subId)) {
+            return context.getResources();
         }
 
         if (sResourcesCache.containsKey(subId)) {
