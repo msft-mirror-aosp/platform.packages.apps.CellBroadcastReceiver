@@ -22,18 +22,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Bundle;
 import android.os.UserManager;
 import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.provider.Telephony.CellBroadcasts;
 import android.telephony.CarrierConfigManager;
-import android.telephony.ServiceState;
 import android.telephony.SubscriptionManager;
 import android.telephony.cdma.CdmaSmsCbProgramData;
 import android.util.Log;
-
-import com.android.internal.telephony.cdma.sms.SmsEnvelope;
 
 import java.util.ArrayList;
 
@@ -79,7 +75,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         } else if (CELLBROADCAST_START_CONFIG_ACTION.equals(action)
                 || SubscriptionManager.ACTION_DEFAULT_SMS_SUBSCRIPTION_CHANGED.equals(action)) {
             startConfigService(context.getApplicationContext());
-        } else if (Telephony.Sms.Intents.SMS_EMERGENCY_CB_RECEIVED_ACTION.equals(action) ||
+        } else if (Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED.equals(action) ||
                 Telephony.Sms.Intents.SMS_CB_RECEIVED_ACTION.equals(action)) {
             // If 'privileged' is false, it means that the intent was delivered to the base
             // no-permissions receiver class.  If we get an SMS_CB_RECEIVED message that way, it
@@ -107,16 +103,6 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         } else if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             // rename registered notification channels on locale change
             CellBroadcastAlertService.createNotificationChannels(context);
-        } else if (Intent.ACTION_SERVICE_STATE.equals(action)) {
-            if (CellBroadcastSettings.getResources(context,
-                    SubscriptionManager.DEFAULT_SUBSCRIPTION_ID).getBoolean(
-                            R.bool.reset_duplicate_detection_on_airplane_mode)) {
-                Bundle extras = intent.getExtras();
-                ServiceState ss = extras.getParcelable(Intent.EXTRA_SERVICE_STATE);
-                if (ss.getState() == ServiceState.STATE_POWER_OFF) {
-                    CellBroadcastAlertService.resetMessageDuplicateDetection();
-                }
-            }
         } else {
             Log.w(TAG, "onReceive() unexpected action " + action);
         }
@@ -195,13 +181,13 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
                 case CdmaSmsCbProgramData.OPERATION_CLEAR_CATEGORIES:
                     tryCdmaSetCategory(context,
-                            SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT, false);
+                            CdmaSmsCbProgramData.CATEGORY_CMAS_EXTREME_THREAT, false);
                     tryCdmaSetCategory(context,
-                            SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT, false);
+                            CdmaSmsCbProgramData.CATEGORY_CMAS_SEVERE_THREAT, false);
                     tryCdmaSetCategory(context,
-                            SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY, false);
+                            CdmaSmsCbProgramData.CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY, false);
                     tryCdmaSetCategory(context,
-                            SmsEnvelope.SERVICE_CATEGORY_CMAS_TEST_MESSAGE, false);
+                            CdmaSmsCbProgramData.CATEGORY_CMAS_TEST_MESSAGE, false);
                     break;
 
                 default:
@@ -214,24 +200,24 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         switch (category) {
-            case SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT:
+            case CdmaSmsCbProgramData.CATEGORY_CMAS_EXTREME_THREAT:
                 sharedPrefs.edit().putBoolean(
                         CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS, enable)
                         .apply();
                 break;
 
-            case SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT:
+            case CdmaSmsCbProgramData.CATEGORY_CMAS_SEVERE_THREAT:
                 sharedPrefs.edit().putBoolean(
                         CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS, enable)
                         .apply();
                 break;
 
-            case SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY:
+            case CdmaSmsCbProgramData.CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY:
                 sharedPrefs.edit().putBoolean(
                         CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS, enable).apply();
                 break;
 
-            case SmsEnvelope.SERVICE_CATEGORY_CMAS_TEST_MESSAGE:
+            case CdmaSmsCbProgramData.CATEGORY_CMAS_TEST_MESSAGE:
                 sharedPrefs.edit().putBoolean(
                         CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, enable).apply();
                 break;
