@@ -50,7 +50,8 @@ import java.util.List;
 public class CellBroadcastConfigService extends IntentService {
     private static final String TAG = "CellBroadcastConfigService";
 
-    static final String ACTION_ENABLE_CHANNELS = "ACTION_ENABLE_CHANNELS";
+    @VisibleForTesting
+    public static final String ACTION_ENABLE_CHANNELS = "ACTION_ENABLE_CHANNELS";
 
     public CellBroadcastConfigService() {
         super(TAG);          // use class name for worker thread name
@@ -128,6 +129,7 @@ public class CellBroadcastConfigService extends IntentService {
                 CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS, true);
 
         boolean enableTestAlerts = enableAlertsMasterToggle
+                && CellBroadcastSettings.isTestAlertsToggleVisible(getApplicationContext())
                 && prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, false);
 
         boolean enableAreaUpdateInfoAlerts = Resources.getSystem().getBoolean(
@@ -229,7 +231,7 @@ public class CellBroadcastConfigService extends IntentService {
                 channelManager.getCellBroadcastChannelRanges(
                         R.array.geo_fencing_trigger_messages_range_strings));
 
-        /** Enable non-CMAS series messages. */
+        // Enable non-CMAS series messages.
         setCellBroadcastRange(subId, enableEmergencyAlerts,
                 channelManager.getCellBroadcastChannelRanges(
                         R.array.emergency_alerts_channels_range_strings));
@@ -272,9 +274,9 @@ public class CellBroadcastConfigService extends IntentService {
         if (ranges != null) {
             for (CellBroadcastChannelRange range: ranges) {
                 if (enable) {
-                    manager.enableCellBroadcastRange(range.mStartId, range.mEndId, range.mRat);
+                    manager.enableCellBroadcastRange(range.mStartId, range.mEndId, range.mRanType);
                 } else {
-                    manager.disableCellBroadcastRange(range.mStartId, range.mEndId, range.mRat);
+                    manager.disableCellBroadcastRange(range.mStartId, range.mEndId, range.mRanType);
                 }
             }
         }

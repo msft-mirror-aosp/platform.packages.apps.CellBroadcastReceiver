@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package com.android.cellbroadcastreceiver;
+package com.android.cellbroadcastreceiver.unit;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -26,7 +26,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IPowerManager;
 import android.os.PowerManager;
+import android.telephony.SmsCbMessage;
 import android.widget.TextView;
+
+import com.android.cellbroadcastreceiver.CellBroadcastAlertDialog;
+import com.android.cellbroadcastreceiver.CellBroadcastAlertService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,13 +64,12 @@ public class CellBroadcastAlertDialogTest extends
 
     @Override
     protected Intent createActivityIntent() {
-        ArrayList<CellBroadcastMessage> messageList = new ArrayList<>(1);
-        messageList.add(new CellBroadcastMessage(
-                CellBroadcastAlertServiceTest.createMessage(12412)));
+        ArrayList<SmsCbMessage> messageList = new ArrayList<>(1);
+        messageList.add(CellBroadcastAlertServiceTest.createMessage(12412));
 
         Intent intent = new Intent(getInstrumentation().getTargetContext(),
                         CellBroadcastAlertDialog.class);
-        intent.putParcelableArrayListExtra(CellBroadcastMessage.SMS_CB_MESSAGE_EXTRA,
+        intent.putParcelableArrayListExtra(CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA,
                         messageList);
         return intent;
     }
@@ -93,13 +96,16 @@ public class CellBroadcastAlertDialogTest extends
         waitForMs(100);
 
         CharSequence etremeAlertString =
-                getActivity().getResources().getText(R.string.cmas_presidential_level_alert);
+                getActivity().getResources().getText(com.android.cellbroadcastreceiver.R.string
+                        .cmas_presidential_level_alert);
         assertEquals(etremeAlertString, getActivity().getTitle());
         assertEquals(etremeAlertString,
-                ((TextView) getActivity().findViewById(R.id.alertTitle)).getText());
+                ((TextView) getActivity().findViewById(
+                        com.android.cellbroadcastreceiver.R.id.alertTitle)).getText());
 
         assertEquals(CellBroadcastAlertServiceTest.createMessage(34596).getMessageBody(),
-                (String) ((TextView) getActivity().findViewById(R.id.message)).getText());
+                (String) ((TextView) getActivity().findViewById(
+                        com.android.cellbroadcastreceiver.R.id.message)).getText());
 
         stopActivity();
     }

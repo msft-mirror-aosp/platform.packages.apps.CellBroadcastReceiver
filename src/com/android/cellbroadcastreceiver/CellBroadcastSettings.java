@@ -19,7 +19,6 @@ package com.android.cellbroadcastreceiver;
 import android.annotation.NonNull;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.Intent;
@@ -65,9 +64,6 @@ public class CellBroadcastSettings extends Activity {
 
     // Enable vibration on alert (unless master volume is silent).
     public static final String KEY_ENABLE_ALERT_VIBRATE = "enable_alert_vibrate";
-
-    // Speak contents of alert after playing the alert sound.
-    public static final String KEY_ENABLE_ALERT_SPEECH = "enable_alert_speech";
 
     // Always play at full volume when playing the alert sound.
     public static final String KEY_USE_FULL_VOLUME = "use_full_volume";
@@ -127,6 +123,12 @@ public class CellBroadcastSettings extends Activity {
     // Resource cache
     private static final Map<Integer, Resources> sResourcesCache = new HashMap<>();
 
+    // Whether to receive alert in second language code
+    public static final String KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE =
+            "receive_cmas_in_second_language";
+
+    private boolean mCellBroadcastAllowed = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,13 +142,19 @@ public class CellBroadcastSettings extends Activity {
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
         if (userManager.hasUserRestriction(UserManager.DISALLOW_CONFIG_CELL_BROADCASTS)) {
             setContentView(R.layout.cell_broadcast_disallowed_preference_screen);
+            mCellBroadcastAllowed = false;
             return;
         }
+    }
 
-        // We only add new CellBroadcastSettingsFragment if no fragment is restored.
-        Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
-        if (fragment == null) {
-            getFragmentManager().beginTransaction().add(android.R.id.content,
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mCellBroadcastAllowed) {
+            // Always create a new fragment and replace it. We would like to dynamically change the
+            // menu, for example, after toggling testing mode via dialing *#*#CMAS#*#*.
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
                     new CellBroadcastSettingsFragment()).commit();
         }
     }
@@ -174,7 +182,6 @@ public class CellBroadcastSettings extends Activity {
         private TwoStatePreference mPublicSafetyMessagesChannelCheckBox;
         private TwoStatePreference mEmergencyAlertsCheckBox;
         private ListPreference mReminderInterval;
-        private TwoStatePreference mSpeechCheckBox;
         private TwoStatePreference mFullVolumeCheckBox;
         private TwoStatePreference mAreaUpdateInfoCheckBox;
         private TwoStatePreference mTestCheckBox;
@@ -190,6 +197,9 @@ public class CellBroadcastSettings extends Activity {
 
         // Show checkbox for Presidential alerts in settings
         private TwoStatePreference mPresidentialCheckBox;
+
+        // on/off switch in settings for receiving alert in second language code
+        private TwoStatePreference mReceiveCmasInSecondLanguageCheckBox;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -218,8 +228,6 @@ public class CellBroadcastSettings extends Activity {
                     findPreference(KEY_ENABLE_EMERGENCY_ALERTS);
             mReminderInterval = (ListPreference)
                     findPreference(KEY_ALERT_REMINDER_INTERVAL);
-            mSpeechCheckBox = (TwoStatePreference)
-                    findPreference(KEY_ENABLE_ALERT_SPEECH);
             mFullVolumeCheckBox = (TwoStatePreference)
                     findPreference(KEY_USE_FULL_VOLUME);
             mAreaUpdateInfoCheckBox = (TwoStatePreference)
@@ -231,6 +239,8 @@ public class CellBroadcastSettings extends Activity {
             mAlertHistory = findPreference(KEY_EMERGENCY_ALERT_HISTORY);
             mDevSettingCategory = (PreferenceCategory)
                     findPreference(KEY_CATEGORY_DEV_SETTINGS);
+            mReceiveCmasInSecondLanguageCheckBox = (TwoStatePreference) findPreference
+                    (KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE);
 
             // Show checkbox for Presidential alerts in settings
             mPresidentialCheckBox = (TwoStatePreference)
@@ -346,6 +356,15 @@ public class CellBroadcastSettings extends Activity {
                 }
             }
 
+            // Remove preferences
+            if (res.getBoolean(R.bool.always_use_full_volume)) {
+                // Remove full volume preference items in emergency alert category.
+                if (mAlertCategory != null) {
+                    if (mExtremeCheckBox != null) mAlertCategory.removePreference(
+                            mFullVolumeCheckBox);
+                }
+            }
+
             if (!Resources.getSystem().getBoolean(
                     com.android.internal.R.bool.config_showAreaUpdateInfoSettings)) {
                 if (mAlertCategory != null) {
@@ -434,7 +453,7 @@ public class CellBroadcastSettings extends Activity {
                     && !sp.getBoolean(KEY_USE_FULL_VOLUME_SETTINGS_CHANGED, false)) {
                 // If the user hasn't changed this settings yet, use the default settings from
                 // resource overlay.
-                mFullVolumeCheckBox.setChecked(res.getBoolean(R.bool.use_full_volume));
+                mFullVolumeCheckBox.setChecked(res.getBoolean(R.bool.use_full_volume_default));
                 mFullVolumeCheckBox.setOnPreferenceChangeListener(
                         (pref, newValue) -> {
                             sp.edit().putBoolean(KEY_USE_FULL_VOLUME_SETTINGS_CHANGED,
@@ -454,6 +473,14 @@ public class CellBroadcastSettings extends Activity {
                                 return true;
                             }
                         });
+            }
+
+            // Do not show additional language settings is no additional language code specified,
+            if (res.getString(R.string.emergency_alert_second_language_code).isEmpty()) {
+                if (mAlertPreferencesCategory != null) {
+                    mAlertPreferencesCategory.removePreference(
+                            mReceiveCmasInSecondLanguageCheckBox);
+                }
             }
 
             // Show checkbox for Presidential alerts in settings
@@ -535,6 +562,10 @@ public class CellBroadcastSettings extends Activity {
                 mStateLocalTestCheckBox.setEnabled(alertsEnabled);
                 mStateLocalTestCheckBox.setChecked(alertsEnabled);
             }
+            if (mTestCheckBox != null) {
+                mTestCheckBox.setEnabled(alertsEnabled);
+                mTestCheckBox.setChecked(alertsEnabled);
+            }
         }
     }
 
@@ -552,7 +583,8 @@ public class CellBroadcastSettings extends Activity {
                 || !channelManager.getCellBroadcastChannelRanges(
                 R.array.etws_test_alerts_range_strings).isEmpty();
 
-        return res.getBoolean(R.bool.show_test_settings) && isTestAlertsAvailable;
+        return (res.getBoolean(R.bool.show_test_settings) || CellBroadcastReceiver.isTestingMode())
+                && isTestAlertsAvailable;
     }
 
     public static boolean isFeatureEnabled(Context context, String feature, boolean defaultValue) {
