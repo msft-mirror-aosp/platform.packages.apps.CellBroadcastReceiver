@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.cellbroadcastreceiver;
+package com.android.cellbroadcastreceiver.unit;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
@@ -28,11 +28,14 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
-import android.telephony.SmsManager;
+import android.telephony.SmsCbMessage;
 import android.telephony.SubscriptionManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.cellbroadcastreceiver.CellBroadcastChannelManager.CellBroadcastChannelRange;
+import com.android.cellbroadcastreceiver.CellBroadcastConfigService;
+import com.android.cellbroadcastreceiver.CellBroadcastSettings;
+import com.android.cellbroadcastreceiver.unit.CellBroadcastTest;
 import com.android.internal.telephony.ISms;
 import com.android.internal.telephony.cdma.sms.SmsEnvelope;
 import com.android.internal.telephony.gsm.SmsCbConstants;
@@ -78,42 +81,51 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
         mMockedServiceManager.replaceService("isms", mMockedSmsService);
         doReturn(mMockedSmsService).when(mMockedSmsService).queryLocalInterface(anyString());
 
-        putResources(R.array.cmas_presidential_alerts_channels_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .cmas_presidential_alerts_channels_range_strings, new String[]{
                 "0x1112-0x1112:rat=gsm",
                 "0x1000-0x1000:rat=cdma",
                 "0x111F-0x111F:rat=gsm",
         });
-        putResources(R.array.cmas_alert_extreme_channels_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .cmas_alert_extreme_channels_range_strings, new String[]{
                 "0x1113-0x1114:rat=gsm",
                 "0x1001-0x1001:rat=cdma",
                 "0x1120-0x1121:rat=gsm",
         });
-        putResources(R.array.cmas_alerts_severe_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .cmas_alerts_severe_range_strings, new String[]{
                 "0x1115-0x111A:rat=gsm",
                 "0x1002-0x1002:rat=cdma",
                 "0x1122-0x1127:rat=gsm",
         });
-        putResources(R.array.required_monthly_test_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .required_monthly_test_range_strings, new String[]{
                 "0x111C-0x111C:rat=gsm",
                 "0x1004-0x1004:rat=cdma",
                 "0x1129-0x1129:rat=gsm",
         });
-        putResources(R.array.exercise_alert_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .exercise_alert_range_strings, new String[]{
                 "0x111D-0x111D:rat=gsm",
                 "0x112A-0x112A:rat=gsm",
         });
-        putResources(R.array.operator_defined_alert_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .operator_defined_alert_range_strings, new String[]{
                 "0x111E-0x111E:rat=gsm",
                 "0x112B-0x112B:rat=gsm",
         });
-        putResources(R.array.etws_alerts_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .etws_alerts_range_strings, new String[]{
                 "0x1100-0x1102:rat=gsm",
                 "0x1104-0x1104:rat=gsm",
         });
-        putResources(R.array.etws_test_alerts_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .etws_test_alerts_range_strings, new String[]{
                 "0x1103-0x1103:rat=gsm",
         });
-        putResources(R.array.cmas_amber_alerts_channels_range_strings, new String[]{
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .cmas_amber_alerts_channels_range_strings, new String[]{
                 "0x111B-0x111B:rat=gsm",
                 "0x1003-0x1003:rat=cdma",
                 "0x1128-0x1128:rat=gsm",
@@ -160,7 +172,7 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
 
         assertEquals(10, captorStart.getValue().intValue());
         assertEquals(20, captorEnd.getValue().intValue());
-        assertEquals(0, captorType.getValue().intValue());
+        assertEquals(1, captorType.getValue().intValue());
     }
 
     /**
@@ -182,7 +194,7 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
 
         assertEquals(10, captorStart.getValue().intValue());
         assertEquals(20, captorEnd.getValue().intValue());
-        assertEquals(0, captorType.getValue().intValue());
+        assertEquals(1, captorType.getValue().intValue());
     }
 
     private void setPreference(String pref, boolean value) {
@@ -206,31 +218,31 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_TEST_MESSAGE),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_TEST_MESSAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
 
         // GSM
@@ -238,49 +250,49 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_WARNING),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_AND_TSUNAMI_WARNING),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_TEST_MESSAGE),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_TEST_MESSAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_REQUIRED_MONTHLY_TEST),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_REQUIRED_MONTHLY_TEST),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
     }
 
     /**
@@ -296,19 +308,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, false);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -317,19 +329,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, true);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -338,19 +350,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_PRESIDENTIAL_LEVEL_ALERT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(3)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(3)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
     }
 
@@ -368,19 +380,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS, false);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -389,19 +401,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS, true);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -410,19 +422,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_EXTREME_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
     }
 
@@ -440,19 +452,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS, false);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -461,19 +473,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS, true);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -482,19 +494,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_SEVERE_THREAT),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
     }
 
     /**
@@ -511,19 +523,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS, false);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -532,19 +544,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS, true);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -553,19 +565,19 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsEnvelope.SERVICE_CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_CDMA));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP2));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY_LANGUAGE),
                 eq(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY_LANGUAGE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
     }
 
     /**
@@ -581,13 +593,13 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_WARNING),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_AND_TSUNAMI_WARNING),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, false);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -596,13 +608,13 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_WARNING),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_AND_TSUNAMI_WARNING),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(1)).disableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         setPreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, true);
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
@@ -611,12 +623,12 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_WARNING),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_AND_TSUNAMI_WARNING),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
 
         verify(mMockedSmsService, times(2)).enableCellBroadcastRangeForSubscriber(
                 eq(0),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
                 eq(SmsCbConstants.MESSAGE_ID_ETWS_OTHER_EMERGENCY_TYPE),
-                eq(SmsManager.CELL_BROADCAST_RAN_TYPE_GSM));
+                eq(SmsCbMessage.MESSAGE_FORMAT_3GPP));
     }
 }

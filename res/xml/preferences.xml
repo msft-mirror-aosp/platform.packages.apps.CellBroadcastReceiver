@@ -65,17 +65,17 @@
                           android:summary="@string/enable_public_safety_messages_summary"
                           android:title="@string/enable_public_safety_messages_title" />
 
-        <!-- Enable required monthly test alerts -->
-        <SwitchPreference android:defaultValue="false"
-                          android:key="enable_test_alerts"
-                          android:summary="@string/enable_cmas_test_alerts_summary"
-                          android:title="@string/enable_cmas_test_alerts_title" />
-
         <!-- Enable state/local test alerts -->
         <SwitchPreference android:defaultValue="false"
                           android:key="enable_state_local_test_alerts"
                           android:summary="@string/enable_state_local_test_alerts_summary"
                           android:title="@string/enable_state_local_test_alerts_title" />
+
+        <!-- Enable other test alerts -->
+        <SwitchPreference android:defaultValue="false"
+                          android:key="enable_test_alerts"
+                          android:summary="@string/enable_cmas_test_alerts_summary"
+                          android:title="@string/enable_cmas_test_alerts_title" />
 
         <!-- Default value is true for Brazil and India. This preference is ignored and hidden
         unless the boolean "config_showAreaUpdateInfoSettings" is set to true in the global resource. -->
@@ -105,6 +105,12 @@
                         android:defaultValue="@string/alert_reminder_interval_default_value"
                         android:dialogTitle="@string/alert_reminder_interval_title" />
 
+        <!-- Show additional language on/off switch in settings -->
+        <SwitchPreference android:defaultValue="false"
+                          android:key="receive_cmas_in_second_language"
+                          android:summary="@string/receive_cmas_in_second_language_summary"
+                          android:title="@string/receive_cmas_in_second_language_title" />
+
     </PreferenceCategory>
 
     <!-- Only visible when Developer options toggle is enabled in Settings. -->
@@ -116,12 +122,7 @@
                             android:summary="@string/show_cmas_opt_out_summary"
                             android:title="@string/show_cmas_opt_out_title" />
 
-        <SwitchPreference android:defaultValue="true"
-                          android:key="enable_alert_speech"
-                          android:summary="@string/enable_alert_speech_summary"
-                          android:title="@string/enable_alert_speech_title" />
-
-        <SwitchPreference android:defaultValue="@bool/use_full_volume"
+        <SwitchPreference android:defaultValue="@bool/use_full_volume_default"
                           android:key="use_full_volume"
                           android:summary="@string/use_full_volume_summary"
                           android:title="@string/use_full_volume_title" />
