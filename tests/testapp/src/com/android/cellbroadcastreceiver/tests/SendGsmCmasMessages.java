@@ -56,7 +56,7 @@ public class SendGsmCmasMessages {
     private static final String STATE_LOCAL_ALERT = "This is a state/local test message.";
 
     private static void sendBroadcast(Activity activity, SmsCbMessage cbMessage) {
-        Intent intent = new Intent(Telephony.Sms.Intents.SMS_EMERGENCY_CB_RECEIVED_ACTION);
+        Intent intent = new Intent(Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED);
         intent.putExtra("message", cbMessage);
         intent.setPackage(CB_RECEIVER_PKG);
         activity.sendOrderedBroadcastAsUser(intent, UserHandle.ALL,
@@ -158,6 +158,25 @@ public class SendGsmCmasMessages {
         sendBroadcast(activity, cbMessage);
     }
 
+    public static void testSendCmasExerciseTest(
+            Activity activity, int serialNumber, boolean isAdditionalLang) {
+        SmsCbMessage cbMessage =
+                createCmasSmsMessage(
+                        isAdditionalLang
+                                ? SmsCbConstants
+                                .MESSAGE_ID_CMAS_ALERT_EXERCISE_LANGUAGE
+                                : SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXERCISE,
+                        serialNumber,
+                        "en",
+                        MONTHLY_TEST_ALERT,
+                        SmsCbCmasInfo.CMAS_SEVERITY_UNKNOWN,
+                        SmsCbCmasInfo.CMAS_URGENCY_UNKNOWN,
+                        SmsCbCmasInfo.CMAS_CERTAINTY_UNKNOWN,
+                        SmsCbMessage.MESSAGE_PRIORITY_EMERGENCY);
+
+        sendBroadcast(activity, cbMessage);
+    }
+
     public static void testSendPublicSafetyMessagesAlert(
             Activity activity, int serialNumber, boolean isAdditionalLang) {
         SmsCbMessage cbMessage =
@@ -218,7 +237,7 @@ public class SendGsmCmasMessages {
                         certainty);
         return new SmsCbMessage(SmsCbMessage.MESSAGE_FORMAT_3GPP, 0, serialNumber,
                 new SmsCbLocation("123456"), serviceCategory, language, body,
-                priority, null, cmasInfo);
+                priority, null, cmasInfo, 0, 1);
     }
 
     /**

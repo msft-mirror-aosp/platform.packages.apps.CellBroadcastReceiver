@@ -41,9 +41,8 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.provider.SearchIndexableResource;
 import android.provider.SearchIndexablesProvider;
+import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
-
-import com.android.settingslib.development.DevelopmentSettingsEnabler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,8 +89,8 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
     @Override
     public Cursor queryRawData(String[] projection) {
         MatrixCursor cursor = new MatrixCursor(INDEXABLES_RAW_COLUMNS);
-        final Resources res =
-                CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(getContext());
+        final Resources res = CellBroadcastSettings.getResources(getContext(),
+                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
 
         Object[] raw = new Object[INDEXABLES_RAW_COLUMNS.length];
         raw[COLUMN_INDEX_RAW_TITLE] = res.getString(R.string.sms_cb_settings);
@@ -100,14 +99,15 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
             keywordList.add(res.getString(keywordRes));
         }
 
-        if (!CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                this.getContext(),
+        CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(getContext(),
+                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+
+        if (!channelManager.getCellBroadcastChannelRanges(
                 R.array.public_safety_messages_channels_range_strings).isEmpty()) {
             keywordList.add(res.getString(R.string.public_safety_message));
         }
 
-        if (!CellBroadcastChannelManager.getCellBroadcastChannelRanges(
-                this.getContext(),
+        if (!channelManager.getCellBroadcastChannelRanges(
                 R.array.state_local_test_alert_range_strings).isEmpty()) {
             keywordList.add(res.getString(R.string.state_local_test_alert));
         }
@@ -128,31 +128,9 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
     public Cursor queryNonIndexableKeys(String[] projection) {
         MatrixCursor cursor = new MatrixCursor(NON_INDEXABLES_KEYS_COLUMNS);
 
-        // Show extra settings when developer options is enabled in settings.
-        boolean enableDevSettings =
-                DevelopmentSettingsEnabler.isDevelopmentSettingsEnabled(getContext());
-
-        Resources res = CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(getContext());
+        Resources res = CellBroadcastSettings.getResources(getContext(),
+                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
         Object[] ref;
-
-        ref = new Object[1];
-        ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                CellBroadcastSettings.KEY_CATEGORY_DEV_SETTINGS;
-        cursor.addRow(ref);
-
-        // Show alert settings and ETWS categories for ETWS builds and developer mode.
-        if (!enableDevSettings) {
-            // Remove general emergency alert preference items (not shown for CMAS builds).
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE;
-            cursor.addRow(ref);
-
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_ALERT_SPEECH;
-            cursor.addRow(ref);
-        }
 
         if (!res.getBoolean(R.bool.show_cmas_settings)) {
             // Remove CMAS preference items in emergency alert category.
@@ -172,18 +150,64 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
             cursor.addRow(ref);
         }
 
-        if (!Resources.getSystem().getBoolean(
-                com.android.internal.R.bool.config_showAreaUpdateInfoSettings)) {
+        if (!res.getBoolean(R.bool.config_showAreaUpdateInfoSettings)) {
             ref = new Object[1];
             ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
                     CellBroadcastSettings.KEY_ENABLE_AREA_UPDATE_INFO_ALERTS;
             cursor.addRow(ref);
         }
 
-        if (!enableDevSettings) {
+        if (!res.getBoolean(R.bool.show_presidential_alerts_in_settings)) {
             ref = new Object[1];
             ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_CATEGORY_DEV_SETTINGS;
+                    CellBroadcastSettings.KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS;
+            cursor.addRow(ref);
+        }
+
+        CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(getContext(),
+                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+        if (channelManager.getCellBroadcastChannelRanges(
+                R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS;
+            cursor.addRow(ref);
+        }
+
+        if (channelManager.getCellBroadcastChannelRanges(
+                R.array.emergency_alerts_channels_range_strings).isEmpty()) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_ENABLE_EMERGENCY_ALERTS;
+            cursor.addRow(ref);
+        }
+
+        if (channelManager.getCellBroadcastChannelRanges(
+                R.array.public_safety_messages_channels_range_strings).isEmpty()) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES;
+            cursor.addRow(ref);
+        }
+
+        if (channelManager.getCellBroadcastChannelRanges(
+                R.array.state_local_test_alert_range_strings).isEmpty()) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_ENABLE_STATE_LOCAL_TEST_ALERTS;
+            cursor.addRow(ref);
+        }
+
+        if (!CellBroadcastSettings.isTestAlertsToggleVisible(getContext())) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS;
+        }
+
+        if (res.getString(R.string.emergency_alert_second_language_code).isEmpty()) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE;
             cursor.addRow(ref);
         }
 
