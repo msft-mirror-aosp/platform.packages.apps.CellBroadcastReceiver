@@ -31,6 +31,7 @@
   <uses-permission android:name="android.permission.MANAGE_USERS" />
   <uses-permission android:name="android.permission.DEVICE_POWER" />
   <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+  <uses-permission android:name="android.permission.READ_CELL_BROADCASTS" />
 
   <uses-sdk android:minSdkVersion="21"/>
 
@@ -42,10 +43,10 @@
       android:supportsRtl="true"
       android:directBootAware="true">
 
-    <meta-data android:name="com.google.android.backup.api_key"
-        android:value="AEdPqrEAAAAI2_Lb4sDI0e0twL-kf6GIqXpZIfrR0OhnM1pNJQ" />
+  <meta-data android:name="com.google.android.backup.api_key"
+          android:value="AEdPqrEAAAAI2_Lb4sDI0e0twL-kf6GIqXpZIfrR0OhnM1pNJQ" />
 
-    <service android:name="CellBroadcastAlertAudio"
+  <service android:name="CellBroadcastAlertAudio"
         android:exported="false" />
 
     <service android:name="CellBroadcastAlertService"
@@ -58,7 +59,7 @@
         android:exported="false" />
 
     <provider android:name="CellBroadcastContentProvider"
-        android:authorities="cellbroadcasts"
+        android:authorities="cellbroadcasts-app"
         android:readPermission="android.permission.READ_CELL_BROADCASTS" />
 
     <activity android:name="CellBroadcastListActivity"
@@ -105,7 +106,7 @@
     <receiver android:name="PrivilegedCellBroadcastReceiver"
         android:permission="android.permission.BROADCAST_SMS">
       <intent-filter>
-        <action android:name="android.provider.Telephony.SMS_EMERGENCY_CB_RECEIVED" />
+        <action android:name="android.provider.action.SMS_EMERGENCY_CB_RECEIVED" />
         <action android:name="android.provider.Telephony.SMS_CB_RECEIVED" />
         <action android:name="android.cellbroadcastreceiver.START_CONFIG" />
         <action android:name="android.provider.Telephony.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED" />
@@ -113,19 +114,15 @@
       </intent-filter>
     </receiver>
 
-    <!-- Require sender permission for querying latest area info broadcast -->
-    <receiver android:name="CellBroadcastAreaInfoReceiver"
-        android:permission="android.permission.READ_PHONE_STATE">
-      <intent-filter>
-        <action android:name="com.android.cellbroadcastreceiver.GET_LATEST_CB_AREA_INFO" />
-      </intent-filter>
-    </receiver>
-
     <receiver android:name="CellBroadcastReceiver">
       <intent-filter>
         <action android:name="android.telephony.action.DEFAULT_SMS_SUBSCRIPTION_CHANGED" />
         <action android:name="android.telephony.action.CARRIER_CONFIG_CHANGED" />
-        <action android:name="android.intent.action.SERVICE_STATE" />
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.telephony.action.SECRET_CODE" />
+        <!-- CMAS: To toggle test mode for cell broadcast testing on userdebug build -->
+        <data android:scheme="android_secret_code" android:host="2627" />
       </intent-filter>
     </receiver>
 
