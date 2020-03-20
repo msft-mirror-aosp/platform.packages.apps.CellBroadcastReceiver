@@ -22,11 +22,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,7 +41,6 @@ import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.service.notification.StatusBarNotification;
 import android.telephony.PhoneStateListener;
-import android.telephony.SmsCbCmasInfo;
 import android.telephony.SmsCbEtwsInfo;
 import android.telephony.SmsCbMessage;
 import android.telephony.SubscriptionManager;
@@ -58,7 +60,8 @@ import java.util.Locale;
  * and an alert tone is played when the alert is first shown to the user
  * (but not when the user views a previously received broadcast).
  */
-public class CellBroadcastAlertService extends Service {
+public class CellBroadcastAlertService extends Service
+        implements AudioManager.OnAudioFocusChangeListener {
     private static final String TAG = "CBAlertService";
 
     /** Intent action to display alert dialog/notification, after verifying the alert is new. */
@@ -92,12 +95,6 @@ public class CellBroadcastAlertService extends Service {
     static final String NOTIFICATION_CHANNEL_EMERGENCY_ALERTS_IN_VOICECALL =
         "broadcastMessagesInVoiceCall";
 
-    /** Sticky broadcast for latest area info broadcast received. */
-    static final String CB_AREA_INFO_RECEIVED_ACTION =
-            "com.android.cellbroadcastreceiver.CB_AREA_INFO_RECEIVED";
-
-    static final String SETTINGS_APP = "com.android.settings";
-
     /** Intent extra for passing a SmsCbMessage */
     private static final String EXTRA_MESSAGE = "message";
 
@@ -124,6 +121,7 @@ public class CellBroadcastAlertService extends Service {
     }
 
     private TelephonyManager mTelephonyManager;
+    private AudioManager mAudioManager;
 
     /**
      * Do not preempt active voice call, instead post notifications and play the ringtone/vibrate
@@ -155,10 +153,11 @@ public class CellBroadcastAlertService extends Service {
 
     @Override
     public void onCreate() {
-        mTelephonyManager =
-                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        mTelephonyManager.listen(mPhoneStateListener,
-                PhoneStateListener.LISTEN_CALL_STATE);
+        mTelephonyManager = (TelephonyManager)
+                getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        mAudioManager = (AudioManager)
+            getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
     }
 
     @Override
@@ -291,6 +290,19 @@ public class CellBroadcastAlertService extends Service {
                 });
     }
 
+    /**
+     * Mark the message as displayed in cell broadcast service's database.
+     *
+     * @param message The cell broadcast message.
+     */
+    private void markMessageDisplayed(SmsCbMessage message) {
+        ContentValues cv = new ContentValues();
+        cv.put(Telephony.CellBroadcasts.MESSAGE_DISPLAYED, 1);
+        mContext.getContentResolver().update(Telephony.CellBroadcasts.CONTENT_URI, cv,
+                Telephony.CellBroadcasts.RECEIVED_TIME + "=?",
+                new String[] {Long.toString(message.getReceivedTime())});
+    }
+
     private void showNewAlert(Intent intent) {
         Bundle extras = intent.getExtras();
         if (extras == null) {
@@ -311,6 +323,10 @@ public class CellBroadcastAlertService extends Service {
             Log.d(TAG, "CMAS received in dialing/during voicecall.");
             sRemindAfterCallFinish = true;
         }
+
+        // Either shown the dialog, adding it to notification (non emergency, or delayed emergency),
+        // mark the message as displayed to the user.
+        markMessageDisplayed(cbm);
 
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
                 mContext, cbm.getSubscriptionId());
@@ -338,11 +354,6 @@ public class CellBroadcastAlertService extends Service {
         // Check if all emergency alerts are disabled.
         boolean emergencyAlertEnabled =
                 prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, true);
-
-        boolean enableAreaUpdateInfoAlerts = Resources.getSystem().getBoolean(
-                com.android.internal.R.bool.config_showAreaUpdateInfoSettings)
-                && prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_AREA_UPDATE_INFO_ALERTS,
-                true);
 
         SmsCbEtwsInfo etwsInfo = message.getEtwsWarningInfo();
         if (etwsInfo != null
@@ -379,26 +390,7 @@ public class CellBroadcastAlertService extends Service {
                     return false;
                 }
 
-                // The area update information cell broadcast should not cause any pop-up.
-                // Instead the setting's app SIM status will show its information.
-                if (range.mAlertType == AlertType.AREA) {
-                    if (enableAreaUpdateInfoAlerts) {
-                        // save latest area info broadcast for Settings display and send as
-                        // broadcast.
-                        CellBroadcastReceiverApp.setLatestAreaInfo(message);
-                        Intent intent = new Intent(CB_AREA_INFO_RECEIVED_ACTION);
-                        intent.setPackage(SETTINGS_APP);
-                        intent.putExtra(EXTRA_MESSAGE, message);
-                        // Send broadcast twice, once for apps that have PRIVILEGED permission
-                        // and once for those that have the runtime one.
-                        sendBroadcastAsUser(intent, UserHandle.ALL,
-                                android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE);
-                        sendBroadcastAsUser(intent, UserHandle.ALL,
-                                android.Manifest.permission.READ_PHONE_STATE);
-                        // area info broadcasts are displayed in Settings status screen
-                    }
-                    return false;
-                } else if (range.mAlertType == AlertType.TEST) {
+                if (range.mAlertType == AlertType.TEST) {
                     return emergencyAlertEnabled
                             && CellBroadcastSettings.isTestAlertsToggleVisible(
                                     getApplicationContext())
@@ -541,13 +533,9 @@ public class CellBroadcastAlertService extends Service {
                         : CellBroadcastSettings.getResources(mContext, message.getSubscriptionId())
                         .getIntArray(R.array.default_vibration_pattern));
 
-        Resources res = CellBroadcastSettings.getResources(mContext, message.getSubscriptionId());
-        if ((res.getBoolean(R.bool.full_volume_presidential_alert)
-                && message.isCmasMessage()
-                && message.getCmasWarningInfo().getMessageClass()
-                == SmsCbCmasInfo.CMAS_CLASS_PRESIDENTIAL_LEVEL_ALERT)
-                || prefs.getBoolean(CellBroadcastSettings.KEY_USE_FULL_VOLUME, false)) {
-            audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_FULL_VOLUME_EXTRA, true);
+        if (prefs.getBoolean(CellBroadcastSettings.KEY_OVERRIDE_DND, false)
+                || (range != null && range.mOverrideDnd)) {
+            audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_OVERRIDE_DND_EXTRA, true);
         }
 
         String messageBody = message.getMessageBody();
@@ -562,6 +550,8 @@ public class CellBroadcastAlertService extends Service {
 
         audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_SUB_INDEX,
                 message.getSubscriptionId());
+        audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_DURATION,
+                (range != null) ? range.mAlertDuration : -1);
         startService(audioIntent);
 
         ArrayList<SmsCbMessage> messageList = new ArrayList<>();
@@ -749,6 +739,15 @@ public class CellBroadcastAlertService extends Service {
         }
     }
 
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if(focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            Log.d(TAG, "audio focus released from voice call, play pending alert if needed");
+            mAudioManager.abandonAudioFocus(this);
+            playPendingAlert();
+        }
+    }
+
     /**
      * Remove previous unread notifications and play stored unread
      * emergency messages after voice call finish.
@@ -761,25 +760,27 @@ public class CellBroadcastAlertService extends Service {
             switch (state) {
                 case TelephonyManager.CALL_STATE_IDLE:
                     Log.d(TAG, "onCallStateChanged: CALL_STATE_IDLE");
-                    if (sRemindAfterCallFinish) {
-                        sRemindAfterCallFinish = false;
-                        NotificationManager notificationManager = (NotificationManager)
-                                getApplicationContext().getSystemService(
-                                        Context.NOTIFICATION_SERVICE);
-
-                        StatusBarNotification[] notificationList =
-                                notificationManager.getActiveNotifications();
-
-                        if(notificationList != null && notificationList.length >0) {
-                            notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
-                            ArrayList<SmsCbMessage> newMessageList =
-                                    CellBroadcastReceiverApp.getNewMessageList();
-
-                            for (int i = 0; i < newMessageList.size(); i++) {
-                                openEmergencyAlertNotification(newMessageList.get(i));
-                            }
-                        }
-                        CellBroadcastReceiverApp.clearNewMessageList();
+                    // check if audio focus was released by voice call. This is to avoid possible
+                    // race conditions that voice call did not release audio focus while alert is
+                    // playing at the same time (out-of-rhythm)
+                    if (mAudioManager == null) {
+                        mAudioManager = (AudioManager)
+                            getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    }
+                    int audioFocusResult = mAudioManager.requestAudioFocus(
+                            CellBroadcastAlertService.this::onAudioFocusChange,
+                            new AudioAttributes.Builder().setLegacyStreamType(
+                                    AudioManager.STREAM_ALARM).build(),
+                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
+                            AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
+                    if (audioFocusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                        Log.d(TAG, "audio focus released from voice call, "
+                                + "play pending alert if needed");
+                        mAudioManager.abandonAudioFocus(
+                                CellBroadcastAlertService.this::onAudioFocusChange);
+                        playPendingAlert();
+                    } else {
+                        Log.d(TAG, "wait for audio focus release after call");
                     }
                     break;
 
@@ -789,4 +790,27 @@ public class CellBroadcastAlertService extends Service {
             }
         }
     };
+
+    private void playPendingAlert() {
+        if (sRemindAfterCallFinish) {
+            sRemindAfterCallFinish = false;
+            NotificationManager notificationManager = (NotificationManager)
+                    getApplicationContext().getSystemService(
+                            Context.NOTIFICATION_SERVICE);
+
+            StatusBarNotification[] notificationList =
+                    notificationManager.getActiveNotifications();
+
+            if(notificationList != null && notificationList.length >0) {
+                notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
+                ArrayList<SmsCbMessage> newMessageList =
+                        CellBroadcastReceiverApp.getNewMessageList();
+
+                for (int i = 0; i < newMessageList.size(); i++) {
+                    openEmergencyAlertNotification(newMessageList.get(i));
+                }
+            }
+            CellBroadcastReceiverApp.clearNewMessageList();
+        }
+    }
 }

@@ -88,6 +88,11 @@ public class CellBroadcastChannelManager {
         private static final String KEY_SCOPE = "scope";
         /** Defines the vibration pattern of the alert. */
         private static final String KEY_VIBRATION = "vibration";
+        /** Defines the duration of the alert. */
+        private static final String KEY_ALERT_DURATION = "alert_duration";
+        /** Defines if Do Not Disturb should be overridden for this alert */
+        private static final String KEY_OVERRIDE_DND = "override_dnd";
+
         /**
          * Defines whether the channel needs language filter or not. True indicates that the alert
          * will only pop-up when the alert's language matches the device's language.
@@ -112,6 +117,9 @@ public class CellBroadcastChannelManager {
         public int mScope;
         public int[] mVibrationPattern;
         public boolean mFilterLanguage;
+        // by default no custom alert duration. play the alert tone with the tone's duration.
+        public int mAlertDuration = -1;
+        public boolean mOverrideDnd = false;
 
         public CellBroadcastChannelRange(Context context, int subId, String channelRange) {
 
@@ -173,6 +181,14 @@ public class CellBroadcastChannelManager {
                                     mFilterLanguage = true;
                                 }
                                 break;
+                            case KEY_ALERT_DURATION:
+                                mAlertDuration = Integer.parseInt(value);
+                                break;
+                            case KEY_OVERRIDE_DND:
+                                if (value.equalsIgnoreCase("true")) {
+                                    mOverrideDnd = true;
+                                }
+                                break;
                         }
                     }
                 }
@@ -195,7 +211,8 @@ public class CellBroadcastChannelManager {
         public String toString() {
             return "Range:[channels=" + mStartId + "-" + mEndId + ",emergency level="
                     + mEmergencyLevel + ",type=" + mAlertType + ",scope=" + mScope + ",vibration="
-                    + Arrays.toString(mVibrationPattern) + "]";
+                    + Arrays.toString(mVibrationPattern) + ",alertDuration=" + mAlertDuration
+                    + ",filter_language=" + mFilterLanguage + ",override_dnd=" + mOverrideDnd + "]";
         }
     }
 
