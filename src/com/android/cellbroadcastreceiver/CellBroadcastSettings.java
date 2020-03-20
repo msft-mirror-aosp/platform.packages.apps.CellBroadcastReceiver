@@ -41,6 +41,8 @@ import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,11 +67,11 @@ public class CellBroadcastSettings extends Activity {
     // Enable vibration on alert (unless master volume is silent).
     public static final String KEY_ENABLE_ALERT_VIBRATE = "enable_alert_vibrate";
 
-    // Always play at full volume when playing the alert sound.
-    public static final String KEY_USE_FULL_VOLUME = "use_full_volume";
+    // Play alert sound in full volume regardless Do Not Disturb is on.
+    public static final String KEY_OVERRIDE_DND = "override_dnd";
 
-    public static final String KEY_USE_FULL_VOLUME_SETTINGS_CHANGED =
-            "use_full_volume_settings_changed";
+    public static final String KEY_OVERRIDE_DND_SETTINGS_CHANGED =
+            "override_dnd_settings_changed";
 
     // Preference category for emergency alert and CMAS settings.
     public static final String KEY_CATEGORY_EMERGENCY_ALERTS = "category_emergency_alerts";
@@ -92,9 +94,6 @@ public class CellBroadcastSettings extends Activity {
 
     // Whether to display CMAS amber alert messages (default is enabled).
     public static final String KEY_ENABLE_CMAS_AMBER_ALERTS = "enable_cmas_amber_alerts";
-
-    // Preference category for development settings (enabled by settings developer options toggle).
-    public static final String KEY_CATEGORY_DEV_SETTINGS = "category_dev_settings";
 
     // Whether to display monthly test messages (default is disabled).
     public static final String KEY_ENABLE_TEST_ALERTS = "enable_test_alerts";
@@ -122,6 +121,9 @@ public class CellBroadcastSettings extends Activity {
 
     // Resource cache
     private static final Map<Integer, Resources> sResourcesCache = new HashMap<>();
+
+    // Test override for disabling the subId specific resources
+    private static boolean sUseResourcesForSubId = true;
 
     // Whether to receive alert in second language code
     public static final String KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE =
@@ -182,14 +184,13 @@ public class CellBroadcastSettings extends Activity {
         private TwoStatePreference mPublicSafetyMessagesChannelCheckBox;
         private TwoStatePreference mEmergencyAlertsCheckBox;
         private ListPreference mReminderInterval;
-        private TwoStatePreference mFullVolumeCheckBox;
+        private TwoStatePreference mOverrideDndCheckBox;
         private TwoStatePreference mAreaUpdateInfoCheckBox;
         private TwoStatePreference mTestCheckBox;
         private TwoStatePreference mStateLocalTestCheckBox;
         private Preference mAlertHistory;
         private PreferenceCategory mAlertCategory;
         private PreferenceCategory mAlertPreferencesCategory;
-        private PreferenceCategory mDevSettingCategory;
         private boolean mDisableSevereWhenExtremeDisabled = true;
 
         // WATCH
@@ -228,8 +229,8 @@ public class CellBroadcastSettings extends Activity {
                     findPreference(KEY_ENABLE_EMERGENCY_ALERTS);
             mReminderInterval = (ListPreference)
                     findPreference(KEY_ALERT_REMINDER_INTERVAL);
-            mFullVolumeCheckBox = (TwoStatePreference)
-                    findPreference(KEY_USE_FULL_VOLUME);
+            mOverrideDndCheckBox = (TwoStatePreference)
+                    findPreference(KEY_OVERRIDE_DND);
             mAreaUpdateInfoCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_AREA_UPDATE_INFO_ALERTS);
             mTestCheckBox = (TwoStatePreference)
@@ -237,8 +238,6 @@ public class CellBroadcastSettings extends Activity {
             mStateLocalTestCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_STATE_LOCAL_TEST_ALERTS);
             mAlertHistory = findPreference(KEY_EMERGENCY_ALERT_HISTORY);
-            mDevSettingCategory = (PreferenceCategory)
-                    findPreference(KEY_CATEGORY_DEV_SETTINGS);
             mReceiveCmasInSecondLanguageCheckBox = (TwoStatePreference) findPreference
                     (KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE);
 
@@ -308,27 +307,15 @@ public class CellBroadcastSettings extends Activity {
                         }
                     };
 
-            // Show extra settings when developer options is enabled in settings.
-            boolean enableDevSettings =
-                    DevelopmentSettingsHelper.isDevelopmentSettingsEnabled(getContext());
-
             initReminderIntervalList();
 
-            boolean emergencyAlertOnOffOptionEnabled = isFeatureEnabled(getContext(),
-                    CarrierConfigManager.KEY_ALWAYS_SHOW_EMERGENCY_ALERT_ONOFF_BOOL, false);
-
-            if (enableDevSettings || emergencyAlertOnOffOptionEnabled) {
-                // enable/disable all alerts except CMAS presidential alerts.
-                if (mMasterToggle != null) {
-                    mMasterToggle.setOnPreferenceChangeListener(startConfigServiceListener);
-                    // If allow alerts are disabled, we turn all sub-alerts off. If it's enabled, we
-                    // leave them as they are.
-                    if (!mMasterToggle.isChecked()) {
-                        setAlertsEnabled(false);
-                    }
+            if (mMasterToggle != null) {
+                mMasterToggle.setOnPreferenceChangeListener(startConfigServiceListener);
+                // If allow alerts are disabled, we turn all sub-alerts off. If it's enabled, we
+                // leave them as they are.
+                if (!mMasterToggle.isChecked()) {
+                    setAlertsEnabled(false);
                 }
-            } else {
-                if (mMasterToggle != null) preferenceScreen.removePreference(mMasterToggle);
             }
 
             CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
@@ -341,44 +328,30 @@ public class CellBroadcastSettings extends Activity {
                 }
             }
 
-            if (!enableDevSettings && !pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-                if (mDevSettingCategory != null) {
-                    preferenceScreen.removePreference(mDevSettingCategory);
-                }
-            }
-
-            // Remove preferences
-            if (!res.getBoolean(R.bool.show_cmas_settings)) {
-                // Remove CMAS preference items in emergency alert category.
+            // Remove each individual settings if no channel configured
+            if (channelManager.getCellBroadcastChannelRanges(
+                    R.array.cmas_alert_extreme_channels_range_strings).isEmpty()) {
+                // Remove extreme alert preference
                 if (mAlertCategory != null) {
-                    if (mExtremeCheckBox != null) mAlertCategory.removePreference(mExtremeCheckBox);
-                    if (mSevereCheckBox != null) mAlertCategory.removePreference(mSevereCheckBox);
-                    if (mAmberCheckBox != null) mAlertCategory.removePreference(mAmberCheckBox);
-                }
-            }
-
-            // Remove preferences
-            if (res.getBoolean(R.bool.always_use_full_volume)) {
-                // Remove full volume preference items in emergency alert category.
-                if (mAlertCategory != null) {
-                    if (mExtremeCheckBox != null) mAlertCategory.removePreference(
-                            mFullVolumeCheckBox);
-                }
-            }
-
-            if (!Resources.getSystem().getBoolean(
-                    com.android.internal.R.bool.config_showAreaUpdateInfoSettings)) {
-                if (mAlertCategory != null) {
-                    if (mAreaUpdateInfoCheckBox != null) {
-                        mAlertCategory.removePreference(mAreaUpdateInfoCheckBox);
+                    if (mExtremeCheckBox != null) {
+                        mAlertCategory.removePreference(mExtremeCheckBox);
                     }
                 }
             }
 
-            // Remove preferences based on range configurations
+            if (channelManager.getCellBroadcastChannelRanges(
+                    R.array.cmas_alerts_severe_range_strings).isEmpty()) {
+                // Remove severe alert preference
+                if (mAlertCategory != null) {
+                    if (mSevereCheckBox != null) {
+                        mAlertCategory.removePreference(mSevereCheckBox);
+                    }
+                }
+            }
+
             if (channelManager.getCellBroadcastChannelRanges(
                     R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
-                // Remove ambert alert
+                // Remove amber alert preference
                 if (mAlertCategory != null) {
                     if (mAmberCheckBox != null) {
                         mAlertCategory.removePreference(mAmberCheckBox);
@@ -388,8 +361,18 @@ public class CellBroadcastSettings extends Activity {
 
             // Remove preferences based on range configurations
             if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.public_safety_messages_channels_range_strings).isEmpty() ||
-                    !res.getBoolean(R.bool.show_public_safety_settings)) {
+                    R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
+                // Remove amber alert
+                if (mAlertCategory != null) {
+                    if (mAmberCheckBox != null) {
+                        mAlertCategory.removePreference(mAmberCheckBox);
+                    }
+                }
+            }
+
+            // Remove preferences based on range configurations
+            if (channelManager.getCellBroadcastChannelRanges(
+                    R.array.public_safety_messages_channels_range_strings).isEmpty()) {
                 // Remove public safety messages
                 if (mAlertCategory != null) {
                     if (mPublicSafetyMessagesChannelCheckBox != null) {
@@ -450,14 +433,14 @@ public class CellBroadcastSettings extends Activity {
                         startConfigServiceListener);
             }
 
-            if (mFullVolumeCheckBox != null
-                    && !sp.getBoolean(KEY_USE_FULL_VOLUME_SETTINGS_CHANGED, false)) {
+            if (mOverrideDndCheckBox != null
+                    && !sp.getBoolean(KEY_OVERRIDE_DND_SETTINGS_CHANGED, false)) {
                 // If the user hasn't changed this settings yet, use the default settings from
                 // resource overlay.
-                mFullVolumeCheckBox.setChecked(res.getBoolean(R.bool.use_full_volume_default));
-                mFullVolumeCheckBox.setOnPreferenceChangeListener(
+                mOverrideDndCheckBox.setChecked(res.getBoolean(R.bool.override_dnd_default));
+                mOverrideDndCheckBox.setOnPreferenceChangeListener(
                         (pref, newValue) -> {
-                            sp.edit().putBoolean(KEY_USE_FULL_VOLUME_SETTINGS_CHANGED,
+                            sp.edit().putBoolean(KEY_OVERRIDE_DND_SETTINGS_CHANGED,
                                     true).apply();
                             return true;
                         });
@@ -465,14 +448,11 @@ public class CellBroadcastSettings extends Activity {
 
             if (mAlertHistory != null) {
                 mAlertHistory.setOnPreferenceClickListener(
-                        new Preference.OnPreferenceClickListener() {
-                            @Override
-                            public boolean onPreferenceClick(final Preference preference) {
-                                final Intent intent = new Intent(getContext(),
-                                        CellBroadcastListActivity.class);
-                                startActivity(intent);
-                                return true;
-                            }
+                        preference -> {
+                            final Intent intent = new Intent(getContext(),
+                                    CellBroadcastListActivity.class);
+                            startActivity(intent);
+                            return true;
                         });
             }
 
@@ -481,13 +461,6 @@ public class CellBroadcastSettings extends Activity {
                 if (mAlertPreferencesCategory != null) {
                     mAlertPreferencesCategory.removePreference(
                             mReceiveCmasInSecondLanguageCheckBox);
-                }
-            }
-
-            // Show checkbox for Presidential alerts in settings
-            if (!res.getBoolean(R.bool.show_presidential_alerts_in_settings)) {
-                if (mAlertCategory != null) {
-                    mAlertCategory.removePreference(mPresidentialCheckBox);
                 }
             }
         }
@@ -548,9 +521,6 @@ public class CellBroadcastSettings extends Activity {
             if (mAlertPreferencesCategory != null) {
                 mAlertPreferencesCategory.setEnabled(alertsEnabled);
             }
-            if (mDevSettingCategory != null) {
-                mDevSettingCategory.setEnabled(alertsEnabled);
-            }
             if (mEmergencyAlertsCheckBox != null) {
                 mEmergencyAlertsCheckBox.setEnabled(alertsEnabled);
                 mEmergencyAlertsCheckBox.setChecked(alertsEnabled);
@@ -584,7 +554,8 @@ public class CellBroadcastSettings extends Activity {
                 || !channelManager.getCellBroadcastChannelRanges(
                 R.array.etws_test_alerts_range_strings).isEmpty();
 
-        return (res.getBoolean(R.bool.show_test_settings) || CellBroadcastReceiver.isTestingMode())
+        return (res.getBoolean(R.bool.show_test_settings)
+                || CellBroadcastReceiver.isTestingMode(context))
                 && isTestAlertsAvailable;
     }
 
@@ -603,6 +574,16 @@ public class CellBroadcastSettings extends Activity {
     }
 
     /**
+     * Override used by tests so that we don't call
+     * SubscriptionManager.getResourcesForSubId, which is a static unmockable
+     * method.
+     */
+    @VisibleForTesting
+    public static void setUseResourcesForSubId(boolean useResourcesForSubId) {
+        sUseResourcesForSubId = useResourcesForSubId;
+    }
+
+    /**
      * Get the device resource based on SIM
      *
      * @param context Context
@@ -612,7 +593,7 @@ public class CellBroadcastSettings extends Activity {
      */
     public static @NonNull Resources getResources(@NonNull Context context, int subId) {
         if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-                || !SubscriptionManager.isValidSubscriptionId(subId)) {
+                || !SubscriptionManager.isValidSubscriptionId(subId) || !sUseResourcesForSubId) {
             return context.getResources();
         }
 

@@ -16,12 +16,16 @@
 
 package com.android.cellbroadcastreceiver;
 
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserManager;
 import android.preference.PreferenceManager;
@@ -41,8 +45,11 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     static final boolean DBG = true;
     static final boolean VDBG = false;    // STOPSHIP: change to false before ship
 
-    // Key to access the stored reminder interval default value
+    // Key to access the shared preference of reminder interval default value.
     private static final String CURRENT_INTERVAL_DEFAULT = "current_interval_default";
+
+    // Key to access the shared preference of cell broadcast testing mode.
+    private static final String TESTING_MODE = "testing_mode";
 
     // Intent actions and extras
     public static final String CELLBROADCAST_START_CONFIG_ACTION =
@@ -52,7 +59,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     public static final String EXTRA_DELIVERY_TIME =
             "com.android.cellbroadcastreceiver.intent.extra.ID";
 
-    private static boolean sIsTestingMode = false;
+    private Context mContext;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -62,11 +69,12 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     protected void onReceiveWithPrivilege(Context context, Intent intent, boolean privileged) {
         if (DBG) log("onReceive " + intent);
 
+        mContext = context.getApplicationContext();
         String action = intent.getAction();
 
         if (ACTION_MARK_AS_READ.equals(action)) {
             final long deliveryTime = intent.getLongExtra(EXTRA_DELIVERY_TIME, -1);
-            new CellBroadcastContentProvider.AsyncCellBroadcastTask(context.getContentResolver())
+            new CellBroadcastContentProvider.AsyncCellBroadcastTask(mContext.getContentResolver())
                     .execute(new CellBroadcastContentProvider.CellBroadcastOperation() {
                         @Override
                         public boolean execute(CellBroadcastContentProvider provider) {
@@ -75,11 +83,11 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                         }
                     });
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
-            initializeSharedPreference(context.getApplicationContext());
-            startConfigService(context.getApplicationContext());
+            initializeSharedPreference();
+            startConfigService(mContext);
         } else if (CELLBROADCAST_START_CONFIG_ACTION.equals(action)
                 || SubscriptionManager.ACTION_DEFAULT_SMS_SUBSCRIPTION_CHANGED.equals(action)) {
-            startConfigService(context.getApplicationContext());
+            startConfigService(mContext);
         } else if (Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED.equals(action) ||
                 Telephony.Sms.Intents.SMS_CB_RECEIVED_ACTION.equals(action)) {
             // If 'privileged' is false, it means that the intent was delivered to the base
@@ -87,8 +95,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             // means someone has tried to spoof the message by delivering it outside the normal
             // permission-checked route, so we just ignore it.
             if (privileged) {
-                intent.setClass(context, CellBroadcastAlertService.class);
-                context.startService(intent);
+                intent.setClass(mContext, CellBroadcastAlertService.class);
+                mContext.startService(intent);
             } else {
                 loge("ignoring unprivileged action received " + action);
             }
@@ -98,7 +106,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 ArrayList<CdmaSmsCbProgramData> programDataList =
                         intent.getParcelableArrayListExtra("program_data");
                 if (programDataList != null) {
-                    handleCdmaSmsCbProgramData(context, programDataList);
+                    handleCdmaSmsCbProgramData(programDataList);
                 } else {
                     loge("SCPD intent received with no program_data");
                 }
@@ -107,15 +115,15 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             }
         } else if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             // rename registered notification channels on locale change
-            CellBroadcastAlertService.createNotificationChannels(context);
+            CellBroadcastAlertService.createNotificationChannels(mContext);
         } else if (TelephonyManager.ACTION_SECRET_CODE.equals(action)) {
             if (SystemProperties.getInt("ro.debuggable", 0) == 1) {
-                sIsTestingMode = !sIsTestingMode;
-                int msgId = (sIsTestingMode) ? R.string.testing_mode_enabled
+                setTestingMode(!isTestingMode(mContext));
+                int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
                         : R.string.testing_mode_disabled;
-                String msg =  CellBroadcastSettings.getResources(context,
+                String msg =  CellBroadcastSettings.getResources(mContext,
                         SubscriptionManager.DEFAULT_SUBSCRIPTION_ID).getString(msgId);
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
                 log(msg);
             }
         } else {
@@ -124,21 +132,32 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
+     * Enable/disable cell broadcast receiver testing mode.
+     *
+     * @param on {@code true} if testing mode is on, otherwise off.
+     */
+    private void setTestingMode(boolean on) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+        sp.edit().putBoolean(TESTING_MODE, on).commit();
+    }
+
+    /**
      * @return {@code true} if operating in testing mode, which enables some features for testing
      * purposes.
      */
-    public static boolean isTestingMode() {
-        return sIsTestingMode;
+    public static boolean isTestingMode(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean(TESTING_MODE, false);
     }
 
-    private void adjustReminderInterval(Context context) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+    private void adjustReminderInterval() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
         String currentIntervalDefault = sp.getString(CURRENT_INTERVAL_DEFAULT, "0");
 
         // If interval default changes, reset the interval to the new default value.
-        String newIntervalDefault = CellBroadcastSettings.getResources(context,
+        String newIntervalDefault = CellBroadcastSettings.getResources(mContext,
                 SubscriptionManager.DEFAULT_SUBSCRIPTION_ID).getString(
-                        R.string.alert_reminder_interval_default_value);
+                        R.string.alert_reminder_interval_in_min_default);
         if (!newIntervalDefault.equals(currentIntervalDefault)) {
             Log.d(TAG, "Default interval changed from " + currentIntervalDefault + " to " +
                     newIntervalDefault);
@@ -155,16 +174,22 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void initializeSharedPreference(Context context) {
-        if (isSystemUser(context)) {
+    private void initializeSharedPreference() {
+        if (isSystemUser(mContext)) {
             Log.d(TAG, "initializeSharedPreference");
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-            if (!sp.getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES, false)) {
-                // Sets the default values of the shared preference if there isn't any.
-                PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
 
-                sp.edit().putBoolean(CellBroadcastSettings.KEY_USE_FULL_VOLUME_SETTINGS_CHANGED,
+            if (!mContext.getSharedPreferences(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
+                    Context.MODE_PRIVATE).getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
+                    false)) {
+                // Sets the default values of the shared preference if there isn't any.
+                PreferenceManager.setDefaultValues(mContext, R.xml.preferences, false);
+
+                sp.edit().putBoolean(CellBroadcastSettings.KEY_OVERRIDE_DND_SETTINGS_CHANGED,
                         false).apply();
+
+                // migrate sharedpref from legacy app
+                migrateSharedPreferenceFromLegacy(mContext);
 
                 // If the device is in test harness mode, we need to disable emergency alert by
                 // default.
@@ -173,13 +198,61 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                     sp.edit().putBoolean(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE,
                             false).apply();
                 }
+
             } else {
                 Log.d(TAG, "Skip setting default values of shared preference.");
             }
 
-            adjustReminderInterval(context);
+            adjustReminderInterval();
         } else {
             Log.e(TAG, "initializeSharedPreference: Not system user.");
+        }
+    }
+
+    private static void migrateSharedPreferenceFromLegacy(@NonNull Context context) {
+        String[] PREF_KEYS = {
+                CellBroadcasts.Preference.ENABLE_CMAS_AMBER_PREF,
+                CellBroadcasts.Preference.ENABLE_AREA_UPDATE_INFO_PREF,
+                CellBroadcasts.Preference.ENABLE_TEST_ALERT_PREF,
+                CellBroadcasts.Preference.ENABLE_STATE_LOCAL_TEST_PREF,
+                CellBroadcasts.Preference.ENABLE_PUBLIC_SAFETY_PREF,
+                CellBroadcasts.Preference.ENABLE_CMAS_SEVERE_THREAT_PREF,
+                CellBroadcasts.Preference.ENABLE_CMAS_EXTREME_THREAT_PREF,
+                CellBroadcasts.Preference.ENABLE_CMAS_PRESIDENTIAL_PREF,
+                CellBroadcasts.Preference.ENABLE_EMERGENCY_PERF,
+                CellBroadcasts.Preference.ENABLE_ALERT_VIBRATION_PREF,
+                CellBroadcasts.Preference.ENABLE_CMAS_IN_SECOND_LANGUAGE_PREF,
+        };
+        try (ContentProviderClient client = context.getContentResolver()
+                .acquireContentProviderClient(Telephony.CellBroadcasts.AUTHORITY_LEGACY)) {
+            if (client == null) {
+                Log.d(TAG, "No legacy provider available for sharedpreference migration");
+                return;
+            }
+            SharedPreferences.Editor sp = PreferenceManager
+                    .getDefaultSharedPreferences(context).edit();
+            for (String key : PREF_KEYS) {
+                try {
+                    Bundle pref = client.call(
+                            CellBroadcasts.AUTHORITY_LEGACY,
+                            CellBroadcasts.CALL_METHOD_GET_PREFERENCE,
+                            key, null);
+                    if (pref != null) {
+                        Log.d(TAG, "migrateSharedPreferenceFromLegacy: " + key + "val: "
+                                + pref.getBoolean(key));
+                        sp.putBoolean(key, pref.getBoolean(key));
+                    } else {
+                        Log.d(TAG, "migrateSharedPreferenceFromLegacy: unsupported key: " + key);
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "fails to get shared preference " + e);
+                }
+            }
+            sp.apply();
+        } catch (Exception e) {
+            // We have to guard ourselves against any weird behavior of the
+            // legacy provider by trying to catch everything
+            loge("Failed migration from legacy provider: " + e);
         }
     }
 
@@ -187,29 +260,27 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * Handle Service Category Program Data message.
      * TODO: Send Service Category Program Results response message to sender
      *
-     * @param context
      * @param programDataList
      */
-    private void handleCdmaSmsCbProgramData(Context context,
-                                            ArrayList<CdmaSmsCbProgramData> programDataList) {
+    private void handleCdmaSmsCbProgramData(ArrayList<CdmaSmsCbProgramData> programDataList) {
         for (CdmaSmsCbProgramData programData : programDataList) {
             switch (programData.getOperation()) {
                 case CdmaSmsCbProgramData.OPERATION_ADD_CATEGORY:
-                    tryCdmaSetCategory(context, programData.getCategory(), true);
+                    tryCdmaSetCategory(mContext, programData.getCategory(), true);
                     break;
 
                 case CdmaSmsCbProgramData.OPERATION_DELETE_CATEGORY:
-                    tryCdmaSetCategory(context, programData.getCategory(), false);
+                    tryCdmaSetCategory(mContext, programData.getCategory(), false);
                     break;
 
                 case CdmaSmsCbProgramData.OPERATION_CLEAR_CATEGORIES:
-                    tryCdmaSetCategory(context,
+                    tryCdmaSetCategory(mContext,
                             CdmaSmsCbProgramData.CATEGORY_CMAS_EXTREME_THREAT, false);
-                    tryCdmaSetCategory(context,
+                    tryCdmaSetCategory(mContext,
                             CdmaSmsCbProgramData.CATEGORY_CMAS_SEVERE_THREAT, false);
-                    tryCdmaSetCategory(context,
+                    tryCdmaSetCategory(mContext,
                             CdmaSmsCbProgramData.CATEGORY_CMAS_CHILD_ABDUCTION_EMERGENCY, false);
-                    tryCdmaSetCategory(context,
+                    tryCdmaSetCategory(mContext,
                             CdmaSmsCbProgramData.CATEGORY_CMAS_TEST_MESSAGE, false);
                     break;
 

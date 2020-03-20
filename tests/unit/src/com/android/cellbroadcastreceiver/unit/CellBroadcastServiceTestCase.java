@@ -27,18 +27,23 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.os.Vibrator;
 import android.telephony.CarrierConfigManager;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.test.ServiceTestCase;
-import android.util.Log;
 
-import com.android.cellbroadcastreceiver.unit.MockedServiceManager;
+import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.internal.telephony.ISub;
 
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
 
 public abstract class CellBroadcastServiceTestCase<T extends Service> extends ServiceTestCase<T> {
 
@@ -48,6 +53,16 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
     Resources mResources;
     @Mock
     protected ISub.Stub mSubService;
+    @Mock
+    protected AudioManager mMockedAudioManager;
+    @Mock
+    protected SubscriptionManager mMockedSubscriptionManager;
+    @Mock
+    protected SubscriptionInfo mMockSubscriptionInfo;
+    @Mock
+    protected TelephonyManager mMockedTelephonyManager;
+    @Mock
+    protected Vibrator mMockedVibrator;
 
     MockedServiceManager mMockedServiceManager;
 
@@ -97,11 +112,18 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
 
         @Override
         public Object getSystemService(String name) {
-            if (name.equals(Context.CARRIER_CONFIG_SERVICE)) {
-                Log.d(TAG, "return mocked svc for " + name + ", " + mMockedCarrierConfigManager);
-                return mMockedCarrierConfigManager;
+            switch (name) {
+                case Context.CARRIER_CONFIG_SERVICE:
+                    return mMockedCarrierConfigManager;
+                case Context.AUDIO_SERVICE:
+                    return mMockedAudioManager;
+                case Context.TELEPHONY_SUBSCRIPTION_SERVICE:
+                    return mMockedSubscriptionManager;
+                case Context.TELEPHONY_SERVICE:
+                    return mMockedTelephonyManager;
+                case Context.VIBRATOR_SERVICE:
+                    return mMockedVibrator;
             }
-            Log.d(TAG, "return real service " + name);
             return super.getSystemService(name);
         }
     }
@@ -113,14 +135,24 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
         // CellBroadcastSettings.getResources(context).
         doReturn(mSubService).when(mSubService).queryLocalInterface(anyString());
         doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSubId();
-        doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSmsSubId();
+        doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(
+                mSubService).getDefaultSmsSubId();
 
         doReturn(new String[]{""}).when(mResources).getStringArray(anyInt());
 
+        doReturn(1).when(mMockSubscriptionInfo).getSubscriptionId();
+        doReturn(Arrays.asList(mMockSubscriptionInfo)).when(mMockedSubscriptionManager)
+                .getActiveSubscriptionInfoList();
+
+        doReturn(mMockedTelephonyManager).when(mMockedTelephonyManager)
+                .createForSubscriptionId(anyInt());
+
         mMockedServiceManager = new MockedServiceManager();
         mMockedServiceManager.replaceService("isub", mSubService);
+
         mContext = new TestContextWrapper(getContext());
         setContext(mContext);
+        CellBroadcastSettings.setUseResourcesForSubId(false);
     }
 
     @After
