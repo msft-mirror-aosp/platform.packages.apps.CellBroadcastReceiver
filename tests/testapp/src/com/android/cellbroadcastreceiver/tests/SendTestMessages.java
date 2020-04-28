@@ -423,7 +423,7 @@ public class SendTestMessages {
                 }
             }
             return GsmSmsCbMessage.createSmsCbMessage(context, new SmsCbHeader(pdus[0]),
-                    sEmptyLocation, pdus, 0 /* slotIndex */);
+                    sEmptyLocation, pdus);
         } catch (IllegalArgumentException e) {
             return null;
         }

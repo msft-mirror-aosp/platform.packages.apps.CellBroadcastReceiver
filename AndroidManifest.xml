@@ -17,9 +17,7 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.cellbroadcastreceiver"
-        android:versionCode="300000000"
-        android:versionName="R-initial">
+        package="com.android.cellbroadcastreceiver">
 
     <original-package android:name="com.android.cellbroadcastreceiver" />
 
@@ -27,6 +25,7 @@
     <uses-permission android:name="android.permission.RECEIVE_EMERGENCY_BROADCAST" />
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
@@ -45,7 +44,7 @@
             android:directBootAware="true">
 
         <meta-data android:name="com.google.android.backup.api_key"
-                android:value="AEdPqrEAAAAI2_Lb4sDI0e0twL-kf6GIqXpZIfrR0OhnM1pNJQ" />
+            android:value="AEdPqrEAAAAI2_Lb4sDI0e0twL-kf6GIqXpZIfrR0OhnM1pNJQ" />
 
         <service android:name="CellBroadcastAlertAudio"
                  android:exported="false" />
@@ -59,10 +58,8 @@
         <service android:name="CellBroadcastAlertReminder"
                  android:exported="false" />
 
-        <!-- Export provider for AT&T Device and Network Reset-->
         <provider android:name="CellBroadcastContentProvider"
                   android:authorities="cellbroadcasts"
-                  android:exported="true"
                   android:readPermission="android.permission.READ_CELL_BROADCASTS" />
 
         <activity android:name="CellBroadcastListActivity"

@@ -46,18 +46,13 @@ public class CellBroadcastDatabaseHelper extends SQLiteOpenHelper {
     /** Temporary table for upgrading the database version. */
     static final String TEMP_TABLE_NAME = "old_broadcasts";
 
-    /** Old fields used for upgrading database */
-    private static final String V1_MESSAGE_CODE = "message_code";
-    private static final String V1_MESSAGE_IDENTIFIER = " message_id";
-
     /**
      * Database version 1: initial version
      * Database version 2-9: (reserved for OEM database customization)
      * Database version 10: adds ETWS and CMAS columns and CDMA support
      * Database version 11: adds delivery time index
-     * Datatbase version 12: add slotIndex
      */
-    static final int DATABASE_VERSION = 12;
+    static final int DATABASE_VERSION = 11;
 
     CellBroadcastDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -67,7 +62,6 @@ public class CellBroadcastDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_NAME + " ("
                 + Telephony.CellBroadcasts._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + Telephony.CellBroadcasts.SLOT_INDEX + " INTEGER DEFAULT 0,"
                 + Telephony.CellBroadcasts.GEOGRAPHICAL_SCOPE + " INTEGER,"
                 + Telephony.CellBroadcasts.PLMN + " TEXT,"
                 + Telephony.CellBroadcasts.LAC + " INTEGER,"
@@ -100,8 +94,8 @@ public class CellBroadcastDatabaseHelper extends SQLiteOpenHelper {
     private static final String[] COLUMNS_V1 = {
             Telephony.CellBroadcasts.GEOGRAPHICAL_SCOPE,
             Telephony.CellBroadcasts.SERIAL_NUMBER,
-            V1_MESSAGE_CODE,
-            V1_MESSAGE_IDENTIFIER,
+            Telephony.CellBroadcasts.V1_MESSAGE_CODE,
+            Telephony.CellBroadcasts.V1_MESSAGE_IDENTIFIER,
             Telephony.CellBroadcasts.LANGUAGE_CODE,
             Telephony.CellBroadcasts.MESSAGE_BODY,
             Telephony.CellBroadcasts.DELIVERY_TIME,
@@ -166,11 +160,6 @@ public class CellBroadcastDatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion == 10) {
             createDeliveryTimeIndex(db);
             oldVersion++;
-        }
-
-        if (oldVersion == 11) {
-            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN "
-                    + Telephony.CellBroadcasts.SLOT_INDEX + " INTEGER DEFAULT 0;");
         }
     }
 

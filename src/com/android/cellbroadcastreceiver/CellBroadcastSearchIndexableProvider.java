@@ -41,7 +41,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.provider.SearchIndexableResource;
 import android.provider.SearchIndexablesProvider;
-import android.telephony.SubscriptionManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -89,8 +89,8 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
     @Override
     public Cursor queryRawData(String[] projection) {
         MatrixCursor cursor = new MatrixCursor(INDEXABLES_RAW_COLUMNS);
-        final Resources res = CellBroadcastSettings.getResources(getContext(),
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+        final Resources res =
+                CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(getContext());
 
         Object[] raw = new Object[INDEXABLES_RAW_COLUMNS.length];
         raw[COLUMN_INDEX_RAW_TITLE] = res.getString(R.string.sms_cb_settings);
@@ -99,15 +99,14 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
             keywordList.add(res.getString(keywordRes));
         }
 
-        CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(getContext(),
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
-
-        if (!channelManager.getCellBroadcastChannelRanges(
+        if (!CellBroadcastChannelManager.getCellBroadcastChannelRanges(
+                this.getContext(),
                 R.array.public_safety_messages_channels_range_strings).isEmpty()) {
             keywordList.add(res.getString(R.string.public_safety_message));
         }
 
-        if (!channelManager.getCellBroadcastChannelRanges(
+        if (!CellBroadcastChannelManager.getCellBroadcastChannelRanges(
+                this.getContext(),
                 R.array.state_local_test_alert_range_strings).isEmpty()) {
             keywordList.add(res.getString(R.string.state_local_test_alert));
         }
@@ -129,11 +128,10 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
         MatrixCursor cursor = new MatrixCursor(NON_INDEXABLES_KEYS_COLUMNS);
 
         // Show extra settings when developer options is enabled in settings.
-        boolean enableDevSettings =
-                DevelopmentSettingsHelper.isDevelopmentSettingsEnabled(getContext());
+        boolean enableDevSettings = Settings.Global.getInt(getContext().getContentResolver(),
+                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0;
 
-        Resources res = CellBroadcastSettings.getResources(getContext(),
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+        Resources res = CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(getContext());
         Object[] ref;
 
         ref = new Object[1];
@@ -181,51 +179,10 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
             cursor.addRow(ref);
         }
 
-        if (!Resources.getSystem().getBoolean(R.bool.show_presidential_alerts_in_settings)) {
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS;
-            cursor.addRow(ref);
-        }
-
         if (!enableDevSettings) {
             ref = new Object[1];
             ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
                     CellBroadcastSettings.KEY_CATEGORY_DEV_SETTINGS;
-            cursor.addRow(ref);
-        }
-
-        CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(getContext(),
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
-        if (channelManager.getCellBroadcastChannelRanges(
-                R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS;
-            cursor.addRow(ref);
-        }
-
-        if (channelManager.getCellBroadcastChannelRanges(
-                R.array.emergency_alerts_channels_range_strings).isEmpty()) {
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_EMERGENCY_ALERTS;
-            cursor.addRow(ref);
-        }
-
-        if (channelManager.getCellBroadcastChannelRanges(
-                R.array.public_safety_messages_channels_range_strings).isEmpty()) {
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES;
-            cursor.addRow(ref);
-        }
-
-        if (channelManager.getCellBroadcastChannelRanges(
-                R.array.state_local_test_alert_range_strings).isEmpty()) {
-            ref = new Object[1];
-            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
-                    CellBroadcastSettings.KEY_ENABLE_STATE_LOCAL_TEST_ALERTS;
             cursor.addRow(ref);
         }
 

@@ -16,7 +16,6 @@
 
 package com.android.cellbroadcastreceiver;
 
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -55,7 +54,7 @@ public abstract class CellBroadcastTest {
         TAG = tag;
         MockitoAnnotations.initMocks(this);
         // A hack to return mResources from static method
-        // CellBroadcastSettings.getResources(context).
+        // CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(context).
         doReturn(mSubService).when(mSubService).queryLocalInterface(anyString());
         doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSubId();
         doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSmsSubId();
@@ -68,8 +67,6 @@ public abstract class CellBroadcastTest {
         doReturn(mCarrierConfigManager).when(mContext)
                 .getSystemService(eq(Context.CARRIER_CONFIG_SERVICE));
         doReturn(mResources).when(mContext).getResources();
-        doReturn(mContext).when(mContext).getApplicationContext();
-        doReturn(new String[]{""}).when(mResources).getStringArray(anyInt());
     }
 
     void carrierConfigSetStringArray(int subId, String key, String[] values) {

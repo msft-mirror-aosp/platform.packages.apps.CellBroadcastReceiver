@@ -15,7 +15,7 @@
 -->
 
 <resources>
-    <!-- Whether to bypass Do-Not-Disturb/silent mode and play emergency alert tone at full volume. -->
+    <!-- Whether to always sound CBS alerts at full volume -->
     <bool name="use_full_volume">false</bool>
     <!-- Whether to enable CMAS settings (United States) -->
     <bool name="show_cmas_settings">true</bool>
@@ -29,70 +29,61 @@
     <bool name="watch_enable_non_emergency_audio">false</bool>
     <!-- Whether to reset alert message duplicate detection after toggling airplane mode -->
     <bool name="reset_duplicate_detection_on_airplane_mode">false</bool>
-    <!-- Whether to show CMAS messages by in a different order than received by prioritizing them -->
-    <bool name="show_cmas_messages_in_priority_order">false</bool>
-    <!-- Whether to ignore any alert message in ECBM(Emergency Callback Mode) -->
-    <bool name="ignore_messages_in_ecbm">false</bool>
-    <!-- Show checkbox for Presidential alerts in settings -->
-    <bool name="show_presidential_alerts_in_settings">false</bool>
-    <!-- Whether to display public safety alert settings, some countries/carriers want to enable it by default and not allow users to disable -->
-    <bool name="show_public_safety_settings">true</bool>
-    <!-- Whether to bypass Do-Not-Disturb/silent mode and play emergency alert tone at full volume for presidential alert -->
-    <bool name="full_volume_presidential_alert">false</bool>
+
     <!-- 4370, 4383 -->
     <string-array name="cmas_presidential_alerts_channels_range_strings" translatable="false">
-        <item>0x1112:rat=gsm, emergency=true</item>
-        <item>0x1000:rat=cdma, emergency=true</item>
+        <item>0x1112-0x1112:rat=gsm, emergency=true</item>
+        <item>0x1000-0x1000:rat=cdma, emergency=true</item>
         <!-- additional language -->
-        <item>0x111F:rat=gsm, emergency=true</item>
+        <item>0x111F-0x111F:rat=gsm, emergency=true</item>
     </string-array>
     <!-- 4371~4372, 4384~4385 -->
     <string-array name="cmas_alert_extreme_channels_range_strings" translatable="false">
         <item>0x1113-0x1114:rat=gsm, emergency=true</item>
-        <item>0x1001:rat=cdma, emergency=true</item>
+        <item>0x1001-0x1001:rat=cdma, emergency=true</item>
         <!-- additional language -->
         <item>0x1120-0x1121:rat=gsm, emergency=true</item>
     </string-array>
     <!-- 4373~4378, 4386~4391 -->
     <string-array name="cmas_alerts_severe_range_strings" translatable="false">
         <item>0x1115-0x111A:rat=gsm, emergency=true</item>
-        <item>0x1002:rat=cdma, emergency=true</item>
+        <item>0x1002-0x1002:rat=cdma, emergency=true</item>
         <!-- additional language -->
         <item>0x1122-0x1127:rat=gsm, emergency=true</item>
     </string-array>
     <!-- 4379, 4392 -->
     <string-array name="cmas_amber_alerts_channels_range_strings" translatable="false">
-        <item>0x111B:rat=gsm, emergency=true</item>
-        <item>0x1003:rat=cdma, emergency=true</item>
+        <item>0x111B-0x111B:rat=gsm, emergency=true</item>
+        <item>0x1003-0x1003:rat=cdma, emergency=true</item>
         <!-- additional language -->
-        <item>0x1128:rat=gsm, emergency=true</item>
+        <item>0x1128-0x1128:rat=gsm, emergency=true</item>
     </string-array>
     <!-- 4380~4382, 4393~4395 -->
     <string-array name="required_monthly_test_range_strings" translatable="false">
-        <item>0x111C:rat=gsm, emergency=true</item>
-        <item>0x1004:rat=cdma, emergency=true</item>
+        <item>0x111C-0x111C:rat=gsm, emergency=true</item>
+        <item>0x1004-0x1004:rat=cdma, emergency=true</item>
         <!-- additional language -->
-        <item>0x1129:rat=gsm, emergency=true</item>
+        <item>0x1129-0x1129:rat=gsm, emergency=true</item>
     </string-array>
     <string-array name="exercise_alert_range_strings" translatable="false">
-        <item>0x111D:rat=gsm, emergency=true</item>
+        <item>0x111D-0x111D:rat=gsm, emergency=true</item>
         <!-- additional language -->
-        <item>0x112A:rat=gsm, emergency=true</item>
+        <item>0x112A-0x112A:rat=gsm, emergency=true</item>
     </string-array>
     <string-array name="operator_defined_alert_range_strings" translatable="false">
-        <item>0x111E:rat=gsm, emergency=true</item>
+        <item>0x111E-0x111E:rat=gsm, emergency=true</item>
         <!-- additional language -->
-        <item>0x112B:rat=gsm, emergency=true</item>
+        <item>0x112B-0x112B:rat=gsm, emergency=true</item>
     </string-array>
 
     <!-- 4352~4354, 4356 -->
     <string-array name="etws_alerts_range_strings" translatable="false">
         <item>0x1100-0x1102:rat=gsm, emergency=true</item>
-        <item>0x1104:rat=gsm, emergency=true</item>
+        <item>0x1104-0x1104:rat=gsm, emergency=true</item>
     </string-array>
     <!-- 4355-->
     <string-array name="etws_test_alerts_range_strings" translatable="false">
-        <item>0x1103:rat=gsm, emergency=true</item>
+        <item>0x1103-0x1103:rat=gsm, emergency=true</item>
     </string-array>
 
     <!-- Additional cell broadcast channels to enable -->
@@ -147,19 +138,4 @@
 
     <!-- Whether the emergency alert notification is non-swipeable -->
     <bool name="non_swipeable_notificaiton">false</bool>
-
-    <!-- Independent link support for Email, URL and phone in CMAS mes This array
-     contains the message classes that should be linkfied. Values should match the ones defined
-     in SmsCbCmasInfo class. If empty, no messages will be linked. By default, add link to all
-     messages -->
-    <integer-array name="message_classes_to_linkify">
-        <item>0x00</item> <!-- Presidential alerts -->
-        <item>0x01</item> <!-- Extreme alerts -->
-        <item>0x02</item> <!-- Severe alerts -->
-        <item>0x04</item> <!-- Monthly test -->
-        <item>0x05</item> <!-- CMAS exercise -->
-        <item>0x06</item> <!-- Operator defined use -->
-        <item>0x07</item> <!-- Public Safety alerts -->
-        <item>0x08</item> <!-- State/Local test alerts -->
-    </integer-array>
 </resources>

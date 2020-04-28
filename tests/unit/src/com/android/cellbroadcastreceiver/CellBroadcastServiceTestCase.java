@@ -17,7 +17,6 @@
 package com.android.cellbroadcastreceiver;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
@@ -109,13 +108,10 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         // A hack to return mResources from static method
-        // CellBroadcastSettings.getResources(context).
+        // CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(context).
         doReturn(mSubService).when(mSubService).queryLocalInterface(anyString());
         doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSubId();
         doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSmsSubId();
-
-        doReturn(new String[]{""}).when(mResources).getStringArray(anyInt());
-
         mMockedServiceManager = new MockedServiceManager();
         mMockedServiceManager.replaceService("isub", mSubService);
         mContext = new TestContextWrapper(getContext());

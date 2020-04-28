@@ -35,8 +35,6 @@ import android.util.Log;
 
 import com.android.internal.telephony.cdma.sms.SmsEnvelope;
 
-import java.util.ArrayList;
-
 public class CellBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "CellBroadcastReceiver";
     static final boolean DBG = true;
@@ -94,12 +92,12 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         } else if (Telephony.Sms.Intents.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED_ACTION
                 .equals(action)) {
             if (privileged) {
-                ArrayList<CdmaSmsCbProgramData> programDataList =
-                        intent.getParcelableArrayListExtra("program_data");
+                CdmaSmsCbProgramData[] programDataList = (CdmaSmsCbProgramData[])
+                        intent.getParcelableArrayExtra("program_data_list");
                 if (programDataList != null) {
                     handleCdmaSmsCbProgramData(context, programDataList);
                 } else {
-                    loge("SCPD intent received with no program_data");
+                    loge("SCPD intent received with no program_data_list");
                 }
             } else {
                 loge("ignoring unprivileged action received " + action);
@@ -108,11 +106,10 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             // rename registered notification channels on locale change
             CellBroadcastAlertService.createNotificationChannels(context);
         } else if (Intent.ACTION_SERVICE_STATE.equals(action)) {
-            if (CellBroadcastSettings.getResources(context,
-                    SubscriptionManager.DEFAULT_SUBSCRIPTION_ID).getBoolean(
-                            R.bool.reset_duplicate_detection_on_airplane_mode)) {
+            if (CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(context).getBoolean(
+                    R.bool.reset_duplicate_detection_on_airplane_mode)) {
                 Bundle extras = intent.getExtras();
-                ServiceState ss = extras.getParcelable(Intent.EXTRA_SERVICE_STATE);
+                ServiceState ss = ServiceState.newFromBundle(extras);
                 if (ss.getState() == ServiceState.STATE_POWER_OFF) {
                     CellBroadcastAlertService.resetMessageDuplicateDetection();
                 }
@@ -127,9 +124,9 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         String currentIntervalDefault = sp.getString(CURRENT_INTERVAL_DEFAULT, "0");
 
         // If interval default changes, reset the interval to the new default value.
-        String newIntervalDefault = CellBroadcastSettings.getResources(context,
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID).getString(
-                        R.string.alert_reminder_interval_default_value);
+        String newIntervalDefault =
+                CellBroadcastSettings.getResourcesForDefaultSmsSubscriptionId(context)
+                        .getString(R.string.alert_reminder_interval_default_value);
         if (!newIntervalDefault.equals(currentIntervalDefault)) {
             Log.d(TAG, "Default interval changed from " + currentIntervalDefault + " to " +
                     newIntervalDefault);
@@ -147,15 +144,12 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void initializeSharedPreference(Context context) {
-        if (isSystemUser(context)) {
+        if (UserManager.get(context).isSystemUser()) {
             Log.d(TAG, "initializeSharedPreference");
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
             if (!sp.getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES, false)) {
                 // Sets the default values of the shared preference if there isn't any.
                 PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
-
-                sp.edit().putBoolean(CellBroadcastSettings.KEY_USE_FULL_VOLUME_SETTINGS_CHANGED,
-                        false).apply();
 
                 // If the device is in test harness mode, we need to disable emergency alert by
                 // default.
@@ -182,7 +176,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * @param programDataList
      */
     private void handleCdmaSmsCbProgramData(Context context,
-                                            ArrayList<CdmaSmsCbProgramData> programDataList) {
+                                            CdmaSmsCbProgramData[] programDataList) {
         for (CdmaSmsCbProgramData programData : programDataList) {
             switch (programData.getOperation()) {
                 case CdmaSmsCbProgramData.OPERATION_ADD_CATEGORY:
@@ -243,20 +237,11 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Check if user from context is system user
-     * @param context
-     * @return whether the user is system user
-     */
-    private static boolean isSystemUser(Context context) {
-        return ((UserManager) context.getSystemService(Context.USER_SERVICE)).isSystemUser();
-    }
-
-    /**
      * Tell {@link CellBroadcastConfigService} to enable the CB channels.
      * @param context the broadcast receiver context
      */
     static void startConfigService(Context context) {
-        if (isSystemUser(context)) {
+        if (UserManager.get(context).isSystemUser()) {
             Intent serviceIntent = new Intent(CellBroadcastConfigService.ACTION_ENABLE_CHANNELS,
                     null, context, CellBroadcastConfigService.class);
             Log.d(TAG, "Start Cell Broadcast configuration.");

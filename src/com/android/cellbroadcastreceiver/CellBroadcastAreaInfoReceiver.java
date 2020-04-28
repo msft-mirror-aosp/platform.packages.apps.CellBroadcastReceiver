@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.UserHandle;
+import android.telephony.CellBroadcastMessage;
 import android.util.Log;
 
 public class CellBroadcastAreaInfoReceiver extends BroadcastReceiver {

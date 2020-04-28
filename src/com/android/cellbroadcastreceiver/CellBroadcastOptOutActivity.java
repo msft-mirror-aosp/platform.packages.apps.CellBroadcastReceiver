@@ -42,9 +42,9 @@ public class CellBroadcastOptOutActivity extends Activity {
      * so that the dialog appears underneath the lock screen. The user must unlock the device
      * to configure the settings, so we don't want to show the opt-in dialog before then.
      */
-    static AlertDialog showOptOutDialog(final Activity activity) {
+    static void showOptOutDialog(final Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        AlertDialog alertdialog = builder.setMessage(R.string.cmas_opt_out_dialog_text)
+        builder.setMessage(R.string.cmas_opt_out_dialog_text)
                 .setPositiveButton(R.string.cmas_opt_out_button_yes,
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -73,9 +73,6 @@ public class CellBroadcastOptOutActivity extends Activity {
                                 activity.finish();
                             }
                         })
-                .create();
-        alertdialog.show();
-
-        return alertdialog;
+                .create().show();
     }
 }
