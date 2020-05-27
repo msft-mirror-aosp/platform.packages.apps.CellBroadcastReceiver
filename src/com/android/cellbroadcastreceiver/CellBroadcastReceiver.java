@@ -40,6 +40,8 @@ import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.ArrayList;
 
 public class CellBroadcastReceiver extends BroadcastReceiver {
@@ -66,12 +68,24 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
     private Context mContext;
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        onReceiveWithPrivilege(context, intent, false);
+    /**
+     * helper method for easier testing. To generate a new CellBroadcastTask
+     * @param deliveryTime message delivery time
+     */
+    @VisibleForTesting
+    public void getCellBroadcastTask(final long deliveryTime) {
+        new CellBroadcastContentProvider.AsyncCellBroadcastTask(mContext.getContentResolver())
+                .execute(new CellBroadcastContentProvider.CellBroadcastOperation() {
+                    @Override
+                    public boolean execute(CellBroadcastContentProvider provider) {
+                        return provider.markBroadcastRead(CellBroadcasts.DELIVERY_TIME,
+                                deliveryTime);
+                    }
+                });
     }
 
-    protected void onReceiveWithPrivilege(Context context, Intent intent, boolean privileged) {
+    @Override
+    public void onReceive(Context context, Intent intent) {
         if (DBG) log("onReceive " + intent);
 
         mContext = context.getApplicationContext();
@@ -79,14 +93,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
         if (ACTION_MARK_AS_READ.equals(action)) {
             final long deliveryTime = intent.getLongExtra(EXTRA_DELIVERY_TIME, -1);
-            new CellBroadcastContentProvider.AsyncCellBroadcastTask(mContext.getContentResolver())
-                    .execute(new CellBroadcastContentProvider.CellBroadcastOperation() {
-                        @Override
-                        public boolean execute(CellBroadcastContentProvider provider) {
-                            return provider.markBroadcastRead(CellBroadcasts.DELIVERY_TIME,
-                                    deliveryTime);
-                        }
-                    });
+            getCellBroadcastTask(deliveryTime);
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
             initializeSharedPreference();
             startConfigService(mContext);
@@ -95,28 +102,16 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             startConfigService(mContext);
         } else if (Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED.equals(action) ||
                 Telephony.Sms.Intents.SMS_CB_RECEIVED_ACTION.equals(action)) {
-            // If 'privileged' is false, it means that the intent was delivered to the base
-            // no-permissions receiver class.  If we get an SMS_CB_RECEIVED message that way, it
-            // means someone has tried to spoof the message by delivering it outside the normal
-            // permission-checked route, so we just ignore it.
-            if (privileged) {
-                intent.setClass(mContext, CellBroadcastAlertService.class);
-                mContext.startService(intent);
-            } else {
-                loge("ignoring unprivileged action received " + action);
-            }
+            intent.setClass(mContext, CellBroadcastAlertService.class);
+            mContext.startService(intent);
         } else if (Telephony.Sms.Intents.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED_ACTION
                 .equals(action)) {
-            if (privileged) {
-                ArrayList<CdmaSmsCbProgramData> programDataList =
-                        intent.getParcelableArrayListExtra("program_data");
-                if (programDataList != null) {
-                    handleCdmaSmsCbProgramData(programDataList);
-                } else {
-                    loge("SCPD intent received with no program_data");
-                }
+            ArrayList<CdmaSmsCbProgramData> programDataList =
+                    intent.getParcelableArrayListExtra("program_data");
+            if (programDataList != null) {
+                handleCdmaSmsCbProgramData(programDataList);
             } else {
-                loge("ignoring unprivileged action received " + action);
+                loge("SCPD intent received with no program_data");
             }
         } else if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             // rename registered notification channels on locale change
@@ -157,7 +152,11 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         return sp.getBoolean(TESTING_MODE, false);
     }
 
-    private void adjustReminderInterval() {
+    /**
+     * update reminder interval
+     */
+    @VisibleForTesting
+    public void adjustReminderInterval() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
         String currentIntervalDefault = sp.getString(CURRENT_INTERVAL_DEFAULT, "0");
 
@@ -181,7 +180,11 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void initializeSharedPreference() {
+    /**
+     * initialize shared preferences before starting services
+     */
+    @VisibleForTesting
+    public void initializeSharedPreference() {
         if (isSystemUser(mContext)) {
             Log.d(TAG, "initializeSharedPreference");
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -334,7 +337,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * @param context
      * @return whether the user is system user
      */
-    private static boolean isSystemUser(Context context) {
+    @VisibleForTesting
+    public static boolean isSystemUser(Context context) {
         return ((UserManager) context.getSystemService(Context.USER_SERVICE)).isSystemUser();
     }
 
