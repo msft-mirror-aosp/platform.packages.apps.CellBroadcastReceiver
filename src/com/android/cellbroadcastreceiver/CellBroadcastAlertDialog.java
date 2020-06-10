@@ -27,7 +27,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,9 +46,11 @@ import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.textclassifier.TextClassifier;
@@ -54,6 +58,8 @@ import android.view.textclassifier.TextLinks;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -72,7 +78,8 @@ public class CellBroadcastAlertDialog extends Activity {
     private static final String TAG = "CellBroadcastAlertDialog";
 
     /** Intent extra for non-emergency alerts sent when user selects the notification. */
-    static final String FROM_NOTIFICATION_EXTRA = "from_notification";
+    @VisibleForTesting
+    public static final String FROM_NOTIFICATION_EXTRA = "from_notification";
 
     // Intent extra to identify if notification was sent while trying to move away from the dialog
     //  without acknowledging the dialog
@@ -387,6 +394,22 @@ public class CellBroadcastAlertDialog extends Activity {
         stopService(new Intent(this, CellBroadcastAlertAudio.class));
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus) {
+            Configuration config = getResources().getConfiguration();
+            setPictogramAreaLayout(config.orientation);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setPictogramAreaLayout(newConfig.orientation);
+    }
+
     /** Returns the currently displayed message. */
     SmsCbMessage getLatestMessage() {
         int index = mMessageList.size() - 1;
@@ -527,6 +550,50 @@ public class CellBroadcastAlertDialog extends Activity {
         }
 
         ((TextView) findViewById(R.id.dismissButton)).setText(dismissButtonText);
+
+
+        setPictogram(context, message);
+    }
+
+    /**
+     * Set pictogram image
+     * @param context
+     * @param message
+     */
+    private void setPictogram(Context context, SmsCbMessage message) {
+        int resId = CellBroadcastResources.getDialogPictogramResource(context, message);
+        ImageView image = findViewById(R.id.pictogramImage);
+        if (resId != -1) {
+            image.setImageResource(resId);
+            image.setVisibility(View.VISIBLE);
+        } else {
+            image.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Set pictogram to match orientation
+     *
+     * @param orientation The orientation of the pictogram.
+     */
+    private void setPictogramAreaLayout(int orientation) {
+        ImageView image = findViewById(R.id.pictogramImage);
+        if (image.getVisibility() == View.VISIBLE) {
+            ViewGroup.LayoutParams params = image.getLayoutParams();
+
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                Display display = getWindowManager().getDefaultDisplay();
+                Point point = new Point();
+                display.getSize(point);
+                params.width = (int) (point.x * 0.3);
+                params.height = (int) (point.y * 0.3);
+            } else {
+                params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+
+            image.setLayoutParams(params);
+        }
     }
 
     /**
@@ -534,7 +601,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * @param intent The new intent containing one or more {@link SmsCbMessage}.
      */
     @Override
-    protected void onNewIntent(Intent intent) {
+    @VisibleForTesting
+    public void onNewIntent(Intent intent) {
         ArrayList<SmsCbMessage> newMessageList = intent.getParcelableArrayListExtra(
                 CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA);
         if (newMessageList != null) {
@@ -598,7 +666,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * Stop animating warning icon and stop the {@link CellBroadcastAlertAudio}
      * service if necessary.
      */
-    void dismiss() {
+    @VisibleForTesting
+    public void dismiss() {
         Log.d(TAG, "dismiss");
         // Stop playing alert sound/vibration/speech (if started)
         stopService(new Intent(this, CellBroadcastAlertAudio.class));

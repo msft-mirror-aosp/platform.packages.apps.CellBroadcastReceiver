@@ -19,9 +19,12 @@ package com.android.cellbroadcastreceiver;
 import android.annotation.NonNull;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.backup.BackupManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -33,6 +36,7 @@ import android.telephony.SubscriptionManager;
 import android.util.Log;
 import android.view.MenuItem;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -129,8 +133,6 @@ public class CellBroadcastSettings extends Activity {
     public static final String KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE =
             "receive_cmas_in_second_language";
 
-    private boolean mCellBroadcastAllowed = true;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,20 +146,17 @@ public class CellBroadcastSettings extends Activity {
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
         if (userManager.hasUserRestriction(UserManager.DISALLOW_CONFIG_CELL_BROADCASTS)) {
             setContentView(R.layout.cell_broadcast_disallowed_preference_screen);
-            mCellBroadcastAllowed = false;
             return;
         }
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (mCellBroadcastAllowed) {
-            // Always create a new fragment and replace it. We would like to dynamically change the
-            // menu, for example, after toggling testing mode via dialing *#*#CMAS#*#*.
-            getFragmentManager().beginTransaction().replace(android.R.id.content,
-                    new CellBroadcastSettingsFragment()).commit();
+        // We only add new CellBroadcastSettingsFragment if no fragment is restored.
+        Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
+        if (fragment == null) {
+            fragment = new CellBroadcastSettingsFragment();
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(android.R.id.content, fragment)
+                    .commit();
         }
     }
 
@@ -188,6 +187,7 @@ public class CellBroadcastSettings extends Activity {
         private TwoStatePreference mAreaUpdateInfoCheckBox;
         private TwoStatePreference mTestCheckBox;
         private TwoStatePreference mStateLocalTestCheckBox;
+        private TwoStatePreference mEnableVibrateCheckBox;
         private Preference mAlertHistory;
         private PreferenceCategory mAlertCategory;
         private PreferenceCategory mAlertPreferencesCategory;
@@ -202,8 +202,23 @@ public class CellBroadcastSettings extends Activity {
         // on/off switch in settings for receiving alert in second language code
         private TwoStatePreference mReceiveCmasInSecondLanguageCheckBox;
 
+        private final BroadcastReceiver mTestingModeChangedReeiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case CellBroadcastReceiver.ACTION_TESTING_MODE_CHANGED:
+                        updatePreferenceVisibility();
+                        break;
+                }
+            }
+        };
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+
+            LocalBroadcastManager.getInstance(getContext())
+                    .registerReceiver(mTestingModeChangedReeiver, new IntentFilter(
+                            CellBroadcastReceiver.ACTION_TESTING_MODE_CHANGED));
 
             // Load the preferences from an XML resource
             PackageManager pm = getActivity().getPackageManager();
@@ -240,6 +255,7 @@ public class CellBroadcastSettings extends Activity {
             mAlertHistory = findPreference(KEY_EMERGENCY_ALERT_HISTORY);
             mReceiveCmasInSecondLanguageCheckBox = (TwoStatePreference) findPreference
                     (KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE);
+            mEnableVibrateCheckBox = findPreference(KEY_ENABLE_ALERT_VIBRATE);
 
             // Show checkbox for Presidential alerts in settings
             mPresidentialCheckBox = (TwoStatePreference)
@@ -318,89 +334,6 @@ public class CellBroadcastSettings extends Activity {
                 }
             }
 
-            CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
-                    getContext(), SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
-
-            // Check if we want to hide the test alert toggle.
-            if (!isTestAlertsToggleVisible(getContext())) {
-                if (mTestCheckBox != null) {
-                    mAlertCategory.removePreference(mTestCheckBox);
-                }
-            }
-
-            // Remove each individual settings if no channel configured
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.cmas_alert_extreme_channels_range_strings).isEmpty()) {
-                // Remove extreme alert preference
-                if (mAlertCategory != null) {
-                    if (mExtremeCheckBox != null) {
-                        mAlertCategory.removePreference(mExtremeCheckBox);
-                    }
-                }
-            }
-
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.cmas_alerts_severe_range_strings).isEmpty()) {
-                // Remove severe alert preference
-                if (mAlertCategory != null) {
-                    if (mSevereCheckBox != null) {
-                        mAlertCategory.removePreference(mSevereCheckBox);
-                    }
-                }
-            }
-
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
-                // Remove amber alert preference
-                if (mAlertCategory != null) {
-                    if (mAmberCheckBox != null) {
-                        mAlertCategory.removePreference(mAmberCheckBox);
-                    }
-                }
-            }
-
-            // Remove preferences based on range configurations
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.cmas_amber_alerts_channels_range_strings).isEmpty()) {
-                // Remove amber alert
-                if (mAlertCategory != null) {
-                    if (mAmberCheckBox != null) {
-                        mAlertCategory.removePreference(mAmberCheckBox);
-                    }
-                }
-            }
-
-            // Remove preferences based on range configurations
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.public_safety_messages_channels_range_strings).isEmpty()) {
-                // Remove public safety messages
-                if (mAlertCategory != null) {
-                    if (mPublicSafetyMessagesChannelCheckBox != null) {
-                        mAlertCategory.removePreference(mPublicSafetyMessagesChannelCheckBox);
-                    }
-                }
-            }
-
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.emergency_alerts_channels_range_strings).isEmpty()) {
-                // Remove emergency alert messages
-                if (mAlertCategory != null) {
-                    if (mEmergencyAlertsCheckBox != null) {
-                        mAlertCategory.removePreference(mEmergencyAlertsCheckBox);
-                    }
-                }
-            }
-
-            if (channelManager.getCellBroadcastChannelRanges(
-                    R.array.state_local_test_alert_range_strings).isEmpty()) {
-                // Remove state local test messages
-                if (mAlertCategory != null) {
-                    if (mStateLocalTestCheckBox != null) {
-                        mAlertCategory.removePreference(mStateLocalTestCheckBox);
-                    }
-                }
-            }
-
             if (mAreaUpdateInfoCheckBox != null) {
                 mAreaUpdateInfoCheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
             }
@@ -433,15 +366,17 @@ public class CellBroadcastSettings extends Activity {
                         startConfigServiceListener);
             }
 
-            if (mOverrideDndCheckBox != null
-                    && !sp.getBoolean(KEY_OVERRIDE_DND_SETTINGS_CHANGED, false)) {
-                // If the user hasn't changed this settings yet, use the default settings from
-                // resource overlay.
-                mOverrideDndCheckBox.setChecked(res.getBoolean(R.bool.override_dnd_default));
+            if (mOverrideDndCheckBox != null) {
+                if (!sp.getBoolean(KEY_OVERRIDE_DND_SETTINGS_CHANGED, false)) {
+                    // If the user hasn't changed this settings yet, use the default settings
+                    // from resource overlay.
+                    mOverrideDndCheckBox.setChecked(res.getBoolean(R.bool.override_dnd_default));
+                }
                 mOverrideDndCheckBox.setOnPreferenceChangeListener(
                         (pref, newValue) -> {
                             sp.edit().putBoolean(KEY_OVERRIDE_DND_SETTINGS_CHANGED,
                                     true).apply();
+                            updateVibrationPreference((boolean) newValue);
                             return true;
                         });
             }
@@ -456,12 +391,108 @@ public class CellBroadcastSettings extends Activity {
                         });
             }
 
-            // Do not show additional language settings is no additional language code specified,
-            if (res.getString(R.string.emergency_alert_second_language_code).isEmpty()) {
-                if (mAlertPreferencesCategory != null) {
-                    mAlertPreferencesCategory.removePreference(
-                            mReceiveCmasInSecondLanguageCheckBox);
+            updateVibrationPreference(sp.getBoolean(CellBroadcastSettings.KEY_OVERRIDE_DND,
+                    false));
+            updatePreferenceVisibility();
+        }
+
+        /**
+         * Update the vibration preference based on override DND. If DND is overridden, then do
+         * not allow users to turn off vibration.
+         *
+         * @param overrideDnd {@code true} if the alert will be played at full volume, regardless
+         * DND settings.
+         */
+        private void updateVibrationPreference(boolean overrideDnd) {
+            if (mEnableVibrateCheckBox != null) {
+                if (overrideDnd) {
+                    // If DND is enabled, always enable vibration.
+                    mEnableVibrateCheckBox.setChecked(true);
                 }
+                // Grey out the preference if DND is overridden.
+                mEnableVibrateCheckBox.setEnabled(!overrideDnd);
+            }
+        }
+
+        /**
+         * Dynamically update each preference's visibility based on configuration.
+         */
+        private void updatePreferenceVisibility() {
+            Resources res = CellBroadcastSettings.getResources(getContext(),
+                    SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+
+            CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
+                    getContext(), SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+
+            if (mPresidentialCheckBox != null) {
+                mPresidentialCheckBox.setVisible(
+                        res.getBoolean(R.bool.show_presidential_alerts_settings));
+            }
+
+            if (mExtremeCheckBox != null) {
+                mExtremeCheckBox.setVisible(res.getBoolean(R.bool.show_extreme_alert_settings)
+                        && !channelManager.getCellBroadcastChannelRanges(
+                                R.array.cmas_alert_extreme_channels_range_strings).isEmpty());
+            }
+
+            if (mSevereCheckBox != null) {
+                mSevereCheckBox.setVisible(res.getBoolean(R.bool.show_severe_alert_settings)
+                        && !channelManager.getCellBroadcastChannelRanges(
+                                R.array.cmas_alerts_severe_range_strings).isEmpty());
+            }
+
+            if (mAmberCheckBox != null) {
+                mAmberCheckBox.setVisible(res.getBoolean(R.bool.show_amber_alert_settings)
+                        && !channelManager.getCellBroadcastChannelRanges(
+                                R.array.cmas_amber_alerts_channels_range_strings).isEmpty());
+            }
+
+            if (mPublicSafetyMessagesChannelCheckBox != null) {
+                mPublicSafetyMessagesChannelCheckBox.setVisible(
+                        res.getBoolean(R.bool.show_public_safety_settings)
+                                && !channelManager.getCellBroadcastChannelRanges(
+                                        R.array.public_safety_messages_channels_range_strings)
+                                .isEmpty());
+            }
+
+            if (mTestCheckBox != null) {
+                mTestCheckBox.setVisible(isTestAlertsToggleVisible(getContext()));
+            }
+
+            if (mEmergencyAlertsCheckBox != null) {
+                mEmergencyAlertsCheckBox.setVisible(!channelManager.getCellBroadcastChannelRanges(
+                        R.array.emergency_alerts_channels_range_strings).isEmpty());
+            }
+
+            if (mStateLocalTestCheckBox != null) {
+                mStateLocalTestCheckBox.setVisible(
+                        res.getBoolean(R.bool.show_state_local_test_settings)
+                                && !channelManager.getCellBroadcastChannelRanges(
+                                        R.array.state_local_test_alert_range_strings).isEmpty());
+            }
+
+            if (mReceiveCmasInSecondLanguageCheckBox != null) {
+                mReceiveCmasInSecondLanguageCheckBox.setVisible(!res.getString(
+                        R.string.emergency_alert_second_language_code).isEmpty());
+            }
+
+            if (mAreaUpdateInfoCheckBox != null) {
+                mAreaUpdateInfoCheckBox.setVisible(
+                        res.getBoolean(R.bool.config_showAreaUpdateInfoSettings));
+            }
+
+            if (mOverrideDndCheckBox != null) {
+                mOverrideDndCheckBox.setVisible(res.getBoolean(R.bool.show_override_dnd_settings));
+            }
+
+            if (mEnableVibrateCheckBox != null) {
+                // Only show vibrate toggle when override DND toggle is available to users, or when
+                // override DND default is turned off.
+                // In some countries, override DND is always on, which means vibration is always on.
+                // In that case, no need to show vibration toggle for users.
+                mEnableVibrateCheckBox.setVisible(
+                        res.getBoolean(R.bool.show_override_dnd_settings)
+                                || !res.getBoolean(R.bool.override_dnd_default));
             }
         }
 
@@ -537,6 +568,19 @@ public class CellBroadcastSettings extends Activity {
                 mTestCheckBox.setEnabled(alertsEnabled);
                 mTestCheckBox.setChecked(alertsEnabled);
             }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            updatePreferenceVisibility();
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            LocalBroadcastManager.getInstance(getContext())
+                    .unregisterReceiver(mTestingModeChangedReeiver);
         }
     }
 
