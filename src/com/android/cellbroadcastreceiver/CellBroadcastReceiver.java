@@ -19,11 +19,16 @@ package com.android.cellbroadcastreceiver;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemProperties;
@@ -32,9 +37,11 @@ import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.provider.Telephony.CellBroadcasts;
 import android.telephony.CarrierConfigManager;
+import android.telephony.ServiceState;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaSmsCbProgramData;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -54,6 +61,12 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
     // Key to access the shared preference of cell broadcast testing mode.
     private static final String TESTING_MODE = "testing_mode";
+
+    // Key to access the shared preference of service state.
+    private static final String SERVICE_STATE = "service_state";
+
+    public static final String ACTION_SERVICE_STATE = "android.intent.action.SERVICE_STATE";
+    public static final String EXTRA_VOICE_REG_STATE = "voiceRegState";
 
     // Intent actions and extras
     public static final String CELLBROADCAST_START_CONFIG_ACTION =
@@ -84,22 +97,45 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 });
     }
 
+    /**
+     * this method is to make this class unit-testable, because CellBroadcastSettings.getResources()
+     * is a static method and cannot be stubbed.
+     * @return resources
+     */
+    @VisibleForTesting
+    public Resources getResourcesMethod() {
+        return CellBroadcastSettings.getResources(mContext,
+                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (DBG) log("onReceive " + intent);
 
         mContext = context.getApplicationContext();
         String action = intent.getAction();
+        Resources res = getResourcesMethod();
 
         if (ACTION_MARK_AS_READ.equals(action)) {
             final long deliveryTime = intent.getLongExtra(EXTRA_DELIVERY_TIME, -1);
             getCellBroadcastTask(deliveryTime);
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
             initializeSharedPreference();
-            startConfigService(mContext);
+            enableLauncher();
+            startConfigService();
+        } else if (ACTION_SERVICE_STATE.equals(action)) {
+            // lower layer clears channel configurations under APM, thus need to resend
+            // configurations once moving back from APM. This should be fixed in lower layer
+            // going forward.
+            int ss = intent.getIntExtra(EXTRA_VOICE_REG_STATE, ServiceState.STATE_IN_SERVICE);
+            if (ss != ServiceState.STATE_POWER_OFF
+                    && getServiceState(context) == ServiceState.STATE_POWER_OFF) {
+                startConfigService();
+            }
+            setServiceState(ss);
         } else if (CELLBROADCAST_START_CONFIG_ACTION.equals(action)
                 || SubscriptionManager.ACTION_DEFAULT_SMS_SUBSCRIPTION_CHANGED.equals(action)) {
-            startConfigService(mContext);
+            startConfigService();
         } else if (Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED.equals(action) ||
                 Telephony.Sms.Intents.SMS_CB_RECEIVED_ACTION.equals(action)) {
             intent.setClass(mContext, CellBroadcastAlertService.class);
@@ -117,12 +153,12 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             // rename registered notification channels on locale change
             CellBroadcastAlertService.createNotificationChannels(mContext);
         } else if (TelephonyManager.ACTION_SECRET_CODE.equals(action)) {
-            if (SystemProperties.getInt("ro.debuggable", 0) == 1) {
+            if (SystemProperties.getInt("ro.debuggable", 0) == 1
+                    || res.getBoolean(R.bool.allow_testing_mode_on_user_build)) {
                 setTestingMode(!isTestingMode(mContext));
                 int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
                         : R.string.testing_mode_disabled;
-                String msg =  CellBroadcastSettings.getResources(mContext,
-                        SubscriptionManager.DEFAULT_SUBSCRIPTION_ID).getString(msgId);
+                String msg =  res.getString(msgId);
                 Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
                 LocalBroadcastManager.getInstance(mContext)
                         .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
@@ -138,7 +174,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      *
      * @param on {@code true} if testing mode is on, otherwise off.
      */
-    private void setTestingMode(boolean on) {
+    @VisibleForTesting
+    public void setTestingMode(boolean on) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
         sp.edit().putBoolean(TESTING_MODE, on).commit();
     }
@@ -150,6 +187,24 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     public static boolean isTestingMode(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         return sp.getBoolean(TESTING_MODE, false);
+    }
+
+    /**
+     * Store the current service state for voice registration.
+     *
+     * @param ss current voice registration service state.
+     */
+    private void setServiceState(int ss) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+        sp.edit().putInt(SERVICE_STATE, ss).commit();
+    }
+
+    /**
+     * @return the stored voice registration service state
+     */
+    private static int getServiceState(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getInt(SERVICE_STATE, ServiceState.STATE_IN_SERVICE);
     }
 
     /**
@@ -179,19 +234,35 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             if (DBG) Log.d(TAG, "Default interval " + currentIntervalDefault + " did not change.");
         }
     }
+    /**
+     * This method's purpose if to enable unit testing
+     * @return sharedePreferences for mContext
+     */
+    @VisibleForTesting
+    public SharedPreferences getDefaultSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(mContext);
+    }
 
+    /**
+     * return if there are default values in shared preferences
+     * @return boolean
+     */
+    @VisibleForTesting
+    public Boolean sharedPrefsHaveDefaultValues() {
+        return mContext.getSharedPreferences(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
+                Context.MODE_PRIVATE).getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
+                false);
+    }
     /**
      * initialize shared preferences before starting services
      */
     @VisibleForTesting
     public void initializeSharedPreference() {
-        if (isSystemUser(mContext)) {
+        if (isSystemUser()) {
             Log.d(TAG, "initializeSharedPreference");
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences sp = getDefaultSharedPreferences();
 
-            if (!mContext.getSharedPreferences(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
-                    Context.MODE_PRIVATE).getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
-                    false)) {
+            if (!sharedPrefsHaveDefaultValues()) {
                 // Sets the default values of the shared preference if there isn't any.
                 PreferenceManager.setDefaultValues(mContext, R.xml.preferences, false);
 
@@ -333,13 +404,30 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
+     * This method's purpose if to enable unit testing
+     * @return if the mContext user is a system user
+     */
+    @VisibleForTesting
+    public boolean isSystemUser() {
+        return isSystemUser(mContext);
+    }
+
+    /**
+     * This method's purpose if to enable unit testing
+     */
+    @VisibleForTesting
+    public void startConfigService() {
+        startConfigService(mContext);
+    }
+
+    /**
      * Check if user from context is system user
      * @param context
      * @return whether the user is system user
      */
-    @VisibleForTesting
-    public static boolean isSystemUser(Context context) {
-        return ((UserManager) context.getSystemService(Context.USER_SERVICE)).isSystemUser();
+    private static boolean isSystemUser(Context context) {
+        UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        return userManager.isSystemUser();
     }
 
     /**
@@ -354,6 +442,51 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             context.startService(serviceIntent);
         } else {
             Log.e(TAG, "startConfigService: Not system user.");
+        }
+    }
+
+    /**
+     * Enable Launcher.
+     */
+    @VisibleForTesting
+    public void enableLauncher() {
+        boolean enable = getResourcesMethod().getBoolean(R.bool.show_message_history_in_launcher);
+        final PackageManager pm = mContext.getPackageManager();
+        // This alias presents the target activity, CellBroadcastListActivity, as a independent
+        // entity with its own intent filter for android.intent.category.LAUNCHER.
+        // This alias will be enabled/disabled at run-time based on resource overlay. Once enabled,
+        // it will appear in the Launcher as a top-level application
+        String aliasLauncherActivity = null;
+        try {
+            PackageInfo p = pm.getPackageInfo(mContext.getPackageName(),
+                PackageManager.GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
+            if (p != null) {
+                for (ActivityInfo activityInfo : p.activities) {
+                    String targetActivity = activityInfo.targetActivity;
+                    if (CellBroadcastListActivity.class.getName().equals(targetActivity)) {
+                        aliasLauncherActivity = activityInfo.name;
+                        break;
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, e.toString());
+        }
+        if (TextUtils.isEmpty(aliasLauncherActivity)) {
+            Log.e(TAG, "cannot find launcher activity");
+            return;
+        }
+
+        if (enable) {
+            Log.d(TAG, "enable launcher activity: " + aliasLauncherActivity);
+            pm.setComponentEnabledSetting(
+                new ComponentName(mContext, aliasLauncherActivity),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        } else {
+            Log.d(TAG, "disable launcher activity: " + aliasLauncherActivity);
+            pm.setComponentEnabledSetting(
+                new ComponentName(mContext, aliasLauncherActivity),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
     }
 

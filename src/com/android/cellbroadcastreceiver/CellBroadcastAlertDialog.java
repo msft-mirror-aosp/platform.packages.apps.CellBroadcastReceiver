@@ -59,6 +59,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -76,7 +78,8 @@ public class CellBroadcastAlertDialog extends Activity {
     private static final String TAG = "CellBroadcastAlertDialog";
 
     /** Intent extra for non-emergency alerts sent when user selects the notification. */
-    static final String FROM_NOTIFICATION_EXTRA = "from_notification";
+    @VisibleForTesting
+    public static final String FROM_NOTIFICATION_EXTRA = "from_notification";
 
     // Intent extra to identify if notification was sent while trying to move away from the dialog
     //  without acknowledging the dialog
@@ -127,7 +130,8 @@ public class CellBroadcastAlertDialog extends Activity {
     private static final int KEEP_SCREEN_ON_DURATION_MSEC = 60000;
 
     /** Animation handler for the flashing warning icon (emergency alerts only). */
-    private final AnimationHandler mAnimationHandler = new AnimationHandler();
+    @VisibleForTesting
+    public AnimationHandler mAnimationHandler = new AnimationHandler();
 
     /** Handler to add and remove screen on flags for emergency alerts. */
     private final ScreenOffHandler mScreenOffHandler = new ScreenOffHandler();
@@ -138,12 +142,15 @@ public class CellBroadcastAlertDialog extends Activity {
     /**
      * Animation handler for the flashing warning icon (emergency alerts only).
      */
-    private class AnimationHandler extends Handler {
+    @VisibleForTesting
+    public class AnimationHandler extends Handler {
         /** Latest {@code message.what} value for detecting old messages. */
-        private final AtomicInteger mCount = new AtomicInteger();
+        @VisibleForTesting
+        public final AtomicInteger mCount = new AtomicInteger();
 
         /** Warning icon state: visible == true, hidden == false. */
-        private boolean mWarningIconVisible;
+        @VisibleForTesting
+        public boolean mWarningIconVisible;
 
         /** The warning icon Drawable. */
         private Drawable mWarningIcon;
@@ -155,7 +162,8 @@ public class CellBroadcastAlertDialog extends Activity {
         AnimationHandler() {}
 
         /** Start the warning icon animation. */
-        void startIconAnimation(int subId) {
+        @VisibleForTesting
+        public void startIconAnimation(int subId) {
             if (!initDrawableAndImageView(subId)) {
                 return;     // init failure
             }
@@ -166,7 +174,8 @@ public class CellBroadcastAlertDialog extends Activity {
         }
 
         /** Stop the warning icon animation. */
-        void stopIconAnimation() {
+        @VisibleForTesting
+        public void stopIconAnimation() {
             // Increment the counter so the handler will ignore the next message.
             mCount.incrementAndGet();
             if (mWarningIconView != null) {
@@ -290,6 +299,14 @@ public class CellBroadcastAlertDialog extends Activity {
                 | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
+        // Disable home button when alert dialog is showing if mute_by_physical_button is false.
+        if (!CellBroadcastSettings.getResources(getApplicationContext(),
+                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID)
+                .getBoolean(R.bool.mute_by_physical_button)) {
+            final View decorView = win.getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+
         setFinishOnTouchOutside(false);
 
         // Initialize the view.
@@ -343,7 +360,8 @@ public class CellBroadcastAlertDialog extends Activity {
             if (res.getBoolean(R.bool.enable_text_copy)) {
                 TextView textView = findViewById(R.id.message);
                 if (textView != null) {
-                    textView.setOnLongClickListener(v -> copyMessageToClipboard(message));
+                    textView.setOnLongClickListener(v -> copyMessageToClipboard(message,
+                            getApplicationContext()));
                 }
             }
         }
@@ -353,7 +371,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * Start animating warning icon.
      */
     @Override
-    protected void onResume() {
+    @VisibleForTesting
+    public void onResume() {
         super.onResume();
         SmsCbMessage message = getLatestMessage();
         if (message != null) {
@@ -370,7 +389,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * Stop animating warning icon.
      */
     @Override
-    protected void onPause() {
+    @VisibleForTesting
+    public void onPause() {
         Log.d(TAG, "onPause called");
         mAnimationHandler.stopIconAnimation();
         super.onPause();
@@ -378,7 +398,7 @@ public class CellBroadcastAlertDialog extends Activity {
 
     @Override
     protected void onStop() {
-        super.onStop();
+        Log.d(TAG, "onStop called");
         // When the activity goes in background eg. clicking Home button, send notification.
         // Avoid doing this when activity will be recreated because of orientation change or if
         // screen goes off
@@ -389,6 +409,7 @@ public class CellBroadcastAlertDialog extends Activity {
         }
         // Stop playing alert sound/vibration/speech (if started)
         stopService(new Intent(this, CellBroadcastAlertAudio.class));
+        super.onStop();
     }
 
     @Override
@@ -598,7 +619,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * @param intent The new intent containing one or more {@link SmsCbMessage}.
      */
     @Override
-    protected void onNewIntent(Intent intent) {
+    @VisibleForTesting
+    public void onNewIntent(Intent intent) {
         ArrayList<SmsCbMessage> newMessageList = intent.getParcelableArrayListExtra(
                 CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA);
         if (newMessageList != null) {
@@ -662,7 +684,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * Stop animating warning icon and stop the {@link CellBroadcastAlertAudio}
      * service if necessary.
      */
-    void dismiss() {
+    @VisibleForTesting
+    public void dismiss() {
         Log.d(TAG, "dismiss");
         // Stop playing alert sound/vibration/speech (if started)
         stopService(new Intent(this, CellBroadcastAlertAudio.class));
@@ -738,7 +761,8 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(TAG, "onKeyDown: " + event);
         SmsCbMessage message = getLatestMessage();
         if (CellBroadcastSettings.getResources(getApplicationContext(), message.getSubscriptionId())
                 .getBoolean(R.bool.mute_by_physical_button)) {
@@ -756,8 +780,14 @@ public class CellBroadcastAlertDialog extends Activity {
                 default:
                     break;
             }
+            return super.onKeyDown(keyCode, event);
+        } else {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_POWER) {
+                // TODO: do something to prevent screen off
+            }
+            // Disable all physical keys if mute_by_physical_button is false
+            return true;
         }
-        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -786,15 +816,16 @@ public class CellBroadcastAlertDialog extends Activity {
      *
      * @return {@code true} if success, otherwise {@code false};
      */
-    private boolean copyMessageToClipboard(SmsCbMessage message) {
-        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+    @VisibleForTesting
+    public static boolean copyMessageToClipboard(SmsCbMessage message, Context context) {
+        ClipboardManager cm = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
         if (cm == null) return false;
 
         cm.setPrimaryClip(ClipData.newPlainText("Alert Message", message.getMessageBody()));
 
-        String msg = CellBroadcastSettings.getResources(getApplicationContext(),
+        String msg = CellBroadcastSettings.getResources(context,
                 message.getSubscriptionId()).getString(R.string.message_copied);
-        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         return true;
     }
 }
