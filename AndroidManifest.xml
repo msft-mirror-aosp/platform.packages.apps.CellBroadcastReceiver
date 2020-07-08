@@ -34,6 +34,7 @@
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
     <uses-permission android:name="android.permission.READ_CELL_BROADCASTS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="com.android.cellbroadcastservice.FULL_ACCESS_CELL_BROADCAST_HISTORY" />
 
     <uses-sdk android:minSdkVersion="21"/>
@@ -86,6 +87,18 @@
             </intent-filter>
         </activity>
 
+        <!-- Alias activity for CellBroadcastListActivity. Once enabled, it will appear in the launcher -->
+        <activity-alias android:name="com.android.cellbroadcastreceiver.CellBroadcastListLauncherActivity"
+            android:targetActivity="com.android.cellbroadcastreceiver.CellBroadcastListActivity"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
         <!-- Settings opened by ListActivity menu, Settings app link or opt-out dialog. -->
         <activity android:name="CellBroadcastSettings"
                   android:theme="@style/CellBroadcastSettingsTheme"
@@ -116,6 +129,7 @@
                 <action android:name="android.cellbroadcastreceiver.START_CONFIG" />
                 <action android:name="android.provider.Telephony.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.SERVICE_STATE" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.telephony.action.SECRET_CODE" />
