@@ -59,7 +59,10 @@ public class CellBroadcastSettings extends Activity {
 
     private static final boolean DBG = false;
 
-    // Preference key for a master toggle to enable/disable all alerts message (default enabled).
+    // Preference key for alert header (A text view, not clickable).
+    public static final String KEY_ALERTS_HEADER = "alerts_header";
+
+    // Preference key for a main toggle to enable/disable all alerts message (default enabled).
     public static final String KEY_ENABLE_ALERTS_MASTER_TOGGLE = "enable_alerts_master_toggle";
 
     // Preference key for whether to enable public safety messages (default enabled).
@@ -68,7 +71,7 @@ public class CellBroadcastSettings extends Activity {
     // Preference key for whether to enable emergency alerts (default enabled).
     public static final String KEY_ENABLE_EMERGENCY_ALERTS = "enable_emergency_alerts";
 
-    // Enable vibration on alert (unless master volume is silent).
+    // Enable vibration on alert (unless main volume is silent).
     public static final String KEY_ENABLE_ALERT_VIBRATE = "enable_alert_vibrate";
 
     // Play alert sound in full volume regardless Do Not Disturb is on.
@@ -189,6 +192,7 @@ public class CellBroadcastSettings extends Activity {
         private TwoStatePreference mStateLocalTestCheckBox;
         private TwoStatePreference mEnableVibrateCheckBox;
         private Preference mAlertHistory;
+        private Preference mAlertsHeader;
         private PreferenceCategory mAlertCategory;
         private PreferenceCategory mAlertPreferencesCategory;
         private boolean mDisableSevereWhenExtremeDisabled = true;
@@ -253,6 +257,7 @@ public class CellBroadcastSettings extends Activity {
             mStateLocalTestCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_STATE_LOCAL_TEST_ALERTS);
             mAlertHistory = findPreference(KEY_EMERGENCY_ALERT_HISTORY);
+            mAlertsHeader = findPreference(KEY_ALERTS_HEADER);
             mReceiveCmasInSecondLanguageCheckBox = (TwoStatePreference) findPreference
                     (KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE);
             mEnableVibrateCheckBox = findPreference(KEY_ENABLE_ALERT_VIBRATE);
@@ -493,6 +498,10 @@ public class CellBroadcastSettings extends Activity {
                 mEnableVibrateCheckBox.setVisible(
                         res.getBoolean(R.bool.show_override_dnd_settings)
                                 || !res.getBoolean(R.bool.override_dnd_default));
+            }
+            if (mAlertsHeader != null) {
+                mAlertsHeader.setVisible(
+                        !getContext().getString(R.string.alerts_header_summary).isEmpty());
             }
         }
 
