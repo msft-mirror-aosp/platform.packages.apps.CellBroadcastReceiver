@@ -124,10 +124,25 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             final long deliveryTime = intent.getLongExtra(EXTRA_DELIVERY_TIME, -1);
             getCellBroadcastTask(deliveryTime);
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
-            if (!intent.getBooleanExtra("android.telephony.extra.REBROADCAST_ON_UNLOCK", false)) {
+            if (!intent.getBooleanExtra(
+                    "android.telephony.extra.REBROADCAST_ON_UNLOCK", false)) {
                 initializeSharedPreference();
                 enableLauncher();
                 startConfigService();
+                // Some OEMs do not have legacyMigrationProvider active during boot-up, thus we
+                // need to retry data migration from another trigger point.
+                boolean hasMigrated = PreferenceManager.getDefaultSharedPreferences(mContext)
+                        .getBoolean(CellBroadcastDatabaseHelper.KEY_LEGACY_DATA_MIGRATION, false);
+                if (res.getBoolean(R.bool.retry_message_history_data_migration) && !hasMigrated) {
+                    // migrate message history from legacy app on a background thread.
+                    new CellBroadcastContentProvider.AsyncCellBroadcastTask(
+                            mContext.getContentResolver()).execute(
+                            (CellBroadcastContentProvider.CellBroadcastOperation) provider -> {
+                                provider.call(CellBroadcastContentProvider.CALL_MIGRATION_METHOD,
+                                        null, null);
+                                return true;
+                            });
+                }
             }
         } else if (ACTION_SERVICE_STATE.equals(action)) {
             // lower layer clears channel configurations under APM, thus need to resend
