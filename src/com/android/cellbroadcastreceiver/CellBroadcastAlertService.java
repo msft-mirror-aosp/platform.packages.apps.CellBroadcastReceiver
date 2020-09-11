@@ -46,7 +46,6 @@ import android.service.notification.StatusBarNotification;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsCbEtwsInfo;
 import android.telephony.SmsCbMessage;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -206,8 +205,8 @@ public class CellBroadcastAlertService extends Service {
         String messageLanguage = message.getLanguageCode();
         if (range != null && range.mFilterLanguage) {
             // language filtering based on CBR second language settings
-            final String secondLanguageCode =  CellBroadcastSettings.getResources(mContext,
-                    SubscriptionManager.DEFAULT_SUBSCRIPTION_ID)
+            final String secondLanguageCode = CellBroadcastSettings.getResources(mContext,
+                    message.getSubscriptionId())
                     .getString(R.string.emergency_alert_second_language_code);
             if (!secondLanguageCode.isEmpty()) {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -564,13 +563,17 @@ public class CellBroadcastAlertService extends Service {
 
         String messageBody = message.getMessageBody();
 
-        audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_BODY, messageBody);
+        if (!CellBroadcastSettings.getResourcesForDefaultSubId(mContext)
+                .getBoolean(R.bool.show_alert_speech_setting)
+                || prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_ALERT_SPEECH, true)) {
+            audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_BODY, messageBody);
 
-        String language = message.getLanguageCode();
+            String language = message.getLanguageCode();
 
-        Log.d(TAG, "Message language = " + language);
-        audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_LANGUAGE,
-                language);
+            Log.d(TAG, "Message language = " + language);
+            audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_LANGUAGE,
+                    language);
+        }
 
         audioIntent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_SUB_INDEX,
                 message.getSubscriptionId());

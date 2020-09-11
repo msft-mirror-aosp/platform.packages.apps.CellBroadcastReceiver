@@ -39,9 +39,9 @@ import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.telephony.SmsCbCmasInfo;
 import android.telephony.SmsCbMessage;
-import android.telephony.SubscriptionManager;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -267,10 +268,13 @@ public class CellBroadcastAlertDialog extends Activity {
                     | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
-        /** Clear the screen on window flags. */
+        /**
+         * Clear the keep screen on window flags in order for powersaving but keep TURN_ON_SCREEN_ON
+         * to make sure next wake up still turn screen on without unintended onStop triggered at
+         * the beginning.
+         */
         private void clearWindowFlags() {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
         @Override
@@ -300,8 +304,7 @@ public class CellBroadcastAlertDialog extends Activity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         // Disable home button when alert dialog is showing if mute_by_physical_button is false.
-        if (!CellBroadcastSettings.getResources(getApplicationContext(),
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID)
+        if (!CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
                 .getBoolean(R.bool.mute_by_physical_button)) {
             final View decorView = win.getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -532,6 +535,30 @@ public class CellBroadcastAlertDialog extends Activity {
         }
     }
 
+
+    /**
+     * If the carrier or country is configured to show the alert dialog title text in the
+     * language matching the message, this method returns the string in that language. Otherwise
+     * this method returns the string in the device's current language
+     *
+     * @param resId resource Id
+     * @param res Resources for the subId
+     * @param languageCode the ISO-639-1 language code for this message, or null if unspecified
+     */
+    private String overrideTranslation(int resId, Resources res, String languageCode) {
+        if (!TextUtils.isEmpty(languageCode)
+                && res.getBoolean(R.bool.override_alert_title_language_to_match_message_locale)) {
+            // TODO change resources to locale from message
+            Configuration conf = res.getConfiguration();
+            conf = new Configuration(conf);
+            conf.setLocale(new Locale(languageCode));
+            Context localizedContext = getApplicationContext().createConfigurationContext(conf);
+            return localizedContext.getResources().getText(resId).toString();
+        } else {
+            return res.getText(resId).toString();
+        }
+    }
+
     /**
      * Update alert text when a new emergency alert arrives.
      * @param message CB message which is used to update alert text.
@@ -540,10 +567,10 @@ public class CellBroadcastAlertDialog extends Activity {
         Context context = getApplicationContext();
         int titleId = CellBroadcastResources.getDialogTitleResource(context, message);
 
-        String title = getText(titleId).toString();
+        Resources res = CellBroadcastSettings.getResources(context, message.getSubscriptionId());
+        String title = overrideTranslation(titleId, res, message.getLanguageCode());
         TextView titleTextView = findViewById(R.id.alertTitle);
 
-        Resources res = CellBroadcastSettings.getResources(context, message.getSubscriptionId());
         if (titleTextView != null) {
             if (res.getBoolean(R.bool.show_date_time_title)) {
                 titleTextView.setSingleLine(false);
@@ -636,8 +663,7 @@ public class CellBroadcastAlertDialog extends Activity {
                 mMessageList = newMessageList;
             } else {
                 mMessageList.addAll(newMessageList);
-                if (CellBroadcastSettings.getResources(getApplicationContext(),
-                        SubscriptionManager.DEFAULT_SUBSCRIPTION_ID)
+                if (CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
                         .getBoolean(R.bool.show_cmas_messages_in_priority_order)) {
                     // Sort message list to show messages in a different order than received by
                     // prioritizing them. Presidential Alert only has top priority.

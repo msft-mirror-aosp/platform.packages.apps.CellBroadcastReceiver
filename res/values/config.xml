@@ -57,6 +57,8 @@
     <bool name="allow_testing_mode_on_user_build">false</bool>
     <!-- Whether to save alerts to sms inbox database -->
     <bool name="enable_write_alerts_to_sms_inbox">false</bool>
+    <!-- Whether to retry message history data migration after db creation -->
+    <bool name="retry_message_history_data_migration">false</bool>
 
     <!-- Section for switch default value -->
     <!-- Master toggle default value -->
@@ -82,6 +84,8 @@
     <bool name="config_showAreaUpdateInfoSettings">false</bool>
     <!-- Show cellbroadcast message history entry point in the application launcher.-->
     <bool name="show_message_history_in_launcher">false</bool>
+    <!-- Allow user to enable/disable audio speech alert (text-to-speech for received messages)-->
+    <bool name="show_alert_speech_setting">false</bool>
 
     <!-- Specify second language code to receive emergency alerts -->
     <string name="emergency_alert_second_language_code" translatable="false"></string>
@@ -207,4 +211,7 @@
 
     <!-- Whether enabling copy message text into clipboard by long press -->
     <bool name="enable_text_copy">true</bool>
+
+    <!-- Whether to override the language of the alert dialog's title to match the message locale -->
+    <bool name="override_alert_title_language_to_match_message_locale">false</bool>
 </resources>
