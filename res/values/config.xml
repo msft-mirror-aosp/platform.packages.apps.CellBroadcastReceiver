@@ -31,6 +31,10 @@
     <bool name="show_test_settings">true</bool>
     <!-- Whether to append date-time to the alert title -->
     <bool name="show_date_time_title">false</bool>
+    <!-- if appending date-time to alert title, whether to include year -->
+    <bool name="show_date_time_with_year_title">false</bool>
+    <!-- if appending date-time to alert title, whether to use numeric format -->
+    <bool name="show_date_in_numeric_format">false</bool>
     <!-- Whether to compare message body when performing message duplicate dection -->
     <bool name="duplicate_compare_body">false</bool>
     <!-- Whether to enable audio alert for non emergency broadcasts on FEATURE_WATCH devices -->
@@ -54,9 +58,11 @@
     <!-- Whether enable LED flash when playing alert tones -->
     <bool name="enable_led_flash">false</bool>
     <!-- Whether allowing testing mode on user build or not -->
-    <bool name="allow_testing_mode_on_user_build">false</bool>
+    <bool name="allow_testing_mode_on_user_build">true</bool>
     <!-- Whether to save alerts to sms inbox database -->
     <bool name="enable_write_alerts_to_sms_inbox">false</bool>
+    <!-- Whether to always mark sms read -->
+    <bool name="always_mark_sms_read">false</bool>
     <!-- Whether to retry message history data migration after db creation -->
     <bool name="retry_message_history_data_migration">false</bool>
 

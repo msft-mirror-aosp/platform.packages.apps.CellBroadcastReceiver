@@ -416,10 +416,12 @@ public class CellBroadcastAlertDialog extends Activity {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (!(isChangingConfigurations() || getLatestMessage() == null) && pm.isScreenOn()) {
             CellBroadcastAlertService.addToNotificationBar(getLatestMessage(), mMessageList,
-                    getApplicationContext(), true);
+                    getApplicationContext(), true, true);
+            // Stop playing alert sound/vibration/speech (if started)
+            stopService(new Intent(this, CellBroadcastAlertAudio.class));
         }
-        // Stop playing alert sound/vibration/speech (if started)
-        stopService(new Intent(this, CellBroadcastAlertAudio.class));
+        // Do not stop the audio here. Pressing power button should turn off screen but should not
+        // interrupt the audio/vibration
         super.onStop();
     }
 
@@ -574,10 +576,16 @@ public class CellBroadcastAlertDialog extends Activity {
         if (titleTextView != null) {
             if (res.getBoolean(R.bool.show_date_time_title)) {
                 titleTextView.setSingleLine(false);
-                title += "\n" + DateUtils.formatDateTime(context, message.getReceivedTime(),
-                        DateUtils.FORMAT_NO_NOON_MIDNIGHT | DateUtils.FORMAT_SHOW_TIME
+                int flags = DateUtils.FORMAT_NO_NOON_MIDNIGHT | DateUtils.FORMAT_SHOW_TIME
                                 | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE
-                                | DateUtils.FORMAT_CAP_AMPM);
+                                | DateUtils.FORMAT_CAP_AMPM;
+                if (res.getBoolean(R.bool.show_date_time_with_year_title)) {
+                    flags |= DateUtils.FORMAT_SHOW_YEAR;
+                }
+                if (res.getBoolean(R.bool.show_date_in_numeric_format)) {
+                    flags |= DateUtils.FORMAT_NUMERIC_DATE;
+                }
+                title += "\n" + DateUtils.formatDateTime(context, message.getReceivedTime(), flags);
             }
 
             setTitle(title);
@@ -748,6 +756,10 @@ public class CellBroadcastAlertDialog extends Activity {
             return;
         }
 
+        // Remove the read message from the notification bar.
+        // e.g, read the message from emergency alert history, need to update the notification bar.
+        removeReadMessageFromNotificationBar(lastMessage, getApplicationContext());
+
         // Mark the alert as read.
         final long deliveryTime = lastMessage.getReceivedTime();
 
@@ -801,9 +813,6 @@ public class CellBroadcastAlertDialog extends Activity {
                 }
             }
         }
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
         finish();
     }
 
@@ -874,5 +883,29 @@ public class CellBroadcastAlertDialog extends Activity {
                 message.getSubscriptionId()).getString(R.string.message_copied);
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         return true;
+    }
+
+    /**
+     * Remove read message from the notification bar, update the notification text, count or cancel
+     * the notification if there is no un-read messages.
+     * @param message The dismissed/read message to be removed from the notification bar
+     * @param context
+     */
+    private void removeReadMessageFromNotificationBar(SmsCbMessage message, Context context) {
+        Log.d(TAG, "removeReadMessageFromNotificationBar, msg: " + message.toString());
+        ArrayList<SmsCbMessage> unreadMessageList = CellBroadcastReceiverApp
+                .removeReadMessage(message);
+        if (unreadMessageList.isEmpty()) {
+            Log.d(TAG, "removeReadMessageFromNotificationBar, cancel notification");
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
+        } else {
+            Log.d(TAG, "removeReadMessageFromNotificationBar, update count to "
+                    + unreadMessageList.size() );
+            // do not alert if remove unread messages from the notification bar.
+           CellBroadcastAlertService.addToNotificationBar(
+                   CellBroadcastReceiverApp.getLatestMessage(),
+                   unreadMessageList, context,false, false);
+        }
     }
 }

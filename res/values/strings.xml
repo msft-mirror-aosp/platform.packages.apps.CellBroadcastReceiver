@@ -28,12 +28,12 @@
 
     <!-- Value of sms sender display name to be shown in SMS inbox for presidential alerts -->
     <!-- Required Korean (kr) translation for this message: 위급 재난 문자 -->
-    <string name="sms_cb_sender_name_presidential">@string/sms_cb_sender_name_default</string>
+    <string name="sms_cb_sender_name_presidential">Wireless emergency alerts</string>
 
     <!-- Value of sms sender display name to be shown in SMS inbox for emergency alerts -->
     <!-- mapping to emergency_alerts_channels_range_strings channel range -->
     <!-- Required Korean (kr) translation for this message: 긴급 재난 문자-->
-    <string name="sms_cb_sender_name_emergency">@string/sms_cb_sender_name_default</string>
+    <string name="sms_cb_sender_name_emergency">Wireless emergency alerts</string>
 
     <!-- Value of sms sender display name to be shown in SMS inbox for public safety alerts -->
     <!-- Required Korean (kr) translation for this message: 안전 안내 문자-->
@@ -48,6 +48,8 @@
     <!-- Text for list view when empty (no broadcasts). [CHAR LIMIT=200] -->
     <string name="no_cell_broadcasts">No previous alerts</string>
 
+    <!-- Menu item for accessing application settings. [CHAR LIMIT=30] -->
+    <string name="menu_preferences">Settings</string>
     <!-- Menu item for deleting all broadcasts. [CHAR LIMIT=30] -->
     <string name="menu_delete_all">Delete broadcasts</string>
 
@@ -311,7 +313,8 @@
     <!-- Preference summary for enable CMAS second language checkbox. [CHAR LIMIT=100] -->
     <string name="receive_cmas_in_second_language_summary"></string>
 
-    <!-- Preference summary for emergency alert header -->
+    <!-- Preference summary for emergency alert header. For some carriers this is a required
+      "about cell broadcast messages" info preference -->
     <string name="alerts_header_summary"></string>
 
     <!-- Toast message to indicate testing mode is enabled. [CHAR LIMIT=100] -->
