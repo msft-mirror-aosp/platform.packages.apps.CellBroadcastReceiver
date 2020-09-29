@@ -98,7 +98,8 @@ public class CellBroadcastChannelManager {
         private static final String KEY_DISPLAY = "display";
         /** Define whether to enable this only in test/debug mode. */
         private static final String KEY_TESTING_MODE_ONLY = "testing_mode";
-
+        /** Define the channels which not allow opt-out. */
+        private static final String KEY_ALWAYS_ON = "always_on";
 
         /**
          * Defines whether the channel needs language filter or not. True indicates that the alert
@@ -132,6 +133,8 @@ public class CellBroadcastChannelManager {
         // If enable_write_alerts_to_sms_inbox is true, write to sms inbox is enabled by default
         // for all channels except for channels which explicitly set to exclude from sms inbox.
         public boolean mWriteToSmsInbox = true;
+        // only set to true for channels not allow opt-out. e.g, presidential alert.
+        public boolean mAlwaysOn = false;
 
         public CellBroadcastChannelRange(Context context, int subId, String channelRange) {
 
@@ -146,6 +149,7 @@ public class CellBroadcastChannelManager {
             // by default all received messages should be displayed.
             mDisplay = true;
             mTestMode = false;
+            boolean hasVibrationPattern = false;
 
             int colonIndex = channelRange.indexOf(':');
             if (colonIndex != -1) {
@@ -189,6 +193,7 @@ public class CellBroadcastChannelManager {
                                     for (int i = 0; i < vibration.length; i++) {
                                         mVibrationPattern[i] = Integer.parseInt(vibration[i]);
                                     }
+                                    hasVibrationPattern = true;
                                 }
                                 break;
                             case KEY_FILTER_LANGUAGE:
@@ -219,10 +224,21 @@ public class CellBroadcastChannelManager {
                                     mTestMode = true;
                                 }
                                 break;
+                            case KEY_ALWAYS_ON:
+                                if (value.equalsIgnoreCase("true")) {
+                                    mAlwaysOn = true;
+                                }
+                                break;
                         }
                     }
                 }
                 channelRange = channelRange.substring(0, colonIndex).trim();
+            }
+
+            // If alert type is info, override vibration pattern
+            if (!hasVibrationPattern && mAlertType.equals(AlertType.INFO)) {
+                mVibrationPattern = CellBroadcastSettings.getResources(context, subId)
+                        .getIntArray(R.array.default_notification_vibration_pattern);
             }
 
             // Parse the channel range
@@ -243,7 +259,8 @@ public class CellBroadcastChannelManager {
                     + mEmergencyLevel + ",type=" + mAlertType + ",scope=" + mScope + ",vibration="
                     + Arrays.toString(mVibrationPattern) + ",alertDuration=" + mAlertDuration
                     + ",filter_language=" + mFilterLanguage + ",override_dnd=" + mOverrideDnd
-                    + ",display=" + mDisplay + ",testMode=" + mTestMode +"]";
+                    + ",display=" + mDisplay + ",testMode=" + mTestMode + ",mAlwaysOn="
+                    + mAlwaysOn +"]";
         }
     }
 
@@ -435,10 +452,6 @@ public class CellBroadcastChannelManager {
         // emergency property from the message itself, which is checking if the channel is between
         // MESSAGE_ID_PWS_FIRST_IDENTIFIER (4352) and MESSAGE_ID_PWS_LAST_IDENTIFIER (6399).
         return message.isEmergencyMessage();
-    }
-
-    private static void log(String msg) {
-        Log.d(TAG, msg);
     }
 
     private static void loge(String msg) {
