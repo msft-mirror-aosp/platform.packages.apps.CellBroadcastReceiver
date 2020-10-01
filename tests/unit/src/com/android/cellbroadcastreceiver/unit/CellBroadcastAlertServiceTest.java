@@ -20,6 +20,8 @@ import static com.android.cellbroadcastreceiver.CellBroadcastAlertAudio.ALERT_AU
 import static com.android.cellbroadcastreceiver.CellBroadcastAlertService.SHOW_NEW_ALERT_ACTION;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 
 import android.content.Intent;
 import android.provider.Telephony;
@@ -30,6 +32,7 @@ import android.telephony.SmsCbMessage;
 
 import com.android.cellbroadcastreceiver.CellBroadcastAlertAudio;
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService;
+import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.internal.telephony.gsm.SmsCbConstants;
 
 import org.junit.After;
@@ -53,6 +56,15 @@ public class CellBroadcastAlertServiceTest extends
             int serviceCategory, int cmasMessageClass) {
         return new SmsCbMessage(1, 2, serialNumber, new SmsCbLocation(), serviceCategory,
                 "language", "body",
+                SmsCbMessage.MESSAGE_PRIORITY_EMERGENCY, null,
+                new SmsCbCmasInfo(cmasMessageClass, 2, 3, 4, 5, 6),
+                0, 1);
+    }
+
+    static SmsCbMessage createCmasMessageWithLanguage(int serialNumber, int serviceCategory,
+            int cmasMessageClass, String language) {
+        return new SmsCbMessage(1, 2, serialNumber, new SmsCbLocation(),
+                serviceCategory, language, "body",
                 SmsCbMessage.MESSAGE_PRIORITY_EMERGENCY, null,
                 new SmsCbCmasInfo(cmasMessageClass, 2, 3, 4, 5, 6),
                 0, 1);
@@ -106,15 +118,41 @@ public class CellBroadcastAlertServiceTest extends
         sendMessage(m, intent);
     }
 
+    private void sendMessageForCmasMessageClass(int serialNumber, int cmasMessageClass) {
+        Intent intent = new Intent(mContext, CellBroadcastAlertService.class);
+        intent.setAction(Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED);
+
+        SmsCbMessage m = createMessageForCmasMessageClass(serialNumber, cmasMessageClass,
+                cmasMessageClass);
+        sendMessage(m, intent);
+    }
+
+    private void sendMessageForCmasMessageClassAndLanguage(int serialNumber, int cmasMessageClass,
+            String language) {
+        Intent intent = new Intent(mContext, CellBroadcastAlertService.class);
+        intent.setAction(Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED);
+
+        SmsCbMessage m = createCmasMessageWithLanguage(serialNumber, cmasMessageClass,
+                cmasMessageClass, language);
+        sendMessage(m, intent);
+    }
+
     private void sendMessage(SmsCbMessage m, Intent intent) {
         intent.putExtra("message", m);
         startService(intent);
     }
 
+    private void waitForServiceIntent() {
+        waitFor(() -> mServiceIntentToVerify != null);
+    }
+
     // Test handleCellBroadcastIntent method
+    @InstrumentationTest
+    // This test has a module dependency, so it is disabled for OEM testing because it is not a true
+    // unit test
     public void testHandleCellBroadcastIntent() throws Exception {
         sendMessage(987654321);
-        waitForMs(500);
+        waitForServiceIntent();
 
         assertEquals(SHOW_NEW_ALERT_ACTION, mServiceIntentToVerify.getAction());
 
@@ -125,13 +163,16 @@ public class CellBroadcastAlertServiceTest extends
     }
 
     // Test showNewAlert method
+    @InstrumentationTest
+    // This test has a module dependency, so it is disabled for OEM testing because it is not a true
+    // unit test
     public void testShowNewAlert() throws Exception {
         Intent intent = new Intent(mContext, CellBroadcastAlertService.class);
         intent.setAction(SHOW_NEW_ALERT_ACTION);
         SmsCbMessage message = createMessage(34788612);
         intent.putExtra("message", message);
         startService(intent);
-        waitForMs(500);
+        waitForServiceIntent();
 
         // verify audio service intent
         assertEquals(CellBroadcastAlertAudio.ACTION_START_ALERT_AUDIO,
@@ -149,5 +190,56 @@ public class CellBroadcastAlertServiceTest extends
         assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK,
                 (mActivityIntentToVerify.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK));
         compareCellBroadCastMessage(message, newMessageList.get(0));
+    }
+
+    // Test showNewAlert method with a CMAS child abduction alert, using the default language code
+    @InstrumentationTest
+    // This test has a module dependency, so it is disabled for OEM testing because it is not a true
+    // unit test
+    public void testShowNewAlertChildAbductionWithDefaultLanguage() {
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
+        doReturn(new String[]{"0x111B:rat=gsm, emergency=true"})
+                .when(mResources).getStringArray(anyInt());
+        doReturn("").when(mResources).getString(anyInt());
+
+        sendMessageForCmasMessageClass(34788613,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY);
+        waitForServiceIntent();
+
+        assertEquals(SHOW_NEW_ALERT_ACTION, mServiceIntentToVerify.getAction());
+
+        SmsCbMessage cbmTest = (SmsCbMessage) mServiceIntentToVerify.getExtras().get("message");
+        SmsCbMessage cbm = createMessageForCmasMessageClass(34788613,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY);
+
+        compareCellBroadCastMessage(cbm, cbmTest);
+    }
+
+    // Test showNewAlert method with a CMAS child abduction alert
+    @InstrumentationTest
+    // This test has a module dependency, so it is disabled for OEM testing because it is not a true
+    // unit test
+    public void testShowNewAlertChildAbduction() {
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
+        enablePreference(CellBroadcastSettings.KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE);
+
+        final String language = "es";
+        doReturn(new String[]{"0x111B:rat=gsm, emergency=true, filter_language=true"})
+                .when(mResources).getStringArray(anyInt());
+        doReturn(language).when(mResources).getString(anyInt());
+
+        sendMessageForCmasMessageClassAndLanguage(34788614,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY, language);
+        waitForServiceIntent();
+
+        assertEquals(SHOW_NEW_ALERT_ACTION, mServiceIntentToVerify.getAction());
+
+        SmsCbMessage cbmTest = (SmsCbMessage) mServiceIntentToVerify.getExtras().get("message");
+        SmsCbMessage cbm = createCmasMessageWithLanguage(34788614,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY, language);
+
+        compareCellBroadCastMessage(cbm, cbmTest);
     }
 }
