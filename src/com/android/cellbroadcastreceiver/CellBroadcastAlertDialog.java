@@ -306,6 +306,11 @@ public class CellBroadcastAlertDialog extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // if this is only to dismiss any pending alert dialog
+        if (getIntent().getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+            dismissAllFromNotification(getIntent());
+            return;
+        }
 
         final Window win = getWindow();
 
@@ -404,7 +409,10 @@ public class CellBroadcastAlertDialog extends Activity {
             int subId = message.getSubscriptionId();
             CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(this,
                     subId);
-            if (channelManager.isEmergencyMessage(message)) {
+            CellBroadcastChannelRange range = channelManager
+                    .getCellBroadcastChannelRangeFromMessage(message);
+            if (channelManager.isEmergencyMessage(message)
+                    && (range!= null && range.mDisplayIcon)) {
                 mAnimationHandler.startIconAnimation(subId);
             }
         }
@@ -430,7 +438,7 @@ public class CellBroadcastAlertDialog extends Activity {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (!(isChangingConfigurations() || getLatestMessage() == null) && pm.isScreenOn()) {
             CellBroadcastAlertService.addToNotificationBar(getLatestMessage(), mMessageList,
-                    getApplicationContext(), true, true);
+                    getApplicationContext(), true, true, false);
             // Stop playing alert sound/vibration/speech (if started)
             stopService(new Intent(this, CellBroadcastAlertAudio.class));
         }
@@ -678,12 +686,21 @@ public class CellBroadcastAlertDialog extends Activity {
     @Override
     @VisibleForTesting
     public void onNewIntent(Intent intent) {
+        if (intent.getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+            dismissAllFromNotification(intent);
+            return;
+        }
         ArrayList<SmsCbMessage> newMessageList = intent.getParcelableArrayListExtra(
                 CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA);
         if (newMessageList != null) {
             if (intent.getBooleanExtra(FROM_SAVE_STATE_NOTIFICATION_EXTRA, false)) {
                 mMessageList = newMessageList;
             } else {
+                // remove the duplicate messages
+                for (SmsCbMessage message : newMessageList) {
+                    mMessageList.removeIf(
+                            msg -> msg.getReceivedTime() == message.getReceivedTime());
+                }
                 mMessageList.addAll(newMessageList);
                 if (CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
                         .getBoolean(R.bool.show_cmas_messages_in_priority_order)) {
@@ -750,6 +767,27 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     /**
+     * This will be called when users swipe away the notification, this will
+     * 1. dismiss all foreground dialog, stop animating warning icon and stop the
+     * {@link CellBroadcastAlertAudio} service.
+     * 2. Does not mark message read.
+     */
+    public void dismissAllFromNotification(Intent intent) {
+        Log.d(TAG, "dismissAllFromNotification");
+        // Stop playing alert sound/vibration/speech (if started)
+        stopService(new Intent(this, CellBroadcastAlertAudio.class));
+        // Cancel any pending alert reminder
+        CellBroadcastAlertReminder.cancelAlertReminder();
+        // Remove the all current showing alert message from the list.
+        mMessageList.clear();
+        // clear notifications.
+        clearNotification(intent);
+        // Remove pending screen-off messages (animation messages are removed in onPause()).
+        mScreenOffHandler.stopScreenOnTimer();
+        finish();
+    }
+
+    /**
      * Stop animating warning icon and stop the {@link CellBroadcastAlertAudio}
      * service if necessary.
      */
@@ -791,7 +829,8 @@ public class CellBroadcastAlertDialog extends Activity {
         CellBroadcastChannelRange range = channelManager
                 .getCellBroadcastChannelRangeFromMessage(lastMessage);
 
-        if (range!= null && !range.mAlwaysOn) {
+        if (!neverShowOptOutDialog(lastMessage.getSubscriptionId()) && range != null
+                && !range.mAlwaysOn) {
             mShowOptOutDialog = true;
         }
 
@@ -800,7 +839,8 @@ public class CellBroadcastAlertDialog extends Activity {
         if (nextMessage != null) {
             updateAlertText(nextMessage);
             int subId = nextMessage.getSubscriptionId();
-            if (channelManager.isEmergencyMessage(nextMessage)) {
+            if (channelManager.isEmergencyMessage(nextMessage)
+                    && (range!= null && range.mDisplayIcon)) {
                 mAnimationHandler.startIconAnimation(subId);
             } else {
                 mAnimationHandler.stopIconAnimation();
@@ -838,8 +878,8 @@ public class CellBroadcastAlertDialog extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.d(TAG, "onKeyDown: " + event);
         SmsCbMessage message = getLatestMessage();
-        if (CellBroadcastSettings.getResources(getApplicationContext(), message.getSubscriptionId())
-                .getBoolean(R.bool.mute_by_physical_button)) {
+        if (message != null && CellBroadcastSettings.getResources(getApplicationContext(),
+                message.getSubscriptionId()).getBoolean(R.bool.mute_by_physical_button)) {
             switch (event.getKeyCode()) {
                 // Volume keys and camera keys mute the alert sound/vibration (except ETWS).
                 case KeyEvent.KEYCODE_VOLUME_UP:
@@ -884,6 +924,14 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     /**
+     * @return true if the device is configured to never show the opt out dialog for the mcc/mnc
+     */
+    private boolean neverShowOptOutDialog(int subId) {
+        return CellBroadcastSettings.getResources(getApplicationContext(), subId)
+                .getBoolean(R.bool.disable_opt_out_dialog);
+    }
+
+    /**
      * Copy the message to clipboard.
      *
      * @param message Cell broadcast message.
@@ -923,7 +971,7 @@ public class CellBroadcastAlertDialog extends Activity {
             // do not alert if remove unread messages from the notification bar.
            CellBroadcastAlertService.addToNotificationBar(
                    CellBroadcastReceiverApp.getLatestMessage(),
-                   unreadMessageList, context,false, false);
+                   unreadMessageList, context,false, false, false);
         }
     }
 }

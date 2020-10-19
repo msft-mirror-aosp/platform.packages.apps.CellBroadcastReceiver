@@ -49,6 +49,10 @@
     <bool name="show_public_safety_settings">true</bool>
     <!-- Whether to display state/local test settings, some countries/carriers want to enable it by default and not allow users to disable -->
     <bool name="show_state_local_test_settings">true</bool>
+    <!-- Whether to display exercise test settings even when testing mode is off. -->
+    <bool name="show_exercise_settings">false</bool>
+    <!-- whether to display a separate exercise test settings. today, most of time, exercise channels was controlled by the main test toggle. -->
+    <bool name="show_separate_exercise_settings">false</bool>
     <!-- Whether to disable cell broadcast severe alert when extreme alert is disabled -->
     <bool name="disable_severe_when_extreme_disabled">true</bool>
     <!-- Whether to enable alert handling during active voice call. -->
@@ -83,6 +87,8 @@
     <bool name="state_local_test_alerts_enabled_default">false</bool>
     <!-- Other test alerts toggle default value -->
     <bool name="test_alerts_enabled_default">false</bool>
+    <!-- Exercise test alerts toggle default value -->
+    <bool name="test_exercise_alerts_enabled_default">false</bool>
     <!-- Area info toggle default value -->
     <bool name="area_update_info_alerts_enabled_default">true</bool>
     <!-- Show area update info settings in CellBroadcastReceiver and information in SIM status in Settings app -->
@@ -218,6 +224,9 @@
          alert_reminder_interval_values for the interval of first reminder -->
     <integer name="first_reminder_interval_in_min">0</integer>
 
+    <!-- Whether to disable the opt-out dialog for all channels -->
+    <bool name="disable_opt_out_dialog">false</bool>
+
     <!-- Whether the emergency alert notification is non-swipeable -->
     <bool name="non_swipeable_notification">false</bool>
 
@@ -233,4 +242,8 @@
 
     <!-- Whether to override the language of the alert dialog's title to match the message locale -->
     <bool name="override_alert_title_language_to_match_message_locale">false</bool>
+
+    <!-- Whether to display a notification with pop-up dialog in the foreground.
+    This is used to support emergency alert on the companion devices by bridged notification -->
+    <bool name="show_alert_dialog_with_notification">false</bool>
 </resources>

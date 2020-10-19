@@ -118,6 +118,9 @@
             <item type="bool" name="enable_write_alerts_to_sms_inbox" />
             <item type="bool" name="always_mark_sms_read" />
 
+            <!-- Whether to disable the opt-out dialog for all channels -->
+            <item type="bool" name="disable_opt_out_dialog" />
+
             <!-- Whether to retry message history data migration after db creation
            Note, please only enable this flag when upgrade to R, enabling this
            flag during OTA might cause history data inserted twice.-->
@@ -133,6 +136,10 @@
 
             <!-- Default value which determines whether spoken alerts enabled -->
             <item type="bool" name="enable_alert_speech_default" />
+
+            <!-- Default value of whether to display a notification with pop-up dialog in the foreground.
+            This is used to support emergency alert on the companion devices by bridged notification -->
+            <item type="bool" name="show_alert_dialog_with_notification" />
 
             <!-- Temporarily enable string customization to address translation issues. All translation issues will be fixed in S by upstreaming -->
             <!-- Dialog title for presidential level alert. [CHAR LIMIT=50] -->
@@ -269,6 +276,8 @@
             <item type="string" name="message_copied" />
             <item type="string" name="enable_alert_speech_title" />
             <item type="string" name="enable_alert_speech_summary" />
+            <item type="string" name="enable_exercise_test_alerts_title" />
+            <item type="string" name="enable_exercise_test_alerts_summary" />
         </policy>
         <!-- END VENDOR CUSTOMIZATION -->
 
