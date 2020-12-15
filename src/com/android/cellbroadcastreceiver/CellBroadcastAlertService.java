@@ -424,17 +424,18 @@ public class CellBroadcastAlertService extends Service {
         // Check if all emergency alerts are disabled.
         boolean emergencyAlertEnabled =
                 prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, true);
+        int channel = message.getServiceCategory();
 
         SmsCbEtwsInfo etwsInfo = message.getEtwsWarningInfo();
-        if (etwsInfo != null
-                && etwsInfo.getWarningType() == SmsCbEtwsInfo.ETWS_WARNING_TYPE_TEST_MESSAGE) {
+        if ((etwsInfo != null && etwsInfo.getWarningType()
+                == SmsCbEtwsInfo.ETWS_WARNING_TYPE_TEST_MESSAGE)
+                || channelManager.checkCellBroadcastChannelRange(channel,
+                R.array.etws_test_alerts_range_strings)) {
             return emergencyAlertEnabled
                     && CellBroadcastSettings.isTestAlertsToggleVisible(getApplicationContext())
                     && PreferenceManager.getDefaultSharedPreferences(this)
                     .getBoolean(CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, false);
         }
-
-        int channel = message.getServiceCategory();
 
         if (message.isEtwsMessage() || channelManager.checkCellBroadcastChannelRange(channel,
                 R.array.etws_alerts_range_strings)) {
@@ -513,6 +514,13 @@ public class CellBroadcastAlertService extends Service {
                 res.getBoolean(R.bool.show_separate_exercise_settings)) {
             return emergencyAlertEnabled && PreferenceManager.getDefaultSharedPreferences(this)
                     .getBoolean(CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS, false);
+        }
+
+        if (channelManager.checkCellBroadcastChannelRange(
+                channel, R.array.operator_defined_alert_range_strings) &&
+                res.getBoolean(R.bool.show_separate_operator_defined_settings)) {
+            return emergencyAlertEnabled && PreferenceManager.getDefaultSharedPreferences(this)
+                    .getBoolean(CellBroadcastSettings.KEY_OPERATOR_DEFINED_ALERTS, false);
         }
 
         if (channelManager.checkCellBroadcastChannelRange(channel,
@@ -697,7 +705,9 @@ public class CellBroadcastAlertService extends Service {
             pi = PendingIntent.getBroadcast(context, 0, intent, 0);
         } else {
             pi = PendingIntent.getActivity(context, REQUEST_CODE_CONTENT_INTENT, intent,
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_ONE_SHOT
+                            | PendingIntent.FLAG_UPDATE_CURRENT
+                            | PendingIntent.FLAG_IMMUTABLE);
         }
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
                 context, message.getSubscriptionId());
@@ -740,7 +750,9 @@ public class CellBroadcastAlertService extends Service {
             Intent deleteIntent = new Intent(intent);
             deleteIntent.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, true);
             builder.setDeleteIntent(PendingIntent.getActivity(context, REQUEST_CODE_DELETE_INTENT,
-                    deleteIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT));
+                    deleteIntent, PendingIntent.FLAG_ONE_SHOT
+                            | PendingIntent.FLAG_UPDATE_CURRENT
+                            | PendingIntent.FLAG_IMMUTABLE));
             if (!fromDialog) {
                 // If this is a notification from the foreground dialog, no need to set
                 // contentIntent to reopen the dialog again.
