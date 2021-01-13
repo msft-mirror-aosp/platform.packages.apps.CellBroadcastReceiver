@@ -19,6 +19,9 @@ package com.android.cellbroadcastreceiver;
 import static com.android.cellbroadcastreceiver.CellBroadcastReceiver.VDBG;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -87,8 +90,31 @@ public class CellBroadcastConfigService extends IntentService {
                 Log.e(TAG, "exception enabling cell broadcast channels", ex);
             }
         } else if (ACTION_UPDATE_SETTINGS_FOR_CARRIER.equals(intent.getAction())) {
-            // TODO(jminjie): cellbroadcastservice should post a notification if any settings have
-            //                been touched
+            Context c = getApplicationContext();
+            if (CellBroadcastSettings.hasAnyPreferenceChanged(c)) {
+                Log.d(TAG, "Preference has changed from user set, posting notification.");
+
+                CellBroadcastAlertService.createNotificationChannels(c);
+                Intent settingsIntent = new Intent(c, CellBroadcastSettings.class);
+                PendingIntent pi = PendingIntent.getActivity(c,
+                        CellBroadcastAlertService.SETTINGS_CHANGED_NOTIFICATION_ID, settingsIntent,
+                        PendingIntent.FLAG_ONE_SHOT
+                                | PendingIntent.FLAG_UPDATE_CURRENT
+                                | PendingIntent.FLAG_IMMUTABLE);
+
+                Notification.Builder builder = new Notification.Builder(c,
+                        CellBroadcastAlertService.NOTIFICATION_CHANNEL_SETTINGS_UPDATES)
+                        .setCategory(Notification.CATEGORY_SYSTEM)
+                        .setContentTitle(c.getString(R.string.notification_cb_settings_changed_title))
+                        .setContentText(c.getString(R.string.notification_cb_settings_changed_text))
+                        .setSmallIcon(R.drawable.ic_settings_gear_outline_24dp)
+                        .setContentIntent(pi);
+                NotificationManager notificationManager = c.getSystemService(
+                        NotificationManager.class);
+                notificationManager.notify(
+                        CellBroadcastAlertService.SETTINGS_CHANGED_NOTIFICATION_ID,
+                        builder.build());
+            }
             Log.e(TAG, "Reset all preferences");
             CellBroadcastSettings.resetAllPreferences(getApplicationContext());
         }
@@ -161,6 +187,14 @@ public class CellBroadcastConfigService extends IntentService {
                 && CellBroadcastSettings.isTestAlertsToggleVisible(getApplicationContext())
                 && prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, false);
 
+        boolean enableExerciseAlerts = enableAlertsMasterToggle
+                && res.getBoolean(R.bool.show_separate_exercise_settings)
+                && prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS, false);
+
+        boolean enableOperatorDefined = enableAlertsMasterToggle
+                && res.getBoolean(R.bool.show_separate_operator_defined_settings)
+                && prefs.getBoolean(CellBroadcastSettings.KEY_OPERATOR_DEFINED_ALERTS, false);
+
         boolean enableAreaUpdateInfoAlerts = res.getBoolean(
                 R.bool.config_showAreaUpdateInfoSettings)
                 && prefs.getBoolean(CellBroadcastSettings.KEY_ENABLE_AREA_UPDATE_INFO_ALERTS,
@@ -186,6 +220,8 @@ public class CellBroadcastConfigService extends IntentService {
             log("enableCmasSevereAlerts = " + enableCmasExtremeAlerts);
             log("enableCmasAmberAlerts = " + enableCmasAmberAlerts);
             log("enableTestAlerts = " + enableTestAlerts);
+            log("enableExerciseAlerts = " + enableExerciseAlerts);
+            log("enableOperatorDefinedAlerts = " + enableOperatorDefined);
             log("enableAreaUpdateInfoAlerts = " + enableAreaUpdateInfoAlerts);
             log("enablePublicSafetyMessagesChannelAlerts = "
                     + enablePublicSafetyMessagesChannelAlerts);
@@ -225,11 +261,14 @@ public class CellBroadcastConfigService extends IntentService {
                         R.array.required_monthly_test_range_strings));
 
         // Enable/Disable exercise test messages.
-        setCellBroadcastRange(subId, enableTestAlerts,
+        // This could either controlled by main test toggle or separate exercise test toggle.
+        setCellBroadcastRange(subId, enableTestAlerts || enableExerciseAlerts,
                 channelManager.getCellBroadcastChannelRanges(
                         R.array.exercise_alert_range_strings));
 
-        setCellBroadcastRange(subId, enableTestAlerts,
+        // Enable/Disable operator defined test messages.
+        // This could either controlled by main test toggle or separate operator defined test toggle
+        setCellBroadcastRange(subId, enableTestAlerts || enableOperatorDefined,
                 channelManager.getCellBroadcastChannelRanges(
                         R.array.operator_defined_alert_range_strings));
 
