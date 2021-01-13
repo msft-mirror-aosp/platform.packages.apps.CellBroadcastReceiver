@@ -20,8 +20,8 @@ import static com.android.cellbroadcastreceiver.CellBroadcastAlertAudio.ALERT_AU
 import static com.android.cellbroadcastreceiver.CellBroadcastAlertService.SHOW_NEW_ALERT_ACTION;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 import android.content.Intent;
@@ -41,10 +41,9 @@ import com.android.internal.telephony.gsm.SmsCbConstants;
 
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 public class CellBroadcastAlertServiceTest extends
         CellBroadcastServiceTestCase<CellBroadcastAlertService> {
@@ -158,9 +157,10 @@ public class CellBroadcastAlertServiceTest extends
     @InstrumentationTest
     // This test has a module dependency, so it is disabled for OEM testing because it is not a true
     // unit test
-    public void testHandleCellBroadcastIntent() throws Exception {
+    public void testHandleCellBroadcastIntent() {
         doReturn(new String[]{"0x1112:rat=gsm, emergency=true"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
         enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         sendMessage(987654321);
         waitForServiceIntent();
@@ -186,7 +186,8 @@ public class CellBroadcastAlertServiceTest extends
         mockNeRegInfo.setRoamingType(ServiceState.ROAMING_TYPE_DOMESTIC);
         doReturn(mockNeRegInfo).when(mockSS).getNetworkRegistrationInfo(anyInt(), anyInt());
         doReturn(new String[]{"0x1112:rat=gsm, emergency=true, scope=domestic"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
 
         enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         sendMessage(987654321);
@@ -213,7 +214,8 @@ public class CellBroadcastAlertServiceTest extends
         mockNeRegInfo.setRoamingType(ServiceState.ROAMING_TYPE_INTERNATIONAL);
         doReturn(mockNeRegInfo).when(mockSS).getNetworkRegistrationInfo(anyInt(), anyInt());
         doReturn(new String[]{"0x1112:rat=gsm, emergency=true, scope=international"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
 
         enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         sendMessage(987654321);
@@ -240,7 +242,8 @@ public class CellBroadcastAlertServiceTest extends
         mockNeRegInfo.setRoamingType(ServiceState.ROAMING_TYPE_NOT_ROAMING);
         doReturn(mockNeRegInfo).when(mockSS).getNetworkRegistrationInfo(anyInt(), anyInt());
         doReturn(new String[]{"0x1112:rat=gsm, emergency=true, scope=international"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
 
         enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         sendMessage(987654321);
@@ -266,7 +269,8 @@ public class CellBroadcastAlertServiceTest extends
         mockNeRegInfo.setRoamingType(ServiceState.ROAMING_TYPE_DOMESTIC);
         doReturn(mockNeRegInfo).when(mockSS).getNetworkRegistrationInfo(anyInt(), anyInt());
         doReturn(new String[]{"0x1112:rat=gsm, emergency=true, scope=international"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
 
         enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         sendMessage(987654321);
@@ -278,7 +282,7 @@ public class CellBroadcastAlertServiceTest extends
     @InstrumentationTest
     // This test has a module dependency, so it is disabled for OEM testing because it is not a true
     // unit test
-    public void testShowNewAlert() throws Exception {
+    public void testShowNewAlert() {
         Intent intent = new Intent(mContext, CellBroadcastAlertService.class);
         intent.setAction(SHOW_NEW_ALERT_ACTION);
         SmsCbMessage message = createMessage(34788612);
@@ -311,7 +315,8 @@ public class CellBroadcastAlertServiceTest extends
     public void testShowNewAlertChildAbductionWithDefaultLanguage() {
         enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         doReturn(new String[]{"0x111B:rat=gsm, emergency=true"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
         doReturn("").when(mResources).getString(anyInt());
 
         sendMessageForCmasMessageClass(34788613,
@@ -338,7 +343,8 @@ public class CellBroadcastAlertServiceTest extends
 
         final String language = "es";
         doReturn(new String[]{"0x111B:rat=gsm, emergency=true, filter_language=true"})
-                .when(mResources).getStringArray(anyInt());
+                .when(mResources).getStringArray(
+                        eq(com.android.cellbroadcastreceiver.R.array.etws_alerts_range_strings));
         doReturn(language).when(mResources).getString(anyInt());
 
         sendMessageForCmasMessageClassAndLanguage(34788614,
@@ -353,5 +359,29 @@ public class CellBroadcastAlertServiceTest extends
                 SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY, language);
 
         compareCellBroadCastMessage(cbm, cbmTest);
+    }
+
+    public void testShouldDisplayMessage() {
+        sendMessage(1);
+        waitForServiceIntent();
+
+        CellBroadcastAlertService cellBroadcastAlertService =
+                (CellBroadcastAlertService) getService();
+
+        // shouldDisplayMessage should return true for ETWS message
+        SmsCbEtwsInfo etwsInfo = new SmsCbEtwsInfo(SmsCbEtwsInfo.ETWS_WARNING_TYPE_EARTHQUAKE, true,
+                true, true, null);
+        SmsCbMessage message = new SmsCbMessage(1, 2, 3, new SmsCbLocation(),
+                SmsCbEtwsInfo.ETWS_WARNING_TYPE_EARTHQUAKE,
+                "language", "body",
+                SmsCbMessage.MESSAGE_PRIORITY_EMERGENCY, etwsInfo,
+                null, 0, 1);
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
+
+        assertNotNull("Message should have non-null ETWS info", message.getEtwsWarningInfo());
+        assertTrue("Message should be ETWS message", message.isEtwsMessage());
+        assertTrue("Should display ETWS message",
+                cellBroadcastAlertService.shouldDisplayMessage(message));
     }
 }

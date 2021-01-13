@@ -33,6 +33,7 @@
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.STATUS_BAR" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
@@ -43,6 +44,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS"/>
     <uses-permission android:name="com.android.cellbroadcastservice.FULL_ACCESS_CELL_BROADCAST_HISTORY" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-sdk android:minSdkVersion="21"/>
 
@@ -116,10 +118,10 @@
 
         <activity android:name="com.android.cellbroadcastreceiver.CellBroadcastAlertDialog"
                   android:theme="@style/CellBroadcastAlertTheme"
-                  android:launchMode="singleTask"
+                  android:launchMode="singleInstance"
                   android:exported="false"
                   android:excludeFromRecents="true"
-                  android:configChanges="orientation|keyboardHidden|keyboard|navigation">
+                  android:configChanges="orientation|keyboardHidden|screenSize|keyboard|navigation">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_CB_RECEIVED" />
             </intent-filter>
@@ -127,6 +129,8 @@
 
         <!-- Container activity for CMAS opt-in/opt-out dialog. -->
         <activity android:name="com.android.cellbroadcastreceiver.CellBroadcastOptOutActivity"
+                  android:launchMode="singleInstance"
+                  android:theme="@style/CellBroadcastAlertTheme"
                   android:exported="false" />
 
         <receiver android:name="com.android.cellbroadcastreceiver.CellBroadcastReceiver">
@@ -139,6 +143,7 @@
                 <action android:name="android.provider.Telephony.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.SERVICE_STATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.telephony.action.SECRET_CODE" />
