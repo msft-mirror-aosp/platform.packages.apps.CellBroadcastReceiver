@@ -52,6 +52,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 
+
 public class CellBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "CellBroadcastReceiver";
     static final boolean DBG = true;
@@ -70,6 +71,10 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
     // shared preference under developer settings
     private static final String ENABLE_ALERT_MASTER_PREF = "enable_alerts_master_toggle";
+
+    // shared preference for alert reminder interval
+    private static final String ALERT_REMINDER_INTERVAL_PREF = "alert_reminder_interval";
+
     // SharedPreferences key used to store the last carrier
     private static final String CARRIER_ID_FOR_DEFAULT_SUB_PREF = "carrier_id_for_default_sub";
     // initial value for saved carrier ID. This helps us detect newly updated users or first boot
@@ -90,22 +95,6 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             "com.android.cellbroadcastreceiver.intent.ACTION_TESTING_MODE_CHANGED";
 
     private Context mContext;
-
-    /**
-     * helper method for easier testing. To generate a new CellBroadcastTask
-     * @param deliveryTime message delivery time
-     */
-    @VisibleForTesting
-    public void getCellBroadcastTask(final long deliveryTime) {
-        new CellBroadcastContentProvider.AsyncCellBroadcastTask(mContext.getContentResolver())
-                .execute(new CellBroadcastContentProvider.CellBroadcastOperation() {
-                    @Override
-                    public boolean execute(CellBroadcastContentProvider provider) {
-                        return provider.markBroadcastRead(CellBroadcasts.DELIVERY_TIME,
-                                deliveryTime);
-                    }
-                });
-    }
 
     /**
      * this method is to make this class unit-testable, because CellBroadcastSettings.getResources()
@@ -139,7 +128,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 startConfigServiceToEnableChannels();
                 // Some OEMs do not have legacyMigrationProvider active during boot-up, thus we
                 // need to retry data migration from another trigger point.
-                boolean hasMigrated = PreferenceManager.getDefaultSharedPreferences(mContext)
+                boolean hasMigrated = getDefaultSharedPreferences()
                         .getBoolean(CellBroadcastDatabaseHelper.KEY_LEGACY_DATA_MIGRATION, false);
                 if (res.getBoolean(R.bool.retry_message_history_data_migration) && !hasMigrated) {
                     // migrate message history from legacy app on a background thread.
@@ -196,6 +185,13 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                         .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
                 log(msg);
             }
+        } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            new CellBroadcastContentProvider.AsyncCellBroadcastTask(
+                    mContext.getContentResolver()).execute((CellBroadcastContentProvider
+                    .CellBroadcastOperation) provider -> {
+                        provider.resyncToSmsInbox(mContext);
+                        return true;
+                    });
         } else {
             Log.w(TAG, "onReceive() unexpected action " + action);
         }
@@ -340,7 +336,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         }
     }
     /**
-     * This method's purpose if to enable unit testing
+     * This method's purpose is to enable unit testing
      * @return sharedePreferences for mContext
      */
     @VisibleForTesting
@@ -415,6 +411,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 CellBroadcasts.Preference.ENABLE_ALERT_VIBRATION_PREF,
                 CellBroadcasts.Preference.ENABLE_CMAS_IN_SECOND_LANGUAGE_PREF,
                 ENABLE_ALERT_MASTER_PREF,
+                ALERT_REMINDER_INTERVAL_PREF
         };
         try (ContentProviderClient client = mContext.getContentResolver()
                 .acquireContentProviderClient(Telephony.CellBroadcasts.AUTHORITY_LEGACY)) {
@@ -431,9 +428,19 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                             CellBroadcasts.CALL_METHOD_GET_PREFERENCE,
                             key, null);
                     if (pref != null && pref.containsKey(key)) {
-                        Log.d(TAG, "migrateSharedPreferenceFromLegacy: " + key + "val: "
-                                + pref.getBoolean(key));
-                        sp.putBoolean(key, pref.getBoolean(key));
+                        Object val = pref.get(key);
+                        if (val == null) {
+                            // noop - no value to set.
+                            // Only support Boolean and String as preference types for now.
+                        } else if (val instanceof Boolean) {
+                            Log.d(TAG, "migrateSharedPreferenceFromLegacy: " + key + "val: "
+                                    + pref.getBoolean(key));
+                            sp.putBoolean(key, pref.getBoolean(key));
+                        } else if (val instanceof String) {
+                            Log.d(TAG, "migrateSharedPreferenceFromLegacy: " + key + "val: "
+                                    + pref.getString(key));
+                            sp.putString(key, pref.getString(key));
+                        }
                     } else {
                         Log.d(TAG, "migrateSharedPreferenceFromLegacy: unsupported key: " + key);
                     }
@@ -527,8 +534,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * This method's purpose if to enable unit testing
      * @return if the mContext user is a system user
      */
-    @VisibleForTesting
-    public boolean isSystemUser() {
+    private boolean isSystemUser() {
         return isSystemUser(mContext);
     }
 
