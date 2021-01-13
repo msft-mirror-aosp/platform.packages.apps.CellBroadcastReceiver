@@ -21,8 +21,10 @@ import static android.telephony.PhoneStateListener.LISTEN_NONE;
 import static com.android.cellbroadcastreceiver.CellBroadcastReceiver.DBG;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
@@ -42,6 +44,7 @@ import android.os.Message;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.telephony.PhoneStateListener;
 import android.telephony.SubscriptionManager;
@@ -131,6 +134,7 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
     private AudioManager mAudioManager;
     private TelephonyManager mTelephonyManager;
     private int mInitialCallState;
+    private ScreenOffReceiver mScreenOffReceiver;
 
     // Internal messages
     private static final int ALERT_SOUND_FINISHED = 1000;
@@ -438,6 +442,13 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
             log("vibrate: effect=" + effect + ", attr=" + attr + ", duration="
                     + customAlertDuration);
             mVibrator.vibrate(effect, attr);
+            // Android default behavior will stop vibration when screen turns off.
+            // if mute by physical button is not allowed, press power key should not turn off
+            // vibration.
+            if (!res.getBoolean(R.bool.mute_by_physical_button)) {
+                mScreenOffReceiver = new ScreenOffReceiver(effect, attr);
+                registerReceiver(mScreenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+            }
         }
 
         if (mEnableLedFlash) {
@@ -489,7 +500,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
                         setDataSourceFromResource(res, mMediaPlayer, R.raw.etws_default);
                         break;
                     case INFO:
-                        setDataSourceFromResource(res, mMediaPlayer, R.raw.info);
+                    case AREA:
+                        mMediaPlayer.setDataSource(this, Settings.System.DEFAULT_NOTIFICATION_URI);
                         break;
                     case TEST:
                     case DEFAULT:
@@ -503,7 +515,9 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
                 // once voice call ends.
                 mAudioManager.requestAudioFocus(this,
                         new AudioAttributes.Builder().setLegacyStreamType(
-                                AudioManager.STREAM_ALARM).build(),
+                                (alertType == AlertType.INFO || alertType == AlertType.AREA) ?
+                                        AudioManager.STREAM_NOTIFICATION
+                                        : AudioManager.STREAM_ALARM).build(),
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
                         AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
                 mMediaPlayer.setAudioAttributes(getAlertAudioAttributes());
@@ -606,6 +620,15 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
 
             // Stop vibrator
             mVibrator.cancel();
+            if (mScreenOffReceiver != null) {
+                try {
+                    unregisterReceiver(mScreenOffReceiver);
+                } catch (Exception e){
+                    // already unregistered
+                }
+                mScreenOffReceiver = null;
+            }
+
             if (mEnableLedFlash) {
                 enableLedFlash(false);
             }
@@ -634,10 +657,16 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
         AudioAttributes.Builder builder = new AudioAttributes.Builder();
 
         builder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
-        builder.setUsage(AudioAttributes.USAGE_ALARM);
+        builder.setUsage((mAlertType == AlertType.INFO || mAlertType == AlertType.AREA) ?
+                AudioAttributes.USAGE_NOTIFICATION : AudioAttributes.USAGE_ALARM);
         if (mOverrideDnd) {
             // Set FLAG_BYPASS_INTERRUPTION_POLICY and FLAG_BYPASS_MUTE so that it enables
             // audio in any DnD mode, even in total silence DnD mode (requires MODIFY_PHONE_STATE).
+
+            // Note: this only works when the audio attributes usage is set to USAGE_ALARM. If
+            // regulatory concerns mean that we need to bypass DnD for AlertType.INFO or
+            // AlertType.AREA as well, we'll need to add a config flag to have INFO go over the
+            // alarm stream as well for those jurisdictions in which those regulatory concerns apply
             builder.setFlags(AudioAttributes.FLAG_BYPASS_INTERRUPTION_POLICY
                     | AudioAttributes.FLAG_BYPASS_MUTE);
         }
@@ -683,12 +712,16 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
      * Set volume of STREAM_ALARM to full.
      */
     private void setAlarmStreamVolumeToFull() {
-        log("setting alarm volume to full for cell broadcast alerts.");
-        int streamType = AudioManager.STREAM_ALARM;
-        mUserSetAlarmVolume = mAudioManager.getStreamVolume(streamType);
-        mResetAlarmVolumeNeeded = true;
-        mAudioManager.setStreamVolume(streamType,
-                mAudioManager.getStreamMaxVolume(streamType), 0);
+        if (mAlertType != AlertType.INFO && mAlertType != AlertType.AREA) {
+            log("setting alarm volume to full for cell broadcast alerts.");
+            int streamType = AudioManager.STREAM_ALARM;
+            mUserSetAlarmVolume = mAudioManager.getStreamVolume(streamType);
+            mResetAlarmVolumeNeeded = true;
+            mAudioManager.setStreamVolume(streamType,
+                    mAudioManager.getStreamMaxVolume(streamType), 0);
+        } else {
+            log("Skipping setting alarm volume to full for alert type INFO and AREA");
+        }
     }
 
     /**
@@ -699,6 +732,28 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
             log("resetting alarm volume to back to " + mUserSetAlarmVolume);
             mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mUserSetAlarmVolume, 0);
             mResetAlarmVolumeNeeded = false;
+        }
+    }
+
+    /**
+     * BroadcastReceiver for screen off events. Used for Latam.
+     * CMAS requirements to make sure vibration continues when screen goes off
+     */
+    private class ScreenOffReceiver extends BroadcastReceiver {
+        VibrationEffect mVibrationEffect;
+        AudioAttributes mAudioAttr;
+
+        public ScreenOffReceiver(VibrationEffect effect, AudioAttributes attributes) {
+            this.mVibrationEffect = effect;
+            this.mAudioAttr = attributes;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Restart the vibration after screen off
+            if (mState == STATE_ALERTING) {
+                mVibrator.vibrate(mVibrationEffect, mAudioAttr);
+            }
         }
     }
 
