@@ -25,10 +25,12 @@ import android.app.NotificationManager;
 import android.app.StatusBarManager;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -161,6 +163,18 @@ public class CellBroadcastAlertDialog extends Activity {
     // Show the opt-out dialog
     private AlertDialog mOptOutDialog;
 
+    /** BroadcastReceiver for screen off events. When screen was off, remove FLAG_TURN_SCREEN_ON to
+     * start from a clean state. Otherwise, the window flags from the first alert will be
+     * automatically applied to the following alerts handled at onNewIntent.
+     */
+    private BroadcastReceiver mScreenOffReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent){
+            Log.d(TAG, "onSreenOff: remove FLAG_TURN_SCREEN_ON flag");
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        }
+    };
+
     /**
      * Animation handler for the flashing warning icon (emergency alerts only).
      */
@@ -200,9 +214,6 @@ public class CellBroadcastAlertDialog extends Activity {
         public void stopIconAnimation() {
             // Increment the counter so the handler will ignore the next message.
             mCount.incrementAndGet();
-            if (mWarningIconView != null) {
-                mWarningIconView.setVisibility(View.GONE);
-            }
         }
 
         /** Update the visibility of the warning icon. */
@@ -363,6 +374,8 @@ public class CellBroadcastAlertDialog extends Activity {
             clearNotification(intent);
         }
 
+        registerReceiver(mScreenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+
         if (mMessageList == null || mMessageList.size() == 0) {
             Log.e(TAG, "onCreate failed as message list is null or empty");
             finish();
@@ -420,6 +433,7 @@ public class CellBroadcastAlertDialog extends Activity {
     public void onResume() {
         super.onResume();
         setWindowBottom();
+        setMaxHeightScrollView();
         SmsCbMessage message = getLatestMessage();
         if (message != null) {
             int subId = message.getSubscriptionId();
@@ -667,20 +681,7 @@ public class CellBroadcastAlertDialog extends Activity {
         int titleId = CellBroadcastResources.getDialogTitleResource(context, message);
 
         Resources res = CellBroadcastSettings.getResources(context, message.getSubscriptionId());
-        // This is a temp workaround to bypass carrier TA where the testcase does not set the
-        // language code correctly. TODO: remove this when the testcase get updated.
-        CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
-                this, message.getSubscriptionId());
-        CellBroadcastChannelRange range = channelManager
-                .getCellBroadcastChannelRangeFromMessage(message);
-        String languageCode;
-        if (range != null && !TextUtils.isEmpty(range.mLanguageCode)) {
-            languageCode = range.mLanguageCode;
-        } else {
-            languageCode = message.getLanguageCode();
-        }
-
-        String title = overrideTranslation(titleId, res, languageCode);
+        String title = overrideTranslation(titleId, res, message.getLanguageCode());
         TextView titleTextView = findViewById(R.id.alertTitle);
 
         if (titleTextView != null) {
@@ -764,6 +765,18 @@ public class CellBroadcastAlertDialog extends Activity {
             }
 
             image.setLayoutParams(params);
+        }
+    }
+
+    private void setMaxHeightScrollView() {
+        int contentPanelMaxHeight = getResources().getDimensionPixelSize(
+                R.dimen.alert_dialog_maxheight_content_panel);
+        if (contentPanelMaxHeight > 0) {
+            CustomHeightScrollView scrollView = (CustomHeightScrollView) findViewById(
+                    R.id.scrollView);
+            if (scrollView != null) {
+                scrollView.setMaximumHeight(contentPanelMaxHeight);
+            }
         }
     }
 
@@ -966,6 +979,7 @@ public class CellBroadcastAlertDialog extends Activity {
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(mScreenOffReceiver);
         super.onDestroy();
     }
 
