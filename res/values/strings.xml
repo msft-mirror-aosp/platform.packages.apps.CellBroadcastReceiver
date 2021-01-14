@@ -125,6 +125,8 @@
     <string name="notification_channel_emergency_alerts">Emergency alerts</string>
     <!-- Notification channel name for a channel containing emergency alert notifications during voice call. [CHAR LIMIT=100] -->
     <string name="notification_channel_broadcast_messages_in_voicecall">Emergency alerts in voice call</string>
+    <!-- Notification channel name for a channel containing info about WEA settings updates. [CHAR LIMIT=100] -->
+    <string name="notification_channel_settings_updates">Automatic WEA Settings changes based on SIM</string>
 
     <!-- Preference title for enable emergency alerts checkbox. [CHAR LIMIT=50] -->
     <string name="enable_alerts_master_toggle_title">Allow alerts</string>
@@ -185,6 +187,14 @@
     <string name="enable_cmas_test_alerts_title">Test alerts</string>
     <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
     <string name="enable_cmas_test_alerts_summary">Receive carrier tests and monthly tests from the safety alert system</string>
+    <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_exercise_test_alerts_title">@string/cmas_exercise_alert</string>
+    <!-- Preference summary for exercise test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_exercise_test_alerts_summary">Receive emergency alert: Exercise/Drill message</string>
+    <!-- Preference title for operator defined test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_operator_defined_test_alerts_title">@string/cmas_operator_defined_alert</string>
+    <!-- Preference summary for operator defined test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_operator_defined_test_alerts_summary">Receive emergency alert: Operator defined</string>
 
     <!-- Preference title for CMAS vibration on/off. [CHAR LIMIT=50] -->
     <string name="enable_alert_vibrate_title">Vibration</string>
@@ -361,4 +371,8 @@
 
     <!-- Emergency alert message copied to clipboard. -->
     <string name="message_copied">Message copied</string>
+
+    <!-- Notification title and text when alerting user that their CB settings have changed -->
+    <string name="notification_cb_settings_changed_title">Settings changed by carrier</string>
+    <string name="notification_cb_settings_changed_text">Tap to see wireless emergency alert settings</string>
 </resources>

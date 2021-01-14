@@ -22,10 +22,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
+import android.app.StatusBarManager;
+import android.app.PendingIntent;
+import android.app.RemoteAction;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -44,17 +49,22 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.textclassifier.TextClassification;
+import android.view.textclassifier.TextClassification.Request;
 import android.view.textclassifier.TextClassifier;
 import android.view.textclassifier.TextLinks;
+import android.view.textclassifier.TextLinks.TextLink;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,6 +74,8 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,9 +91,9 @@ public class CellBroadcastAlertDialog extends Activity {
 
     private static final String TAG = "CellBroadcastAlertDialog";
 
-    /** Intent extra for non-emergency alerts sent when user selects the notification. */
+    /** Intent extra indicate this intent should not dismiss the notification */
     @VisibleForTesting
-    public static final String FROM_NOTIFICATION_EXTRA = "from_notification";
+    public static final String DISMISS_NOTIFICATION_EXTRA = "dismiss_notification";
 
     // Intent extra to identify if notification was sent while trying to move away from the dialog
     //  without acknowledging the dialog
@@ -106,13 +118,23 @@ public class CellBroadcastAlertDialog extends Activity {
     private static final String LINK_METHOD_SMART_LINKIFY_STRING = "smart_linkify";
 
     /**
+     * Use the machine learning based {@link TextClassifier} to generate links but hiding copy
+     * option. Will fallback to
+     * {@link #LINK_METHOD_LEGACY_LINKIFY} if not enabled.
+     */
+    private static final int LINK_METHOD_SMART_LINKIFY_NO_COPY = 3;
+
+    private static final String LINK_METHOD_SMART_LINKIFY_NO_COPY_STRING = "smart_linkify_no_copy";
+
+
+    /**
      * Text link method
      * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(prefix = "LINK_METHOD_",
             value = {LINK_METHOD_NONE, LINK_METHOD_LEGACY_LINKIFY,
-                    LINK_METHOD_SMART_LINKIFY})
+                    LINK_METHOD_SMART_LINKIFY, LINK_METHOD_SMART_LINKIFY_NO_COPY})
     private @interface LinkMethod {}
 
 
@@ -140,6 +162,18 @@ public class CellBroadcastAlertDialog extends Activity {
 
     // Show the opt-out dialog
     private AlertDialog mOptOutDialog;
+
+    /** BroadcastReceiver for screen off events. When screen was off, remove FLAG_TURN_SCREEN_ON to
+     * start from a clean state. Otherwise, the window flags from the first alert will be
+     * automatically applied to the following alerts handled at onNewIntent.
+     */
+    private BroadcastReceiver mScreenOffReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent){
+            Log.d(TAG, "onSreenOff: remove FLAG_TURN_SCREEN_ON flag");
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        }
+    };
 
     /**
      * Animation handler for the flashing warning icon (emergency alerts only).
@@ -180,9 +214,6 @@ public class CellBroadcastAlertDialog extends Activity {
         public void stopIconAnimation() {
             // Increment the counter so the handler will ignore the next message.
             mCount.incrementAndGet();
-            if (mWarningIconView != null) {
-                mWarningIconView.setVisibility(View.GONE);
-            }
         }
 
         /** Update the visibility of the warning icon. */
@@ -249,11 +280,24 @@ public class CellBroadcastAlertDialog extends Activity {
         ScreenOffHandler() {}
 
         /** Add screen on window flags and queue a delayed message to remove them later. */
-        void startScreenOnTimer() {
+        void startScreenOnTimer(@NonNull SmsCbMessage message) {
+            // if screenOnDuration in milliseconds. if set to 0, do not turn screen on.
+            int screenOnDuration = KEEP_SCREEN_ON_DURATION_MSEC;
+            CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
+                    getApplicationContext(), message.getSubscriptionId());
+            CellBroadcastChannelRange range = channelManager
+                    .getCellBroadcastChannelRangeFromMessage(message);
+            if (range!= null) {
+                screenOnDuration = range.mScreenOnDuration;
+            }
+            if (screenOnDuration == 0) {
+                Log.d(TAG, "screenOnDuration set to 0, do not turn screen on");
+                return;
+            }
             addWindowFlags();
             int msgWhat = mCount.incrementAndGet();
             removeMessages(msgWhat - 1);    // Remove previous message, if any.
-            sendEmptyMessageDelayed(msgWhat, KEEP_SCREEN_ON_DURATION_MSEC);
+            sendEmptyMessageDelayed(msgWhat, screenOnDuration);
             Log.d(TAG, "added FLAG_KEEP_SCREEN_ON, queued screen off message id " + msgWhat);
         }
 
@@ -293,6 +337,11 @@ public class CellBroadcastAlertDialog extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // if this is only to dismiss any pending alert dialog
+        if (getIntent().getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+            dismissAllFromNotification(getIntent());
+            return;
+        }
 
         final Window win = getWindow();
 
@@ -303,15 +352,6 @@ public class CellBroadcastAlertDialog extends Activity {
         win.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
                 | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-
-        // Disable home button when alert dialog is showing if mute_by_physical_button is false.
-        if (!CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
-                .getBoolean(R.bool.mute_by_physical_button)) {
-            final View decorView = win.getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
-
-        setFinishOnTouchOutside(false);
 
         // Initialize the view.
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -334,6 +374,8 @@ public class CellBroadcastAlertDialog extends Activity {
             clearNotification(intent);
         }
 
+        registerReceiver(mScreenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+
         if (mMessageList == null || mMessageList.size() == 0) {
             Log.e(TAG, "onCreate failed as message list is null or empty");
             finish();
@@ -354,8 +396,12 @@ public class CellBroadcastAlertDialog extends Activity {
             if (channelManager.isEmergencyMessage(message)) {
                 Log.d(TAG, "onCreate setting screen on timer for emergency alert for sub "
                         + message.getSubscriptionId());
-                mScreenOffHandler.startScreenOnTimer();
+                mScreenOffHandler.startScreenOnTimer(message);
             }
+
+            CellBroadcastChannelRange range =
+                    channelManager.getCellBroadcastChannelRangeFromMessage(message);
+            setFinishOnTouchOutside(range != null && range.mDismissOnOutsideTouch);
 
             updateAlertText(message);
 
@@ -386,15 +432,24 @@ public class CellBroadcastAlertDialog extends Activity {
     @VisibleForTesting
     public void onResume() {
         super.onResume();
+        setWindowBottom();
+        setMaxHeightScrollView();
         SmsCbMessage message = getLatestMessage();
         if (message != null) {
             int subId = message.getSubscriptionId();
             CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(this,
                     subId);
-            if (channelManager.isEmergencyMessage(message)) {
+            CellBroadcastChannelRange range = channelManager
+                    .getCellBroadcastChannelRangeFromMessage(message);
+            if (channelManager.isEmergencyMessage(message)
+                    && (range!= null && range.mDisplayIcon)) {
                 mAnimationHandler.startIconAnimation(subId);
             }
         }
+        // Some LATAM carriers mandate to disable navigation bars, quick settings etc when alert
+        // dialog is showing. This is to make sure users to ack the alert before switching to
+        // other activities.
+        setStatusBarDisabledIfNeeded(true);
     }
 
     /**
@@ -405,6 +460,7 @@ public class CellBroadcastAlertDialog extends Activity {
     public void onPause() {
         Log.d(TAG, "onPause called");
         mAnimationHandler.stopIconAnimation();
+        setStatusBarDisabledIfNeeded(false);
         super.onPause();
     }
 
@@ -417,9 +473,7 @@ public class CellBroadcastAlertDialog extends Activity {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (!(isChangingConfigurations() || getLatestMessage() == null) && pm.isScreenOn()) {
             CellBroadcastAlertService.addToNotificationBar(getLatestMessage(), mMessageList,
-                    getApplicationContext(), true, true);
-            // Stop playing alert sound/vibration/speech (if started)
-            stopService(new Intent(this, CellBroadcastAlertAudio.class));
+                    getApplicationContext(), true, true, false);
         }
         // Do not stop the audio here. Pressing power button should turn off screen but should not
         // interrupt the audio/vibration
@@ -440,6 +494,19 @@ public class CellBroadcastAlertDialog extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         setPictogramAreaLayout(newConfig.orientation);
+    }
+
+    private void setWindowBottom() {
+        // some OEMs require that the alert window is moved to the bottom of the screen to avoid
+        // blocking other screen content
+        if (getResources().getBoolean(R.bool.alert_dialog_bottom)) {
+            Window window = getWindow();
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            params.gravity = params.gravity | Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            params.verticalMargin = 0;
+            window.setAttributes(params);
+        }
     }
 
     /** Returns the currently displayed message. */
@@ -486,6 +553,7 @@ public class CellBroadcastAlertDialog extends Activity {
             case LINK_METHOD_NONE_STRING: return LINK_METHOD_NONE;
             case LINK_METHOD_LEGACY_LINKIFY_STRING: return LINK_METHOD_LEGACY_LINKIFY;
             case LINK_METHOD_SMART_LINKIFY_STRING: return LINK_METHOD_SMART_LINKIFY;
+            case LINK_METHOD_SMART_LINKIFY_NO_COPY_STRING: return LINK_METHOD_SMART_LINKIFY_NO_COPY;
         }
         return LINK_METHOD_NONE;
     }
@@ -499,12 +567,13 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     private void addLinks(@NonNull TextView textView, @NonNull String messageText,
             @LinkMethod int linkMethod) {
-        Spannable text = new SpannableString(messageText);
         if (linkMethod == LINK_METHOD_LEGACY_LINKIFY) {
+            Spannable text = new SpannableString(messageText);
             Linkify.addLinks(text, Linkify.ALL);
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             textView.setText(text);
-        } else if (linkMethod == LINK_METHOD_SMART_LINKIFY) {
+        } else if (linkMethod == LINK_METHOD_SMART_LINKIFY
+                || linkMethod == LINK_METHOD_SMART_LINKIFY_NO_COPY) {
             // Text classification cannot be run in the main thread.
             new Thread(() -> {
                 final TextClassifier classifier = textView.getTextClassifier();
@@ -522,13 +591,20 @@ public class CellBroadcastAlertDialog extends Activity {
                                         TextClassifier.TYPE_DATE_TIME))
                                 .build();
 
-                TextLinks.Request request = new TextLinks.Request.Builder(text)
+                TextLinks.Request request = new TextLinks.Request.Builder(messageText)
                         .setEntityConfig(entityConfig)
                         .build();
-                // Add links to the spannable text.
-                classifier.generateLinks(request).apply(
-                        text, TextLinks.APPLY_STRATEGY_REPLACE, null);
-
+                Spannable text;
+                if (linkMethod == LINK_METHOD_SMART_LINKIFY) {
+                    text = new SpannableString(messageText);
+                    // Add links to the spannable text.
+                    classifier.generateLinks(request).apply(
+                            text, TextLinks.APPLY_STRATEGY_REPLACE, null);
+                } else {
+                    TextLinks textLinks = classifier.generateLinks(request);
+                    // Add links to the spannable text.
+                    text = applyTextLinksToSpannable(messageText, textLinks, classifier);
+                }
                 // UI can be only updated in the main thread.
                 runOnUiThread(() -> {
                     textView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -538,6 +614,40 @@ public class CellBroadcastAlertDialog extends Activity {
         }
     }
 
+    private Spannable applyTextLinksToSpannable(String text, TextLinks textLinks,
+            TextClassifier textClassifier) {
+        Spannable result = new SpannableString(text);
+        for (TextLink link : textLinks.getLinks()) {
+            TextClassification textClassification = textClassifier.classifyText(
+                    new Request.Builder(
+                            text,
+                            link.getStart(),
+                            link.getEnd())
+                            .build());
+            if (textClassification.getActions().isEmpty()) {
+                continue;
+            }
+            RemoteAction remoteAction = textClassification.getActions().get(0);
+            result.setSpan(new RemoteActionSpan(remoteAction), link.getStart(), link.getEnd(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return result;
+    }
+
+    private static class RemoteActionSpan extends ClickableSpan {
+        private final RemoteAction mRemoteAction;
+        private RemoteActionSpan(RemoteAction remoteAction) {
+            mRemoteAction = remoteAction;
+        }
+        @Override
+        public void onClick(@NonNull View view) {
+            try {
+                mRemoteAction.getActionIntent().send();
+            } catch (PendingIntent.CanceledException e) {
+                Log.e(TAG, "Failed to start the pendingintent.");
+            }
+        }
+    }
 
     /**
      * If the carrier or country is configured to show the alert dialog title text in the
@@ -658,6 +768,18 @@ public class CellBroadcastAlertDialog extends Activity {
         }
     }
 
+    private void setMaxHeightScrollView() {
+        int contentPanelMaxHeight = getResources().getDimensionPixelSize(
+                R.dimen.alert_dialog_maxheight_content_panel);
+        if (contentPanelMaxHeight > 0) {
+            CustomHeightScrollView scrollView = (CustomHeightScrollView) findViewById(
+                    R.id.scrollView);
+            if (scrollView != null) {
+                scrollView.setMaximumHeight(contentPanelMaxHeight);
+            }
+        }
+    }
+
     /**
      * Called by {@link CellBroadcastAlertService} to add a new alert to the stack.
      * @param intent The new intent containing one or more {@link SmsCbMessage}.
@@ -665,12 +787,21 @@ public class CellBroadcastAlertDialog extends Activity {
     @Override
     @VisibleForTesting
     public void onNewIntent(Intent intent) {
+        if (intent.getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+            dismissAllFromNotification(intent);
+            return;
+        }
         ArrayList<SmsCbMessage> newMessageList = intent.getParcelableArrayListExtra(
                 CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA);
         if (newMessageList != null) {
             if (intent.getBooleanExtra(FROM_SAVE_STATE_NOTIFICATION_EXTRA, false)) {
                 mMessageList = newMessageList;
             } else {
+                // remove the duplicate messages
+                for (SmsCbMessage message : newMessageList) {
+                    mMessageList.removeIf(
+                            msg -> msg.getReceivedTime() == message.getReceivedTime());
+                }
                 mMessageList.addAll(newMessageList);
                 if (CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
                         .getBoolean(R.bool.show_cmas_messages_in_priority_order)) {
@@ -710,7 +841,7 @@ public class CellBroadcastAlertDialog extends Activity {
                 if (channelManager.isEmergencyMessage(message)) {
                     Log.d(TAG, "onCreate setting screen on timer for emergency alert for sub "
                             + message.getSubscriptionId());
-                    mScreenOffHandler.startScreenOnTimer();
+                    mScreenOffHandler.startScreenOnTimer(message);
                 }
             }
 
@@ -728,12 +859,35 @@ public class CellBroadcastAlertDialog extends Activity {
      * @param intent Intent containing extras used to identify if notification needs to be cleared
      */
     private void clearNotification(Intent intent) {
-        if (intent.getBooleanExtra(FROM_NOTIFICATION_EXTRA, false)) {
+        if (intent.getBooleanExtra(DISMISS_NOTIFICATION_EXTRA, false)) {
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
             CellBroadcastReceiverApp.clearNewMessageList();
         }
+    }
+
+    /**
+     * This will be called when users swipe away the notification, this will
+     * 1. dismiss all foreground dialog, stop animating warning icon and stop the
+     * {@link CellBroadcastAlertAudio} service.
+     * 2. Does not mark message read.
+     */
+    public void dismissAllFromNotification(Intent intent) {
+        Log.d(TAG, "dismissAllFromNotification");
+        // Stop playing alert sound/vibration/speech (if started)
+        stopService(new Intent(this, CellBroadcastAlertAudio.class));
+        // Cancel any pending alert reminder
+        CellBroadcastAlertReminder.cancelAlertReminder();
+        // Remove the all current showing alert message from the list.
+        if (mMessageList != null) {
+            mMessageList.clear();
+        }
+        // clear notifications.
+        clearNotification(intent);
+        // Remove pending screen-off messages (animation messages are removed in onPause()).
+        mScreenOffHandler.stopScreenOnTimer();
+        finish();
     }
 
     /**
@@ -778,7 +932,8 @@ public class CellBroadcastAlertDialog extends Activity {
         CellBroadcastChannelRange range = channelManager
                 .getCellBroadcastChannelRangeFromMessage(lastMessage);
 
-        if (range!= null && !range.mAlwaysOn) {
+        if (!neverShowOptOutDialog(lastMessage.getSubscriptionId()) && range != null
+                && !range.mAlwaysOn) {
             mShowOptOutDialog = true;
         }
 
@@ -787,7 +942,8 @@ public class CellBroadcastAlertDialog extends Activity {
         if (nextMessage != null) {
             updateAlertText(nextMessage);
             int subId = nextMessage.getSubscriptionId();
-            if (channelManager.isEmergencyMessage(nextMessage)) {
+            if (channelManager.isEmergencyMessage(nextMessage)
+                    && (range!= null && range.mDisplayIcon)) {
                 mAnimationHandler.startIconAnimation(subId);
             } else {
                 mAnimationHandler.stopIconAnimation();
@@ -822,11 +978,17 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     @Override
+    public void onDestroy() {
+        unregisterReceiver(mScreenOffReceiver);
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.d(TAG, "onKeyDown: " + event);
         SmsCbMessage message = getLatestMessage();
-        if (CellBroadcastSettings.getResources(getApplicationContext(), message.getSubscriptionId())
-                .getBoolean(R.bool.mute_by_physical_button)) {
+        if (message != null && CellBroadcastSettings.getResources(getApplicationContext(),
+                message.getSubscriptionId()).getBoolean(R.bool.mute_by_physical_button)) {
             switch (event.getKeyCode()) {
                 // Volume keys and camera keys mute the alert sound/vibration (except ETWS).
                 case KeyEvent.KEYCODE_VOLUME_UP:
@@ -871,6 +1033,14 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     /**
+     * @return true if the device is configured to never show the opt out dialog for the mcc/mnc
+     */
+    private boolean neverShowOptOutDialog(int subId) {
+        return CellBroadcastSettings.getResources(getApplicationContext(), subId)
+                .getBoolean(R.bool.disable_opt_out_dialog);
+    }
+
+    /**
      * Copy the message to clipboard.
      *
      * @param message Cell broadcast message.
@@ -910,7 +1080,52 @@ public class CellBroadcastAlertDialog extends Activity {
             // do not alert if remove unread messages from the notification bar.
            CellBroadcastAlertService.addToNotificationBar(
                    CellBroadcastReceiverApp.getLatestMessage(),
-                   unreadMessageList, context,false, false);
+                   unreadMessageList, context,false, false, false);
+        }
+    }
+
+    /**
+     * To disable navigation bars, quick settings etc. Force users to engage with the alert dialog
+     * before switching to other activities.
+     *
+     * @param disable if set to {@code true} to disable the status bar. {@code false} otherwise.
+     */
+    private void setStatusBarDisabledIfNeeded(boolean disable) {
+        if (!CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
+                .getBoolean(R.bool.disable_status_bar)) {
+            return;
+        }
+        try {
+            // TODO change to system API in S.
+            StatusBarManager statusBarManager = getSystemService(StatusBarManager.class);
+            Method disableMethod = StatusBarManager.class.getDeclaredMethod(
+                    "disable", int.class);
+            Method disableMethod2 = StatusBarManager.class.getDeclaredMethod(
+                    "disable2", int.class);
+            if (disable) {
+                // flags to be disabled
+                int disableHome = StatusBarManager.class.getDeclaredField("DISABLE_HOME")
+                        .getInt(null);
+                int disableRecent = StatusBarManager.class
+                        .getDeclaredField("DISABLE_RECENT").getInt(null);
+                int disableBack = StatusBarManager.class.getDeclaredField("DISABLE_BACK")
+                        .getInt(null);
+                int disableQuickSettings = StatusBarManager.class.getDeclaredField(
+                        "DISABLE2_QUICK_SETTINGS").getInt(null);
+                int disableNotificationShaded = StatusBarManager.class.getDeclaredField(
+                        "DISABLE2_NOTIFICATION_SHADE").getInt(null);
+                disableMethod.invoke(statusBarManager, disableHome | disableBack | disableRecent);
+                disableMethod2.invoke(statusBarManager, disableQuickSettings
+                        | disableNotificationShaded);
+            } else {
+                int disableNone = StatusBarManager.class.getDeclaredField("DISABLE_NONE")
+                        .getInt(null);
+                disableMethod.invoke(statusBarManager, disableNone);
+                disableMethod2.invoke(statusBarManager, disableNone);
+            }
+        } catch (NoSuchFieldException | IllegalAccessException
+                | NoSuchMethodException | InvocationTargetException e) {
+            Log.e(TAG, "Failed to disable navigation when showing alert: " + e);
         }
     }
 }
