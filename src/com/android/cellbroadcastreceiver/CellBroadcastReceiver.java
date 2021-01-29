@@ -41,6 +41,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaSmsCbProgramData;
 import android.text.TextUtils;
+import android.util.EventLog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -50,6 +51,7 @@ import com.android.cellbroadcastservice.CellBroadcastStatsLog;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
+
 
 public class CellBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "CellBroadcastReceiver";
@@ -87,22 +89,6 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     private Context mContext;
 
     /**
-     * helper method for easier testing. To generate a new CellBroadcastTask
-     * @param deliveryTime message delivery time
-     */
-    @VisibleForTesting
-    public void getCellBroadcastTask(final long deliveryTime) {
-        new CellBroadcastContentProvider.AsyncCellBroadcastTask(mContext.getContentResolver())
-                .execute(new CellBroadcastContentProvider.CellBroadcastOperation() {
-                    @Override
-                    public boolean execute(CellBroadcastContentProvider provider) {
-                        return provider.markBroadcastRead(CellBroadcasts.DELIVERY_TIME,
-                                deliveryTime);
-                    }
-                });
-    }
-
-    /**
      * this method is to make this class unit-testable, because CellBroadcastSettings.getResources()
      * is a static method and cannot be stubbed.
      * @return resources
@@ -122,12 +108,15 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         Resources res = getResourcesMethod();
 
         if (ACTION_MARK_AS_READ.equals(action)) {
-            final long deliveryTime = intent.getLongExtra(EXTRA_DELIVERY_TIME, -1);
-            getCellBroadcastTask(deliveryTime);
+            // The only way this'll be called is if someone tries to maliciously set something as
+            // read. Log an event.
+            EventLog.writeEvent(0x534e4554, "162741784", -1, null);
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
-            initializeSharedPreference();
-            enableLauncher();
-            startConfigService();
+            if (!intent.getBooleanExtra("android.telephony.extra.REBROADCAST_ON_UNLOCK", false)) {
+                initializeSharedPreference();
+                enableLauncher();
+                startConfigService();
+            }
         } else if (ACTION_SERVICE_STATE.equals(action)) {
             // lower layer clears channel configurations under APM, thus need to resend
             // configurations once moving back from APM. This should be fixed in lower layer
