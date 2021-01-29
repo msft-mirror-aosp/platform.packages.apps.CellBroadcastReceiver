@@ -19,7 +19,6 @@ package com.android.cellbroadcastreceiver.unit;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -125,15 +124,6 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
     }
 
     @Test
-    public void testOnReceive_actionMarkAsRead() {
-        doReturn(CellBroadcastReceiver.ACTION_MARK_AS_READ).when(mIntent).getAction();
-        doNothing().when(mCellBroadcastReceiver).getCellBroadcastTask(anyLong());
-        mCellBroadcastReceiver.onReceive(mContext, mIntent);
-        verify(mIntent).getLongExtra(CellBroadcastReceiver.EXTRA_DELIVERY_TIME, -1);
-        verify(mCellBroadcastReceiver).getCellBroadcastTask(anyLong());
-    }
-
-    @Test
     public void testOnReceive_actionCarrierConfigChanged() {
         doReturn(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED).when(mIntent).getAction();
         doNothing().when(mCellBroadcastReceiver).initializeSharedPreference();
@@ -142,6 +132,17 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         verify(mCellBroadcastReceiver).initializeSharedPreference();
         verify(mCellBroadcastReceiver).startConfigService();
         verify(mCellBroadcastReceiver).enableLauncher();
+    }
+
+    @Test
+    public void testOnReceive_actionCarrierConfigChangedOnRebroadcast() {
+        doReturn(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED).when(mIntent).getAction();
+        doReturn(true).when(mIntent)
+                .getBooleanExtra("android.telephony.extra.REBROADCAST_ON_UNLOCK", false);
+        mCellBroadcastReceiver.onReceive(mContext, mIntent);
+        verify(mCellBroadcastReceiver, never()).initializeSharedPreference();
+        verify(mCellBroadcastReceiver, never()).startConfigService();
+        verify(mCellBroadcastReceiver, never()).enableLauncher();
     }
 
     @Test
@@ -418,7 +419,6 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
     //this method is just to assign mContext to the spied instance mCellBroadcastReceiver
     private void setContext() {
         doReturn("dummy action").when(mIntent).getAction();
-        doNothing().when(mCellBroadcastReceiver).getCellBroadcastTask(anyLong());
 
         mCellBroadcastReceiver.onReceive(mContext, mIntent);
     }
