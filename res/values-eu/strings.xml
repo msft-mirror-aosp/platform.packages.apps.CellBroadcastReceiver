@@ -57,6 +57,8 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"Alertak"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"Igorpen-mezuak"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"Larrialdi-alertak"</string>
+    <!-- no translation found for notification_channel_emergency_alerts_high_priority (3937475297436439073) -->
+    <skip />
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"Larrialdien alertak ahots-deietan"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"Hari gabeko larrialdi-alerten ezarpenak automatikoki aldatu dira SIMean oinarrituta"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"Baimendu alertak"</string>
@@ -92,6 +94,7 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"Jaso larrialdi-alertak: operadorea zehaztu da"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"Dardara"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"Alertak beti gehieneko bolumenean"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"Ez ikusi egin ez molestatzeko moduari eta beste bolumen-ezarpen batzuei"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"Inguruko berritasunei buruzko igorpenak"</string>

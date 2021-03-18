@@ -57,6 +57,8 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"ચેતવણીઓ"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"બ્રોડકાસ્ટના સંદેશા"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"કટોકટીની ચેતવણીઓ"</string>
+    <!-- no translation found for notification_channel_emergency_alerts_high_priority (3937475297436439073) -->
+    <skip />
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"વૉઇસ કૉલ દરમ્યાન ઇમર્જન્સી અલર્ટ"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"ઑટોમૅટિક WEAના સેટિંગ સિમના આધારે બદલાય છે"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"ચેતવણીઓને મંજૂરી આપો"</string>
@@ -92,6 +94,7 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"ઇમર્જન્સી અલર્ટ મેળવો: ઑપરેટર દ્વારા નિર્ધારિત"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"વાઇબ્રેશન"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"અલર્ટ હંમેશા સંપૂર્ણ વૉલ્યૂમમાં મોકલો"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"ખલેલ પાડશો નહીં મોડ અને વૉલ્યૂમના અન્ય સેટિંગ અવગણો"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"વિસ્તારના અપડેટ વિશેના બ્રૉડકાસ્ટ"</string>

@@ -57,6 +57,8 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"अलर्टहरू"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"प्रसारण गर्ने सन्देशहरू"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"आपत्‌कालीन सतर्कताहरू"</string>
+    <!-- no translation found for notification_channel_emergency_alerts_high_priority (3937475297436439073) -->
+    <skip />
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"भ्वाइस कलका आपत्‌कालीन अलर्टहरू"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"WEA का स्वचालित सेटिङ SIM अनुसार परिवर्तन हुन्छन्"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"अलर्टहरूलाई अनुमति दिनुहोस्"</string>
@@ -92,6 +94,7 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"आपत्‌कालीन अलर्टहरू प्राप्त गर्नुहोस्: अपरेटरबाट प्राप्त हुने अलर्टहरू"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"कम्पन"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"सधैँ पूर्ण भोल्युममा सतर्क गराउनुहोस्"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"बाधा नपुऱ्याउनुहोस् नामक सुविधा र भोल्युमसम्बन्धी अन्य सेटिङको बेवास्ता गर्नुहोस्"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"क्षेत्रसम्बन्धी अद्यावधिकका प्रसारणहरू"</string>

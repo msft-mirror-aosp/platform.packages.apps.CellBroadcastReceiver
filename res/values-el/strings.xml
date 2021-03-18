@@ -57,6 +57,8 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"Ειδοποιήσεις"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"Μετάδοση μηνυμάτων"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"Ειδοποιήσεις έκτακτης ανάγκης"</string>
+    <!-- no translation found for notification_channel_emergency_alerts_high_priority (3937475297436439073) -->
+    <skip />
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"Ειδοποιήσεις έκτακτης ανάγκης σε φωνητική κλήση"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"Αυτόματες αλλαγές ρυθμίσεων WEA με βάση τη SIM"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"Να επιτρέπονται οι ειδοποιήσεις"</string>
@@ -92,6 +94,7 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"Λήψη ειδοποίησης έκτακτης ανάγκης: Ορίστηκε πάροχος"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"Δόνηση"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"Να γίνεται πάντα ειδοποίηση σε πλήρη ένταση ήχου"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"Παράβλεψη ρυθμίσεων λειτουργίας Μην ενοχλείτε και άλλων ρυθμίσεων έντασης ήχου"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"Μεταδόσεις ενημέρωσης για την περιοχή"</string>
