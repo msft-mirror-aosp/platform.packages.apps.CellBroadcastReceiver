@@ -434,12 +434,7 @@ public class CellBroadcastSettings extends Activity {
                             // check if area update was disabled
                             if (pref.getKey().equals(KEY_ENABLE_AREA_UPDATE_INFO_ALERTS)) {
                                 boolean isEnabledAlert = (Boolean) newValue;
-                                Intent areaInfoIntent = new Intent(AREA_INFO_UPDATE_ACTION);
-                                areaInfoIntent.putExtra(AREA_INFO_UPDATE_ENABLED_EXTRA,
-                                        isEnabledAlert);
-                                // sending broadcast protected by the permission which is only
-                                // granted for CBR mainline module.
-                                getContext().sendBroadcast(areaInfoIntent, CBR_MODULE_PERMISSION);
+                                notifyAreaInfoUpdate(isEnabledAlert);
                             }
 
                             // Notify backup manager a backup pass is needed.
@@ -555,7 +550,7 @@ public class CellBroadcastSettings extends Activity {
             Resources res = CellBroadcastSettings.getResourcesForDefaultSubId(getContext());
 
             CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
-                    getContext(), SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+                    getContext(), SubscriptionManager.getDefaultSubscriptionId());
 
             if (mMasterToggle != null) {
                 mMasterToggle.setVisible(res.getBoolean(R.bool.show_main_switch_settings));
@@ -655,9 +650,9 @@ public class CellBroadcastSettings extends Activity {
                 // override DND default is turned off.
                 // In some countries, override DND is always on, which means vibration is always on.
                 // In that case, no need to show vibration toggle for users.
-                mEnableVibrateCheckBox.setVisible(
-                        res.getBoolean(R.bool.show_override_dnd_settings)
-                                || !res.getBoolean(R.bool.override_dnd));
+                mEnableVibrateCheckBox.setVisible(res.getBoolean(R.bool.show_vibration_settings)
+                        && (res.getBoolean(R.bool.show_override_dnd_settings) ||
+                        !res.getBoolean(R.bool.override_dnd)));
             }
             if (mAlertsHeader != null) {
                 mAlertsHeader.setVisible(
@@ -722,6 +717,7 @@ public class CellBroadcastSettings extends Activity {
             if (mAreaUpdateInfoCheckBox != null) {
                 mAreaUpdateInfoCheckBox.setEnabled(alertsEnabled);
                 mAreaUpdateInfoCheckBox.setChecked(alertsEnabled);
+                notifyAreaInfoUpdate(alertsEnabled);
             }
             if (mEmergencyAlertsCheckBox != null) {
                 mEmergencyAlertsCheckBox.setEnabled(alertsEnabled);
@@ -749,6 +745,15 @@ public class CellBroadcastSettings extends Activity {
             }
         }
 
+        private void notifyAreaInfoUpdate(boolean enabled) {
+            Intent areaInfoIntent = new Intent(AREA_INFO_UPDATE_ACTION);
+            areaInfoIntent.putExtra(AREA_INFO_UPDATE_ENABLED_EXTRA, enabled);
+            // sending broadcast protected by the permission which is only
+            // granted for CBR mainline module.
+            getContext().sendBroadcast(areaInfoIntent, CBR_MODULE_PERMISSION);
+        }
+
+
         @Override
         public void onResume() {
             super.onResume();
@@ -765,7 +770,7 @@ public class CellBroadcastSettings extends Activity {
 
     public static boolean isTestAlertsToggleVisible(Context context) {
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(context,
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
+                SubscriptionManager.getDefaultSubscriptionId());
         Resources res = CellBroadcastSettings.getResourcesForDefaultSubId(context);
         boolean isTestAlertsAvailable = !channelManager.getCellBroadcastChannelRanges(
                 R.array.required_monthly_test_range_strings).isEmpty()
