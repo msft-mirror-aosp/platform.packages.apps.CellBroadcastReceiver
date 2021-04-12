@@ -57,6 +57,7 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"သတိပေးချက်များ"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"မက်ဆေ့ဂျ်များ ထုတ်လွှင့်ခြင်း"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"အရေးပေါ်သတိပေးချက်များ"</string>
+    <string name="notification_channel_emergency_alerts_high_priority" msgid="3937475297436439073">"အသိအမှတ်ပြုထားခြင်းမရှိသော အရေးပေါ်သတိပေးချက်များ"</string>
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"အသံခေါ်ဆိုမှုတွင် အရေးပေါ်သတိပေးချက်များ ပါဝင်မှု"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"ဆင်းမ်အပေါ် အခြေခံ၍ WEA ဆက်တင်များ အလိုအလျောက် ပြောင်းခြင်း"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"သတိပေးချက်များကို ခွင့်ပြုရန်"</string>
@@ -92,6 +93,7 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"အရေးပေါ်သတိပေးချက် လက်ခံရန်- အော်ပရေတာ သတ်မှတ်လိုက်သည်"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"တုန်ခါမှု"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"သတိပေးချက်ကို အမြဲ အသံအကျယ်ဆုံး"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"\'မနှောင့်ယှက်ရ\'နှင့် အခြားအသံဆက်တင်များကို ပယ်ပါ"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"နယ်မြေအပ်ဒိတ် ထုတ်လွှင့်ခြင်းများ"</string>

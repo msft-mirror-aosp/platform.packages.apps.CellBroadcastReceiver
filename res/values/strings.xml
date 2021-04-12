@@ -123,6 +123,8 @@
     <string name="notification_channel_broadcast_messages">Broadcast messages</string>
     <!-- Notification channel name for a channel containing emergency alert notifications. [CHAR LIMIT=50] -->
     <string name="notification_channel_emergency_alerts">Emergency alerts</string>
+    <!-- Notification channel name for a channel containing emergency alert notifications for unacknowledged alerts. [CHAR LIMIT=50] -->
+    <string name="notification_channel_emergency_alerts_high_priority">Unacknowledged Emergency alerts</string>
     <!-- Notification channel name for a channel containing emergency alert notifications during voice call. [CHAR LIMIT=100] -->
     <string name="notification_channel_broadcast_messages_in_voicecall">Emergency alerts in voice call</string>
     <!-- Notification channel name for a channel containing info about WEA settings updates. [CHAR LIMIT=100] -->
@@ -198,6 +200,8 @@
 
     <!-- Preference title for CMAS vibration on/off. [CHAR LIMIT=50] -->
     <string name="enable_alert_vibrate_title">Vibration</string>
+    <!-- Preference summary for CMAS vibration on/off. [CHAR LIMIT=50] -->
+    <string name="enable_alert_vibrate_summary"></string>
 
     <!-- Preference title for overriding Do Not Disturb. [CHAR LIMIT=50] -->
     <string name="override_dnd_title">Always alert at full volume</string>

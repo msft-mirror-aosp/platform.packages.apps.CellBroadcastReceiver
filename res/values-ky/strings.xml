@@ -57,6 +57,7 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"Шашылыш билдирүүлөр"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"Билдирүүлөрдү таркатуу"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"Шашылыш билдирүүлөр"</string>
+    <string name="notification_channel_emergency_alerts_high_priority" msgid="3937475297436439073">"Ырасталбаган шашылыш билдирүүлөр"</string>
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"Аудио чалуу учурунда берилген шашылыш билдирүүлөр"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"WEA жөндөөлөрү SIM картага жараша автоматтык түрдө өзгөрөт"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"Шашылыш билдирүүлөргө уруксат берүү"</string>
@@ -92,10 +93,11 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"Шашылыш билдирүүнү алуу: Оператор аныктайт"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"Дирилдөө"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"Эскертүү ар дайым катуу ойнотулсун"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"\"Тынчымды алба\" жана үн көлөмүнүн башка жөндөөлөрүн этибарга албоо"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"Аймакты жаңыртуу боюнча таркатмалар"</string>
-    <string name="enable_area_update_info_alerts_summary" msgid="6437816607144264910">"SIM-картанын абалы тууралуу жаңыртылган маалымат көрсөтүлсүн"</string>
+    <string name="enable_area_update_info_alerts_summary" msgid="6437816607144264910">"SIM-картанын абалы тууралуу жаңыртылган маалымат көрүнсүн"</string>
     <string name="cmas_category_heading" msgid="3923503130776640717">"Шашылыш билдирүүнүн категориясы:"</string>
     <string name="cmas_category_geo" msgid="4979494217069688527">"Геофизакалык"</string>
     <string name="cmas_category_met" msgid="7563732573851773537">"Метеорологиялык"</string>

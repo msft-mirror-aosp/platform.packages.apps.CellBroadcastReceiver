@@ -94,11 +94,20 @@ public class CellBroadcastAlertService extends Service {
     static final String NOTIFICATION_CHANNEL_NON_EMERGENCY_ALERTS = "broadcastMessagesNonEmergency";
 
     /**
-     * Notification channel for emergency alerts. This is used when users sneak out of the
-     * noisy pop-up for a real emergency and get a notification due to not officially acknowledged
-     * the alert and want to refer it back later.
+     * Notification channel for notifications accompanied by the alert dialog.
+     * e.g, only show when the device has active connections to companion devices.
      */
     static final String NOTIFICATION_CHANNEL_EMERGENCY_ALERTS = "broadcastMessages";
+
+    /**
+     * Notification channel for emergency alerts. This is used when users dismiss the alert
+     * dialog without officially hitting "OK" (e.g. by pressing the home button). In this case we
+     * pop up a notification for them to refer to later.
+     *
+     * This notification channel is HIGH_PRIORITY.
+     */
+    static final String NOTIFICATION_CHANNEL_HIGH_PRIORITY_EMERGENCY_ALERTS =
+            "broadcastMessagesHighPriority";
 
     /**
      * Notification channel for emergency alerts during voice call. This is used when users in a
@@ -715,10 +724,15 @@ public class CellBroadcastAlertService extends Service {
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
                 context, message.getSubscriptionId());
 
-        String channelId = channelManager.isEmergencyMessage(message)
-                ? NOTIFICATION_CHANNEL_EMERGENCY_ALERTS : NOTIFICATION_CHANNEL_NON_EMERGENCY_ALERTS;
-        if (channelId == NOTIFICATION_CHANNEL_EMERGENCY_ALERTS && sRemindAfterCallFinish) {
+        String channelId;
+        if (!channelManager.isEmergencyMessage(message)) {
+            channelId = NOTIFICATION_CHANNEL_NON_EMERGENCY_ALERTS;
+        } else if (sRemindAfterCallFinish) {
             channelId = NOTIFICATION_CHANNEL_EMERGENCY_ALERTS_IN_VOICECALL;
+        } else if (fromDialog) {
+            channelId = NOTIFICATION_CHANNEL_EMERGENCY_ALERTS;
+        } else {
+            channelId = NOTIFICATION_CHANNEL_HIGH_PRIORITY_EMERGENCY_ALERTS;
         }
 
         boolean nonSwipeableNotification = message.isEmergencyMessage()
@@ -802,6 +816,12 @@ public class CellBroadcastAlertService extends Service {
     static void createNotificationChannels(Context context) {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(
+                new NotificationChannel(
+                        NOTIFICATION_CHANNEL_HIGH_PRIORITY_EMERGENCY_ALERTS,
+                        context.getString(
+                                R.string.notification_channel_emergency_alerts_high_priority),
+                        NotificationManager.IMPORTANCE_HIGH));
         notificationManager.createNotificationChannel(
                 new NotificationChannel(
                         NOTIFICATION_CHANNEL_EMERGENCY_ALERTS,
