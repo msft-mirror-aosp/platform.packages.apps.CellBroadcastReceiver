@@ -22,9 +22,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
-import android.app.StatusBarManager;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
+import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -409,9 +409,7 @@ public class CellBroadcastAlertDialog extends Activity {
                 mScreenOffHandler.startScreenOnTimer(message);
             }
 
-            CellBroadcastChannelRange range =
-                    channelManager.getCellBroadcastChannelRangeFromMessage(message);
-            setFinishOnTouchOutside(range != null && range.mDismissOnOutsideTouch);
+            setFinishAlertOnTouchOutside();
 
             updateAlertText(message);
 
@@ -477,7 +475,8 @@ public class CellBroadcastAlertDialog extends Activity {
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop called");
-        // When the activity goes in background eg. clicking Home button, send notification.
+        // When the activity goes in background (eg. clicking Home button, dismissed by outside
+        // touch if enabled), send notification.
         // Avoid doing this when activity will be recreated because of orientation change or if
         // screen goes off
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -720,6 +719,9 @@ public class CellBroadcastAlertDialog extends Activity {
                 if (res.getBoolean(R.bool.show_date_in_numeric_format)) {
                     flags |= DateUtils.FORMAT_NUMERIC_DATE;
                 }
+                if (res.getBoolean(R.bool.show_date_time_with_weekday_title)) {
+                    flags |= DateUtils.FORMAT_SHOW_WEEKDAY;
+                }
                 title += "\n" + DateUtils.formatDateTime(context, message.getReceivedTime(), flags);
             }
 
@@ -910,6 +912,7 @@ public class CellBroadcastAlertDialog extends Activity {
             }
 
             hideOptOutDialog(); // Hide opt-out dialog when new alert coming
+            setFinishAlertOnTouchOutside();
             updateAlertText(getLatestMessage());
             // If the new intent was sent from a notification, dismiss it.
             clearNotification(intent);
@@ -1004,6 +1007,7 @@ public class CellBroadcastAlertDialog extends Activity {
         // If there are older emergency alerts to display, update the alert text and return.
         SmsCbMessage nextMessage = getLatestMessage();
         if (nextMessage != null) {
+            setFinishAlertOnTouchOutside();
             updateAlertText(nextMessage);
             int subId = nextMessage.getSubscriptionId();
             if (channelManager.isEmergencyMessage(nextMessage)
@@ -1043,7 +1047,11 @@ public class CellBroadcastAlertDialog extends Activity {
 
     @Override
     public void onDestroy() {
-        unregisterReceiver(mScreenOffReceiver);
+        try {
+            unregisterReceiver(mScreenOffReceiver);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Unregister Receiver fail", e);
+        }
         super.onDestroy();
     }
 
@@ -1145,6 +1153,29 @@ public class CellBroadcastAlertDialog extends Activity {
            CellBroadcastAlertService.addToNotificationBar(
                    CellBroadcastReceiverApp.getLatestMessage(),
                    unreadMessageList, context,false, false, false);
+        }
+    }
+
+    /**
+     * Finish alert dialog only if all messages are configured with DismissOnOutsideTouch.
+     * When multiple messages are displayed, the message with dismissOnOutsideTouch(normally low
+     * priority message) is displayed on top of other unread alerts without dismissOnOutsideTouch,
+     * users can easily dismiss all messages by touching the screen. better way is to dismiss the
+     * alert if and only if all messages with dismiss_on_outside_touch set true.
+     */
+    private void setFinishAlertOnTouchOutside() {
+        if (mMessageList != null) {
+            int dismissCount = 0;
+            for (SmsCbMessage message : mMessageList) {
+                CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
+                        this, message.getSubscriptionId());
+                CellBroadcastChannelManager.CellBroadcastChannelRange range =
+                        channelManager.getCellBroadcastChannelRangeFromMessage(message);
+                if (range != null && range.mDismissOnOutsideTouch) {
+                    dismissCount++;
+                }
+            }
+            setFinishOnTouchOutside(mMessageList.size() > 0 && mMessageList.size() == dismissCount);
         }
     }
 

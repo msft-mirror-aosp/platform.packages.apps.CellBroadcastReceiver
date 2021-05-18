@@ -57,6 +57,7 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"الرٹس"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"براڈ کاسٹ کے پیغامات"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"ایمرجنسی الرٹس"</string>
+    <string name="notification_channel_emergency_alerts_high_priority" msgid="3937475297436439073">"غیر تسلیم شدہ ہنگامی الرٹس"</string>
     <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"صوتی کال میں ہنگامی الرٹس"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"‏SIM کی بنیاد پر خودکار WEA ترتیبات کی تبدیلیاں"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"الرٹس کی اجازت دیں"</string>
@@ -79,6 +80,8 @@
     <string name="enable_alert_message_summary" msgid="6525664541696985610">"حفاظت سے متعلق قریب الوقوع خطرات کے بارے میں متنبہ کریں"</string>
     <string name="enable_public_safety_messages_title" msgid="5576770949182656524">"عوامی حفاظتی پیغامات"</string>
     <string name="enable_public_safety_messages_summary" msgid="7868069748857851521">"ایسی تجویز کردہ کارروائیاں جو زندگیاں یا ملکیت بچا سکتی ہیں"</string>
+    <string name="enable_full_screen_public_safety_messages_title" msgid="1790574642368284876">"پوری اسکرین پر پیغامات دکھائیں"</string>
+    <string name="enable_full_screen_public_safety_messages_summary" msgid="1305786776090796715">"‏عوامی حفاظتی پیغامات صرف آپ کی SMS ایپ پر بھیجنے کے لیے اسے آف کریں"</string>
     <string name="enable_state_local_test_alerts_title" msgid="1012930918171302720">"ریاستی اور مقامی ٹیسٹس"</string>
     <string name="enable_state_local_test_alerts_summary" msgid="780298327377950187">"ریاستی اور علاقائی حکام سے ٹیسٹ پیغامات موصول کریں"</string>
     <string name="enable_emergency_alerts_message_title" msgid="661894007489847468">"ایمرجنسی الرٹس"</string>
@@ -92,6 +95,7 @@
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"ہنگامی الرٹ موصول کریں: آپریٹر کی وضاحت کردہ"</string>
     <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"وائبریشن"</string>
+    <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"ہمیشہ پورے والیوم پر الرٹ کریں"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"\'ڈسٹرب نہ کریں\' اور دیگر والیوم کی ترتیبات کو نظر انداز کریں"</string>
     <string name="enable_area_update_info_alerts_title" msgid="3442042268424617226">"علاقائی اپ ڈیٹ کے نشریات"</string>
