@@ -178,6 +178,7 @@ public class CellBroadcastListActivity extends Activity {
         public CursorAdapter mAdapter;
 
         private int mCurrentLoaderId = 0;
+
         private MenuItem mInformationMenuItem;
         private ArrayMap<Integer, Long> mSelectedMessages;
 
@@ -222,32 +223,31 @@ public class CellBroadcastListActivity extends Activity {
                 @Override
                 public void onDestroyActionMode(ActionMode mode) {
                     CellBroadcastCursorAdapter.setIsActionMode(false);
-                    mSelectedMessages.clear();
+                    clearSelectedMessages();
                     mAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.action_detail_info:
-                            Cursor cursor = getSelectedItemSingle();
-                            if (cursor != null) {
-                                showBroadcastDetails(CellBroadcastCursorAdapter.createFromCursor(
-                                        getContext(), cursor), getLocationCheckTime(cursor),
-                                        wasMessageDisplayed(cursor), getGeometryString(cursor));
-                            } else {
-                                Log.e(TAG, "Multiple items selected with action_detail_info");
-                            }
-                            mode.finish();
-                            return true;
-                        case R.id.action_delete:
-                            long[] selectedRowId = getSelectedItemsRowId();
-                            confirmDeleteThread(selectedRowId);
-                            mode.finish();
-                            return true;
-                        default:
-                            Log.e(TAG, "onActionItemClicked: unsupported action return false");
-                            return false;
+                    if (item.getItemId() == R.id.action_detail_info) {
+                        Cursor cursor = getSelectedItemSingle();
+                        if (cursor != null) {
+                            showBroadcastDetails(CellBroadcastCursorAdapter.createFromCursor(
+                                    getContext(), cursor), getLocationCheckTime(cursor),
+                                    wasMessageDisplayed(cursor), getGeometryString(cursor));
+                        } else {
+                            Log.e(TAG, "Multiple items selected with action_detail_info");
+                        }
+                        mode.finish();
+                        return true;
+                    } else if (item.getItemId() == R.id.action_delete) {
+                        long[] selectedRowId = getSelectedItemsRowId();
+                        confirmDeleteThread(selectedRowId);
+                        mode.finish();
+                        return true;
+                    } else {
+                        Log.e(TAG, "onActionItemClicked: unsupported action return false");
+                        return false;
                     }
                 }
 
@@ -395,10 +395,12 @@ public class CellBroadcastListActivity extends Activity {
         }
 
         private void updateActionIconsVisibility() {
-            if (mSelectedMessages.size() == 1) {
-                mInformationMenuItem.setVisible(true);
-            } else {
-                mInformationMenuItem.setVisible(false);
+            if (mInformationMenuItem != null) {
+                if (mSelectedMessages.size() == 1) {
+                    mInformationMenuItem.setVisible(true);
+                } else {
+                    mInformationMenuItem.setVisible(false);
+                }
             }
         }
 
@@ -419,13 +421,23 @@ public class CellBroadcastListActivity extends Activity {
             return selectedRowId;
         }
 
-        private void toggleSelectedItem(int position, long rowId) {
+        /**
+         * Record the position and the row ID of the selected items.
+         */
+        public void toggleSelectedItem(int position, long rowId) {
             if (mSelectedMessages.containsKey(position)) {
                 mSelectedMessages.remove(position);
             } else {
                 mSelectedMessages.put(position, rowId);
             }
             updateActionIconsVisibility();
+        }
+
+        /**
+         * Clear the position and the row ID of the selected items in the ArrayMap.
+         */
+        public void clearSelectedMessages() {
+            mSelectedMessages.clear();
         }
 
         private void updateNoAlertTextVisibility() {
@@ -480,6 +492,29 @@ public class CellBroadcastListActivity extends Activity {
                 return cursor.getString(cursor.getColumnIndex(Telephony.CellBroadcasts.GEOMETRIES));
             }
             return null;
+        }
+
+        @Override
+        public boolean onContextItemSelected(MenuItem item) {
+            Cursor cursor = mAdapter.getCursor();
+            if (cursor != null && cursor.getPosition() >= 0) {
+                switch (item.getItemId()) {
+                    case MENU_DELETE:
+                        long[] selectedRowId = getSelectedItemsRowId();
+                        confirmDeleteThread(selectedRowId);
+                        break;
+
+                    case MENU_VIEW_DETAILS:
+                        showBroadcastDetails(CellBroadcastCursorAdapter.createFromCursor(
+                                getContext(), cursor), getLocationCheckTime(cursor),
+                                wasMessageDisplayed(cursor), getGeometryString(cursor));
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            return super.onContextItemSelected(item);
         }
 
         @Override
