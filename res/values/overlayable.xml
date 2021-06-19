@@ -26,8 +26,6 @@
             <item type="style" name="CellBroadcastOptOutTheme"/>
             <item type="style" name="CellBroadcastListActivityTheme"/>
             <item type="style" name="CellBroadcastSettingsTheme"/>
-            <item type="style" name="CellBroadcastListViewTheme"/>
-            <item type="style" name="CellBroadcastListItemTheme"/>
 
             <!-- All attributes defined in app level need to exposed to overlay the AlerDialog and
                  CellBroadcastAlertDialog layouts -->

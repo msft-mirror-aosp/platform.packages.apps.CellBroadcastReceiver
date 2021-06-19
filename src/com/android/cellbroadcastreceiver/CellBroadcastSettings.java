@@ -17,8 +17,6 @@
 package com.android.cellbroadcastreceiver;
 
 import android.annotation.NonNull;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.backup.BackupManager;
@@ -48,6 +46,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +54,7 @@ import java.util.Map;
 /**
  * Settings activity for the cell broadcast receiver.
  */
-public class CellBroadcastSettings extends Activity {
+public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     private static final String TAG = "CellBroadcastSettings";
 
@@ -68,7 +67,7 @@ public class CellBroadcastSettings extends Activity {
     // Preference key for alert header (A text view, not clickable).
     public static final String KEY_ALERTS_HEADER = "alerts_header";
 
-    // Preference key for a master toggle to enable/disable all alerts message (default enabled).
+    // Preference key for a main toggle to enable/disable all alerts message (default enabled).
     public static final String KEY_ENABLE_ALERTS_MASTER_TOGGLE = "enable_alerts_master_toggle";
 
     // Preference key for whether to enable public safety messages (default enabled).
@@ -83,7 +82,7 @@ public class CellBroadcastSettings extends Activity {
     // Preference key for whether to enable emergency alerts (default enabled).
     public static final String KEY_ENABLE_EMERGENCY_ALERTS = "enable_emergency_alerts";
 
-    // Enable vibration on alert (unless master volume is silent).
+    // Enable vibration on alert (unless main volume is silent).
     public static final String KEY_ENABLE_ALERT_VIBRATE = "enable_alert_vibrate";
 
     // Speak contents of alert after playing the alert sound.
@@ -179,12 +178,6 @@ public class CellBroadcastSettings extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            // android.R.id.home will be triggered in onOptionsItemSelected()
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
         if (userManager.hasUserRestriction(UserManager.DISALLOW_CONFIG_CELL_BROADCASTS)) {
             setContentView(R.layout.cell_broadcast_disallowed_preference_screen);
@@ -192,12 +185,13 @@ public class CellBroadcastSettings extends Activity {
         }
 
         // We only add new CellBroadcastSettingsFragment if no fragment is restored.
-        Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
+        Fragment fragment = getFragmentManager().findFragmentById(
+                com.android.settingslib.collapsingtoolbar.R.id.content_frame);
         if (fragment == null) {
             fragment = new CellBroadcastSettingsFragment();
             getFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, fragment)
+                    .add(com.android.settingslib.collapsingtoolbar.R.id.content_frame, fragment)
                     .commit();
         }
     }
