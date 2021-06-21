@@ -17,8 +17,6 @@
 package com.android.cellbroadcastreceiver;
 
 import android.annotation.NonNull;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.backup.BackupManager;
@@ -32,6 +30,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.UserManager;
+import android.os.Vibrator;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
 import android.util.Log;
@@ -47,6 +46,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +54,7 @@ import java.util.Map;
 /**
  * Settings activity for the cell broadcast receiver.
  */
-public class CellBroadcastSettings extends Activity {
+public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     private static final String TAG = "CellBroadcastSettings";
 
@@ -67,16 +67,22 @@ public class CellBroadcastSettings extends Activity {
     // Preference key for alert header (A text view, not clickable).
     public static final String KEY_ALERTS_HEADER = "alerts_header";
 
-    // Preference key for a master toggle to enable/disable all alerts message (default enabled).
+    // Preference key for a main toggle to enable/disable all alerts message (default enabled).
     public static final String KEY_ENABLE_ALERTS_MASTER_TOGGLE = "enable_alerts_master_toggle";
 
     // Preference key for whether to enable public safety messages (default enabled).
     public static final String KEY_ENABLE_PUBLIC_SAFETY_MESSAGES = "enable_public_safety_messages";
 
+    // Preference key for whether to show full-screen public safety message (pop-up dialog), If set
+    // to false, only display from message history and sms inbox if enabled. A foreground
+    // notification might also be shown if enabled.
+    public static final String KEY_ENABLE_PUBLIC_SAFETY_MESSAGES_FULL_SCREEN =
+            "enable_public_safety_messages_full_screen";
+
     // Preference key for whether to enable emergency alerts (default enabled).
     public static final String KEY_ENABLE_EMERGENCY_ALERTS = "enable_emergency_alerts";
 
-    // Enable vibration on alert (unless master volume is silent).
+    // Enable vibration on alert (unless main volume is silent).
     public static final String KEY_ENABLE_ALERT_VIBRATE = "enable_alert_vibrate";
 
     // Speak contents of alert after playing the alert sound.
@@ -172,12 +178,6 @@ public class CellBroadcastSettings extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            // android.R.id.home will be triggered in onOptionsItemSelected()
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
         if (userManager.hasUserRestriction(UserManager.DISALLOW_CONFIG_CELL_BROADCASTS)) {
             setContentView(R.layout.cell_broadcast_disallowed_preference_screen);
@@ -185,12 +185,13 @@ public class CellBroadcastSettings extends Activity {
         }
 
         // We only add new CellBroadcastSettingsFragment if no fragment is restored.
-        Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
+        Fragment fragment = getFragmentManager().findFragmentById(
+                com.android.settingslib.collapsingtoolbar.R.id.content_frame);
         if (fragment == null) {
             fragment = new CellBroadcastSettingsFragment();
             getFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, fragment)
+                    .add(com.android.settingslib.collapsingtoolbar.R.id.content_frame, fragment)
                     .commit();
         }
     }
@@ -225,6 +226,7 @@ public class CellBroadcastSettings extends Activity {
                 .remove(KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS)
                 .remove(KEY_ENABLE_CMAS_AMBER_ALERTS)
                 .remove(KEY_ENABLE_PUBLIC_SAFETY_MESSAGES)
+                .remove(KEY_ENABLE_PUBLIC_SAFETY_MESSAGES_FULL_SCREEN)
                 .remove(KEY_ENABLE_EMERGENCY_ALERTS)
                 .remove(KEY_ALERT_REMINDER_INTERVAL)
                 .remove(KEY_ENABLE_ALERT_SPEECH)
@@ -282,6 +284,7 @@ public class CellBroadcastSettings extends Activity {
         private TwoStatePreference mAmberCheckBox;
         private TwoStatePreference mMasterToggle;
         private TwoStatePreference mPublicSafetyMessagesChannelCheckBox;
+        private TwoStatePreference mPublicSafetyMessagesChannelFullScreenCheckBox;
         private TwoStatePreference mEmergencyAlertsCheckBox;
         private ListPreference mReminderInterval;
         private TwoStatePreference mSpeechCheckBox;
@@ -329,6 +332,8 @@ public class CellBroadcastSettings extends Activity {
                     findPreference(KEY_ENABLE_ALERTS_MASTER_TOGGLE);
             mPublicSafetyMessagesChannelCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+            mPublicSafetyMessagesChannelFullScreenCheckBox = (TwoStatePreference)
+                    findPreference(KEY_ENABLE_PUBLIC_SAFETY_MESSAGES_FULL_SCREEN);
             mEmergencyAlertsCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_EMERGENCY_ALERTS);
             mReminderInterval = (ListPreference)
@@ -465,6 +470,10 @@ public class CellBroadcastSettings extends Activity {
                 mPublicSafetyMessagesChannelCheckBox.setOnPreferenceChangeListener(
                         startConfigServiceListener);
             }
+            if (mPublicSafetyMessagesChannelFullScreenCheckBox != null) {
+                mPublicSafetyMessagesChannelFullScreenCheckBox.setOnPreferenceChangeListener(
+                        startConfigServiceListener);
+            }
             if (mEmergencyAlertsCheckBox != null) {
                 mEmergencyAlertsCheckBox.setOnPreferenceChangeListener(startConfigServiceListener);
             }
@@ -586,6 +595,14 @@ public class CellBroadcastSettings extends Activity {
                                         R.array.public_safety_messages_channels_range_strings)
                                 .isEmpty());
             }
+            // this is the matching full screen settings for public safety toggle. shown only if
+            // public safety toggle is displayed.
+            if (mPublicSafetyMessagesChannelFullScreenCheckBox != null) {
+                mPublicSafetyMessagesChannelFullScreenCheckBox.setVisible(
+                        res.getBoolean(R.bool.show_public_safety_full_screen_settings)
+                                && (mPublicSafetyMessagesChannelCheckBox != null
+                                && mPublicSafetyMessagesChannelCheckBox.isVisible()));
+            }
 
             if (mTestCheckBox != null) {
                 mTestCheckBox.setVisible(isTestAlertsToggleVisible(getContext()));
@@ -650,7 +667,9 @@ public class CellBroadcastSettings extends Activity {
                 // override DND default is turned off.
                 // In some countries, override DND is always on, which means vibration is always on.
                 // In that case, no need to show vibration toggle for users.
-                mEnableVibrateCheckBox.setVisible(res.getBoolean(R.bool.show_vibration_settings)
+                Vibrator vibrator = getContext().getSystemService(Vibrator.class);
+                boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
+                mEnableVibrateCheckBox.setVisible(supportVibration
                         && (res.getBoolean(R.bool.show_override_dnd_settings) ||
                         !res.getBoolean(R.bool.override_dnd)));
             }
