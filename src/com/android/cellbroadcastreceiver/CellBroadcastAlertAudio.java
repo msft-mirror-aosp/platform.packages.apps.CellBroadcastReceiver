@@ -23,10 +23,8 @@ import static com.android.cellbroadcastreceiver.CellBroadcastReceiver.DBG;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
@@ -84,7 +82,7 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
     public static final String ALERT_AUDIO_TONE_TYPE =
             "com.android.cellbroadcastreceiver.ALERT_AUDIO_TONE_TYPE";
 
-    /** Extra for alert vibration pattern (unless master volume is silent). */
+    /** Extra for alert vibration pattern (unless main volume is silent). */
     public static final String ALERT_AUDIO_VIBRATION_PATTERN_EXTRA =
             "com.android.cellbroadcastreceiver.ALERT_AUDIO_VIBRATION_PATTERN";
 
@@ -143,7 +141,6 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
     private AudioManager mAudioManager;
     private TelephonyManager mTelephonyManager;
     private int mInitialCallState;
-    private ScreenOffReceiver mScreenOffReceiver;
 
     // Internal messages
     private static final int ALERT_SOUND_FINISHED = 1000;
@@ -473,13 +470,6 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
             log("vibrate: effect=" + effect + ", attr=" + attr + ", duration="
                     + customAlertDuration);
             mVibrator.vibrate(effect, attr);
-            // Android default behavior will stop vibration when screen turns off.
-            // if mute by physical button is not allowed, press power key should not turn off
-            // vibration.
-            if (!res.getBoolean(R.bool.mute_by_physical_button)) {
-                mScreenOffReceiver = new ScreenOffReceiver(effect, attr);
-                registerReceiver(mScreenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
-            }
         }
 
         if (mEnableLedFlash) {
@@ -651,14 +641,6 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
 
         // Stop vibrator
         mVibrator.cancel();
-        if (mScreenOffReceiver != null) {
-            try {
-                unregisterReceiver(mScreenOffReceiver);
-            } catch (Exception e) {
-                // already unregistered
-            }
-            mScreenOffReceiver = null;
-        }
         if (mEnableLedFlash) {
             enableLedFlash(false);
         }
@@ -799,28 +781,6 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
      */
     private synchronized int getState() {
         return mState;
-    }
-
-    /**
-     * BroadcastReceiver for screen off events. Used for Latam.
-     * CMAS requirements to make sure vibration continues when screen goes off
-     */
-    private class ScreenOffReceiver extends BroadcastReceiver {
-        VibrationEffect mVibrationEffect;
-        AudioAttributes mAudioAttr;
-
-        public ScreenOffReceiver(VibrationEffect effect, AudioAttributes attributes) {
-            this.mVibrationEffect = effect;
-            this.mAudioAttr = attributes;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Restart the vibration after screen off
-            if (getState() == STATE_ALERTING) {
-                mVibrator.vibrate(mVibrationEffect, mAudioAttr);
-            }
-        }
     }
 
     private static void log(String msg) {
