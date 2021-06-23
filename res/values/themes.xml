@@ -26,24 +26,11 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="CellBroadcastSettingsTheme" parent="@android:style/Theme.DeviceDefault.Settings">
-        <item name="switchPreferenceStyle">@style/SettingsSwitchPreference</item>
-        <item name="preferenceCategoryStyle">@style/Preference.Category.Material</item>
-        <item name="preferenceStyle">@style/SettingsPreference</item>
-        <item name="dialogPreferenceStyle">@style/SettingsDialogPreference</item>
-    </style>
+    <style name="CellBroadcastSettingsTheme" parent="@style/Theme.SubSettingsBase" />
 
-    <style name="CellBroadcastListActivityTheme" parent="@android:style/Theme.DeviceDefault.Settings">
-    </style>
-
-    <style name="CellBroadcastListItemTheme" parent="SettingsPreference">
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingTop">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:paddingBottom">16dp</item>
-        <item name="android:background">?android:attr/colorBackground</item>
-    </style>
-    <style name="CellBroadcastListViewTheme">
+    <style name="CellBroadcastListActivityTheme" parent="@style/Theme.SubSettingsBase">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">?android:attr/colorBackground</item>
     </style>
 
 </resources>
