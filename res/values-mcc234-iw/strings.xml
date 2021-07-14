@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="enable_cmas_extreme_threat_alerts_title" msgid="8511466399220042295">"התרעות קיצוניות"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="8511466399220042295">"התראות קיצוניות"</string>
     <string name="enable_cmas_severe_threat_alerts_title" msgid="2271741871998936543">"התרעות חמורות"</string>
     <string name="enable_cmas_test_alerts_title" msgid="6022925848643811044">"התרעות בדיקה"</string>
     <string name="enable_exercise_test_alerts_title" msgid="411880452689537935">"התרעות תרגול"</string>
