@@ -31,7 +31,6 @@ import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.CursorAdapter;
 
-
 /**
  * The back-end data adapter for {@link CellBroadcastListActivity}.
  */
