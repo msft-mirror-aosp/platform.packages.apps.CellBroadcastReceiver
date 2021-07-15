@@ -28,25 +28,34 @@
         </intent>
     </queries>
 
+    <!-- Needed for TTS when targetSdkVersion is 30 -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_EMERGENCY_BROADCAST" />
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_CELL_BROADCASTS" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.STATUS_BAR" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
-    <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS_TO_TELEPHONY_DEFAULTS" />
     <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
     <uses-permission android:name="android.permission.READ_CELL_BROADCASTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS"/>
     <uses-permission android:name="com.android.cellbroadcastservice.FULL_ACCESS_CELL_BROADCAST_HISTORY" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <uses-sdk android:minSdkVersion="21"/>
+    <uses-sdk android:minSdkVersion="30" />
 
     <application android:name="com.android.cellbroadcastreceiver.CellBroadcastReceiverApp"
             android:label="@string/app_label"
@@ -81,6 +90,7 @@
                   android:label="@string/app_label"
                   android:launchMode="singleTask"
                   android:theme="@style/CellBroadcastListActivityTheme"
+                  android:exported="true"
                   android:configChanges="orientation|keyboardHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -133,7 +143,8 @@
                   android:theme="@style/CellBroadcastOptOutTheme"
                   android:exported="false" />
 
-        <receiver android:name="com.android.cellbroadcastreceiver.CellBroadcastReceiver">
+        <receiver android:name="com.android.cellbroadcastreceiver.CellBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.telephony.action.DEFAULT_SMS_SUBSCRIPTION_CHANGED" />
                 <action android:name="android.telephony.action.CARRIER_CONFIG_CHANGED" />
@@ -144,6 +155,7 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.SERVICE_STATE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.telephony.action.SIM_CARD_STATE_CHANGED" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.telephony.action.SECRET_CODE" />
