@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--  Copyright (C) 2018 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -12,11 +12,14 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
- -->
+-->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="public_safety_message" msgid="4052407641316309322">"హెచ్చరిక మెసేజ్‌"</string>
-    <string name="enable_cmas_test_alerts_title" msgid="4165080207837566277">"నెలవారీ పరీక్ష అవసరం"</string>
-    <string name="enable_cmas_test_alerts_summary" msgid="1339769389077152402">"భద్రతా అలర్ట్ సిస్టమ్ కోసం పరీక్ష మెసేజ్‌లను స్వీకరించండి"</string>
+
+    <!-- Dialog title for all other message identifiers in the PWS range. [CHAR LIMIT=50] -->
+    <string name="pws_other_message_identifiers">AG-Information</string>
+
+    <!-- Preference title for enable emergency alerts messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_emergency_alerts_message_title">AG-regular broadcast channel</string>
 </resources>
