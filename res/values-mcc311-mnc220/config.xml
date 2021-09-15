@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2020 The Android Open Source Project
+<!-- Copyright (C) 2021 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 -->
 
 <resources>
-    <!-- Allow user to enable/disable audio speech alert (text-to-speech for received messages)-->
-    <bool name="show_alert_speech_setting">true</bool>
-    <!-- Default value which determines whether spoken alerts enabled -->
-    <bool name="enable_alert_speech_default">false</bool>
+    <!-- Whether to show CMAS messages by in a different order than received by prioritizing them-->
+    <bool name="show_cmas_messages_in_priority_order">true</bool>
 </resources>
