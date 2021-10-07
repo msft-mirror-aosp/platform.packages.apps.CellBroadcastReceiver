@@ -35,6 +35,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.telephony.SmsCbMessage;
+import android.telephony.TelephonyManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +68,9 @@ public class CellBroadcastAlertDialogTest extends
 
     @Mock
     private IThermalService.Stub mMockedThermalService;
+
+    @Mock
+    TelephonyManager mTelephonyManager;
 
     @Captor
     private ArgumentCaptor<Integer> mInt;
@@ -111,6 +115,9 @@ public class CellBroadcastAlertDialogTest extends
         mPowerManager = new PowerManager(mContext, mMockedPowerManagerService,
                 mMockedThermalService, null);
         injectSystemService(PowerManager.class, mPowerManager);
+        doReturn(TelephonyManager.SIM_STATE_UNKNOWN).when(mTelephonyManager)
+                .getSimApplicationState(anyInt());
+        injectSystemService(TelephonyManager.class, mTelephonyManager);
     }
 
     @After
@@ -206,7 +213,6 @@ public class CellBroadcastAlertDialogTest extends
 
     public void testAnimationHandler() throws Throwable {
         CellBroadcastAlertDialog activity = startActivity();
-        CellBroadcastSettings.setUseResourcesForSubId(false);
 
         activity.mAnimationHandler.startIconAnimation(mSubId);
 
