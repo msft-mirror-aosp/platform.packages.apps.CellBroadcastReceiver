@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
-import android.app.StatusBarManager;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
 import android.content.BroadcastReceiver;
@@ -44,12 +43,9 @@ import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.telephony.SmsCbCmasInfo;
 import android.telephony.SmsCbMessage;
-import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
@@ -76,8 +72,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -356,8 +351,7 @@ public class CellBroadcastAlertDialog extends Activity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         // Disable home button when alert dialog is showing if mute_by_physical_button is false.
-        if (!CellBroadcastSettings.getResources(getApplicationContext(),
-                SubscriptionManager.DEFAULT_SUBSCRIPTION_ID)
+        if (!CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
                 .getBoolean(R.bool.mute_by_physical_button)) {
             final View decorView = win.getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -409,9 +403,7 @@ public class CellBroadcastAlertDialog extends Activity {
                 mScreenOffHandler.startScreenOnTimer(message);
             }
 
-            CellBroadcastChannelRange range =
-                    channelManager.getCellBroadcastChannelRangeFromMessage(message);
-            setFinishOnTouchOutside(range != null && range.mDismissOnOutsideTouch);
+            setFinishAlertOnTouchOutside();
 
             updateAlertText(message);
 
@@ -456,10 +448,6 @@ public class CellBroadcastAlertDialog extends Activity {
                 mAnimationHandler.startIconAnimation(subId);
             }
         }
-        // Some LATAM carriers mandate to disable navigation bars, quick settings etc when alert
-        // dialog is showing. This is to make sure users to ack the alert before switching to
-        // other activities.
-        setStatusBarDisabledIfNeeded(true);
     }
 
     /**
@@ -470,19 +458,20 @@ public class CellBroadcastAlertDialog extends Activity {
     public void onPause() {
         Log.d(TAG, "onPause called");
         mAnimationHandler.stopIconAnimation();
-        setStatusBarDisabledIfNeeded(false);
         super.onPause();
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop called");
-        // When the activity goes in background eg. clicking Home button, send notification.
+        // When the activity goes in background (eg. clicking Home button, dismissed by outside
+        // touch if enabled), send notification.
         // Avoid doing this when activity will be recreated because of orientation change or if
         // screen goes off
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (!(isChangingConfigurations() || getLatestMessage() == null) && pm.isScreenOn()) {
-            CellBroadcastAlertService.addToNotificationBar(getLatestMessage(), mMessageList,
+            CellBroadcastAlertService.addToNotificationBar(getLatestMessage(),
+                    CellBroadcastReceiverApp.getNewMessageList(),
                     getApplicationContext(), true, true, false);
         }
         // Do not stop the audio here. Pressing power button should turn off screen but should not
@@ -668,11 +657,10 @@ public class CellBroadcastAlertDialog extends Activity {
      * @param res Resources for the subId
      * @param languageCode the ISO-639-1 language code for this message, or null if unspecified
      */
-    private String overrideTranslation(int resId, Resources res, String languageCode,
-            boolean forceOverride) {
+    private String overrideTranslation(int resId, Resources res, String languageCode) {
         if (!TextUtils.isEmpty(languageCode)
-                && (res.getBoolean(R.bool.override_alert_title_language_to_match_message_locale)
-                || forceOverride)) {
+                && res.getBoolean(R.bool.override_alert_title_language_to_match_message_locale)) {
+            // TODO change resources to locale from message
             Configuration conf = res.getConfiguration();
             conf = new Configuration(conf);
             conf.setLocale(new Locale(languageCode));
@@ -692,47 +680,21 @@ public class CellBroadcastAlertDialog extends Activity {
         int titleId = CellBroadcastResources.getDialogTitleResource(context, message);
 
         Resources res = CellBroadcastSettings.getResources(context, message.getSubscriptionId());
-
-        CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
-                this, message.getSubscriptionId());
-        CellBroadcastChannelRange range = channelManager
-                .getCellBroadcastChannelRangeFromMessage(message);
-        String languageCode;
-        boolean forceOverride = false;
-        if (range != null && !TextUtils.isEmpty(range.mLanguageCode)) {
-            languageCode = range.mLanguageCode;
-            forceOverride = true;
-        } else {
-            languageCode = message.getLanguageCode();
-        }
-        String title = overrideTranslation(titleId, res, languageCode, forceOverride);
+        String title = overrideTranslation(titleId, res, message.getLanguageCode());
         TextView titleTextView = findViewById(R.id.alertTitle);
 
         if (titleTextView != null) {
-            if (res.getBoolean(R.bool.show_date_time_title)) {
+            String timeFormat = res.getString(R.string.date_time_format);
+            if (!TextUtils.isEmpty(timeFormat)) {
                 titleTextView.setSingleLine(false);
-                int flags = DateUtils.FORMAT_NO_NOON_MIDNIGHT | DateUtils.FORMAT_SHOW_TIME
-                                | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE
-                                | DateUtils.FORMAT_CAP_AMPM;
-                if (res.getBoolean(R.bool.show_date_time_with_year_title)) {
-                    flags |= DateUtils.FORMAT_SHOW_YEAR;
-                }
-                if (res.getBoolean(R.bool.show_date_in_numeric_format)) {
-                    flags |= DateUtils.FORMAT_NUMERIC_DATE;
-                }
-                title += "\n" + DateUtils.formatDateTime(context, message.getReceivedTime(), flags);
+                title += "\n" + new SimpleDateFormat(timeFormat).format(message.getReceivedTime());
             }
-
             setTitle(title);
             titleTextView.setText(title);
         }
 
-        String messageText = message.getMessageBody();
         TextView textView = findViewById(R.id.message);
-        String messageBodyOverride = getMessageBodyOverride(context, message);
-        if (!TextUtils.isEmpty(messageBodyOverride)) {
-            messageText = messageBodyOverride;
-        }
+        String messageText = message.getMessageBody();
         if (textView != null && messageText != null) {
             int linkMethod = getLinkMethod(message.getSubscriptionId());
             if (linkMethod != LINK_METHOD_NONE) {
@@ -753,42 +715,6 @@ public class CellBroadcastAlertDialog extends Activity {
 
 
         setPictogram(context, message);
-    }
-
-    /**
-     * @param message
-     * @return the required message override for the service category for the carrier, or null if
-     * it is not set
-     */
-    private String getMessageBodyOverride(Context context, SmsCbMessage message) {
-        // return true if the carrier has configured this service category to have a fixed message
-        Resources res = CellBroadcastSettings.getResources(context, message.getSubscriptionId());
-        String[] overrides = res.getStringArray(R.array.message_body_override);
-        if (overrides != null && overrides.length > 0) {
-            for (String entry : overrides) {
-                String[] serviceCategoryAndMessage = entry.split(":");
-                if (message.getServiceCategory() == Integer.parseInt(
-                        serviceCategoryAndMessage[0])) {
-                    return insertCarrierNameIfNeeded(context, message.getSubscriptionId(),
-                            serviceCategoryAndMessage[1]);
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * If an override message must have the carrier name (represented with a '>' character), return
-     * the message with the carrier name inserted. Otherwise just return the message.
-     */
-    private String insertCarrierNameIfNeeded(Context context, int subId, String message) {
-        TelephonyManager tm = context.getSystemService(TelephonyManager.class)
-                .createForSubscriptionId(subId);
-        String carrierName = (String) tm.getSimSpecificCarrierIdName();
-        if (TextUtils.isEmpty(carrierName)) {
-            return message;
-        }
-        return message.replace(">", carrierName);
     }
 
     /**
@@ -910,6 +836,7 @@ public class CellBroadcastAlertDialog extends Activity {
             }
 
             hideOptOutDialog(); // Hide opt-out dialog when new alert coming
+            setFinishAlertOnTouchOutside();
             updateAlertText(getLatestMessage());
             // If the new intent was sent from a notification, dismiss it.
             clearNotification(intent);
@@ -1004,6 +931,7 @@ public class CellBroadcastAlertDialog extends Activity {
         // If there are older emergency alerts to display, update the alert text and return.
         SmsCbMessage nextMessage = getLatestMessage();
         if (nextMessage != null) {
+            setFinishAlertOnTouchOutside();
             updateAlertText(nextMessage);
             int subId = nextMessage.getSubscriptionId();
             if (channelManager.isEmergencyMessage(nextMessage)
@@ -1043,7 +971,11 @@ public class CellBroadcastAlertDialog extends Activity {
 
     @Override
     public void onDestroy() {
-        unregisterReceiver(mScreenOffReceiver);
+        try {
+            unregisterReceiver(mScreenOffReceiver);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Unregister Receiver fail", e);
+        }
         super.onDestroy();
     }
 
@@ -1149,47 +1081,25 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     /**
-     * To disable navigation bars, quick settings etc. Force users to engage with the alert dialog
-     * before switching to other activities.
-     *
-     * @param disable if set to {@code true} to disable the status bar. {@code false} otherwise.
+     * Finish alert dialog only if all messages are configured with DismissOnOutsideTouch.
+     * When multiple messages are displayed, the message with dismissOnOutsideTouch(normally low
+     * priority message) is displayed on top of other unread alerts without dismissOnOutsideTouch,
+     * users can easily dismiss all messages by touching the screen. better way is to dismiss the
+     * alert if and only if all messages with dismiss_on_outside_touch set true.
      */
-    private void setStatusBarDisabledIfNeeded(boolean disable) {
-        if (!CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext())
-                .getBoolean(R.bool.disable_status_bar)) {
-            return;
-        }
-        try {
-            // TODO change to system API in S.
-            StatusBarManager statusBarManager = getSystemService(StatusBarManager.class);
-            Method disableMethod = StatusBarManager.class.getDeclaredMethod(
-                    "disable", int.class);
-            Method disableMethod2 = StatusBarManager.class.getDeclaredMethod(
-                    "disable2", int.class);
-            if (disable) {
-                // flags to be disabled
-                int disableHome = StatusBarManager.class.getDeclaredField("DISABLE_HOME")
-                        .getInt(null);
-                int disableRecent = StatusBarManager.class
-                        .getDeclaredField("DISABLE_RECENT").getInt(null);
-                int disableBack = StatusBarManager.class.getDeclaredField("DISABLE_BACK")
-                        .getInt(null);
-                int disableQuickSettings = StatusBarManager.class.getDeclaredField(
-                        "DISABLE2_QUICK_SETTINGS").getInt(null);
-                int disableNotificationShaded = StatusBarManager.class.getDeclaredField(
-                        "DISABLE2_NOTIFICATION_SHADE").getInt(null);
-                disableMethod.invoke(statusBarManager, disableHome | disableBack | disableRecent);
-                disableMethod2.invoke(statusBarManager, disableQuickSettings
-                        | disableNotificationShaded);
-            } else {
-                int disableNone = StatusBarManager.class.getDeclaredField("DISABLE_NONE")
-                        .getInt(null);
-                disableMethod.invoke(statusBarManager, disableNone);
-                disableMethod2.invoke(statusBarManager, disableNone);
+    private void setFinishAlertOnTouchOutside() {
+        if (mMessageList != null) {
+            int dismissCount = 0;
+            for (SmsCbMessage message : mMessageList) {
+                CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
+                        this, message.getSubscriptionId());
+                CellBroadcastChannelManager.CellBroadcastChannelRange range =
+                        channelManager.getCellBroadcastChannelRangeFromMessage(message);
+                if (range != null && range.mDismissOnOutsideTouch) {
+                    dismissCount++;
+                }
             }
-        } catch (NoSuchFieldException | IllegalAccessException
-                | NoSuchMethodException | InvocationTargetException e) {
-            Log.e(TAG, "Failed to disable navigation when showing alert: " + e);
+            setFinishOnTouchOutside(mMessageList.size() > 0 && mMessageList.size() == dismissCount);
         }
     }
 }

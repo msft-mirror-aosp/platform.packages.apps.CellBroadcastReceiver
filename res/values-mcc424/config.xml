@@ -52,9 +52,9 @@
     <!-- 4398, 4399 -->
     <string-array name="state_local_test_alert_range_strings" translatable="false">
         <!-- state/local test -->
-        <item>0x112E:rat=gsm, type=info, emergency=true</item>
+        <item>0x112E:rat=gsm, type=info, emergency=true, testing_mode=true</item>
         <!-- state/local test additional language -->
-        <item>0x112F:rat=gsm, type=info, emergency=true</item>
+        <item>0x112F:rat=gsm, type=info, emergency=true, testing_mode=true</item>
     </string-array>
     <string-array name="cmas_amber_alerts_channels_range_strings" translatable="false">
     </string-array>
@@ -72,6 +72,4 @@
     <bool name="enable_text_copy">false</bool>
     <!-- Text links generating method. does not allow text to be copied. so we can't use smart linkify. -->
     <string name="link_method" translatable="false">legacy_linkify</string>
-    <!-- Whether to override the language of the alert dialog's title to match the message locale -->
-    <bool name="override_alert_title_language_to_match_message_locale">true</bool>
 </resources>

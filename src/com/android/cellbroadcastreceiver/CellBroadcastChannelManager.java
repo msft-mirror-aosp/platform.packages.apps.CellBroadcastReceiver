@@ -20,12 +20,15 @@ import static android.telephony.ServiceState.ROAMING_TYPE_NOT_ROAMING;
 
 import android.annotation.NonNull;
 import android.content.Context;
+import android.os.SystemProperties;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.NetworkRegistrationInfo;
 import android.telephony.ServiceState;
 import android.telephony.SmsCbMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import androidx.annotation.VisibleForTesting;
 
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService.AlertType;
 
@@ -68,10 +71,13 @@ public class CellBroadcastChannelManager {
             ));
 
     private static ArrayList<CellBroadcastChannelRange> sAllCellBroadcastChannelRanges = null;
+    private static final Object channelRangesLock = new Object();
 
     private final Context mContext;
 
     private final int mSubId;
+
+    private boolean mIsDebugBuild = false;
 
     /**
      * Cell broadcast channel range
@@ -106,9 +112,8 @@ public class CellBroadcastChannelManager {
         private static final String KEY_DISPLAY_ICON = "display_icon";
         /** Define whether to dismiss the alert dialog for outside touches */
         private static final String KEY_DISMISS_ON_OUTSIDE_TOUCH = "dismiss_on_outside_touch";
-        /** Define the ISO-639-1 language code associated with the alert message. */
-        private static final String KEY_LANGUAGE_CODE = "language";
-
+        /** Define whether to enable this only in userdebug/eng build. */
+        private static final String KEY_DEBUG_BUILD_ONLY = "debug_build";
 
         /**
          * Defines whether the channel needs language filter or not. True indicates that the alert
@@ -151,11 +156,10 @@ public class CellBroadcastChannelManager {
         // whether to dismiss the alert dialog on outside touch. Typically this should be false
         // to avoid accidental dismisses of emergency messages
         public boolean mDismissOnOutsideTouch = false;
-        // This is used to override dialog title language
-        public String mLanguageCode;
+        // Whether the channels are disabled
+        public boolean mIsDebugBuildOnly = false;
 
         public CellBroadcastChannelRange(Context context, int subId, String channelRange) {
-
             mAlertType = AlertType.DEFAULT;
             mEmergencyLevel = LEVEL_UNKNOWN;
             mRanType = SmsCbMessage.MESSAGE_FORMAT_3GPP;
@@ -260,9 +264,12 @@ public class CellBroadcastChannelManager {
                                     mDismissOnOutsideTouch = true;
                                 }
                                 break;
-                            case KEY_LANGUAGE_CODE:
-                                mLanguageCode = value;
+                            case KEY_DEBUG_BUILD_ONLY:
+                                if (value.equalsIgnoreCase("true")) {
+                                    mIsDebugBuildOnly = true;
+                                }
                                 break;
+
                         }
                     }
                 }
@@ -296,7 +303,7 @@ public class CellBroadcastChannelManager {
                     + ",display=" + mDisplay + ",testMode=" + mTestMode + ",mAlwaysOn="
                     + mAlwaysOn + ",ScreenOnDuration=" + mScreenOnDuration + ", displayIcon="
                     + mDisplayIcon + "dismissOnOutsideTouch=" + mDismissOnOutsideTouch
-                    + ", languageCode=" + mLanguageCode + "]";
+                    + ", mIsDebugBuildOnly =" + mIsDebugBuildOnly + "]";
         }
     }
 
@@ -307,8 +314,14 @@ public class CellBroadcastChannelManager {
      * @param subId Subscription index
      */
     public CellBroadcastChannelManager(Context context, int subId) {
+        this(context, subId, SystemProperties.getInt("ro.debuggable", 0) == 1);
+    }
+
+    @VisibleForTesting
+    public CellBroadcastChannelManager(Context context, int subId, boolean isDebugBuild) {
         mContext = context;
         mSubId = subId;
+        mIsDebugBuild = isDebugBuild;
     }
 
     /**
@@ -325,7 +338,13 @@ public class CellBroadcastChannelManager {
         if (ranges != null) {
             for (String range : ranges) {
                 try {
-                    result.add(new CellBroadcastChannelRange(mContext, mSubId, range));
+                    CellBroadcastChannelRange r =
+                            new CellBroadcastChannelRange(mContext, mSubId, range);
+                    // Bypass if the range is disabled
+                    if (r.mIsDebugBuildOnly && !mIsDebugBuild) {
+                        continue;
+                    }
+                    result.add(r);
                 } catch (Exception e) {
                     loge("Failed to parse \"" + range + "\". e=" + e);
                 }
@@ -340,16 +359,31 @@ public class CellBroadcastChannelManager {
      * @return all cell broadcast channels
      */
     public @NonNull ArrayList<CellBroadcastChannelRange> getAllCellBroadcastChannelRanges() {
-        if (sAllCellBroadcastChannelRanges != null) return sAllCellBroadcastChannelRanges;
+        synchronized(channelRangesLock) {
+            if (sAllCellBroadcastChannelRanges != null) return sAllCellBroadcastChannelRanges;
 
-        ArrayList<CellBroadcastChannelRange> result = new ArrayList<>();
+            Log.d(TAG, "Create new channel range list");
+            ArrayList<CellBroadcastChannelRange> result = new ArrayList<>();
 
-        for (int key : sCellBroadcastRangeResourceKeys) {
-            result.addAll(getCellBroadcastChannelRanges(key));
+            for (int key : sCellBroadcastRangeResourceKeys) {
+                result.addAll(getCellBroadcastChannelRanges(key));
+            }
+
+            sAllCellBroadcastChannelRanges = result;
+            return result;
         }
+    }
 
-        sAllCellBroadcastChannelRanges = result;
-        return result;
+    /**
+     * Clear broadcast channel range list
+     */
+    public static void clearAllCellBroadcastChannelRanges() {
+        synchronized(channelRangesLock) {
+            if (sAllCellBroadcastChannelRanges != null) {
+                Log.d(TAG, "Clear channel range list");
+                sAllCellBroadcastChannelRanges = null;
+            }
+        }
     }
 
     /**

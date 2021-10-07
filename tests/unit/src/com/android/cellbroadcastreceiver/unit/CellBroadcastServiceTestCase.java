@@ -50,9 +50,6 @@ import java.util.function.BooleanSupplier;
 
 public abstract class CellBroadcastServiceTestCase<T extends Service> extends ServiceTestCase<T> {
 
-    static final long WAIT_TIMEOUT_MS = 5000;
-    static final long WAIT_INTERVAL_MS = 100;
-
     @Mock
     protected CarrierConfigManager mMockedCarrierConfigManager;
     @Mock
@@ -86,13 +83,12 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
         if (condition.getAsBoolean()) {
             return;
         }
-        long startTime = SystemClock.uptimeMillis();
-        do {
-            SystemClock.sleep(WAIT_INTERVAL_MS);
+        for (int i = 0; i < 50; i++) {
+            SystemClock.sleep(100);
             if (condition.getAsBoolean()) {
                 return;
             }
-        } while (SystemClock.uptimeMillis() - startTime < WAIT_TIMEOUT_MS);
+        }
     }
 
     protected void enablePreference(String pref) {
@@ -169,13 +165,14 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
 
         doReturn(mMockedTelephonyManager).when(mMockedTelephonyManager)
                 .createForSubscriptionId(anyInt());
+        doReturn(TelephonyManager.SIM_STATE_UNKNOWN).when(mMockedTelephonyManager)
+                .getSimApplicationState(anyInt());
 
         mMockedServiceManager = new MockedServiceManager();
         mMockedServiceManager.replaceService("isub", mSubService);
 
         mContext = new TestContextWrapper(getContext());
         setContext(mContext);
-        CellBroadcastSettings.setUseResourcesForSubId(false);
     }
 
     @After
