@@ -73,7 +73,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1211,9 +1210,8 @@ public class CellBroadcastAlertDialog extends Activity {
                 disableMethod.invoke(statusBarManager, disableNone);
                 disableMethod2.invoke(statusBarManager, disableNone);
             }
-        } catch (NoSuchFieldException | IllegalAccessException
-                | NoSuchMethodException | InvocationTargetException e) {
-            Log.e(TAG, "Failed to disable navigation when showing alert: " + e);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to disable navigation when showing alert: ", e);
         }
     }
 }
