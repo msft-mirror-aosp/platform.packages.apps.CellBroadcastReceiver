@@ -34,6 +34,7 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Switch;
@@ -175,9 +176,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     // Key for shared preference which represents whether user has changed any preference
     private static final String ANY_PREFERENCE_CHANGED_BY_USER = "any_preference_changed_by_user";
-
-    // Test override for disabling the subId specific resources
-    private static boolean sUseResourcesForSubId = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -829,30 +827,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 && isTestAlertsAvailable;
     }
 
-    public static boolean isFeatureEnabled(Context context, String feature, boolean defaultValue) {
-        CarrierConfigManager configManager =
-                (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-
-        if (configManager != null) {
-            PersistableBundle carrierConfig = configManager.getConfig();
-            if (carrierConfig != null) {
-                return carrierConfig.getBoolean(feature, defaultValue);
-            }
-        }
-
-        return defaultValue;
-    }
-
-    /**
-     * Override used by tests so that we don't call
-     * SubscriptionManager.getResourcesForSubId, which is a static unmockable
-     * method.
-     */
-    @VisibleForTesting
-    public static void setUseResourcesForSubId(boolean useResourcesForSubId) {
-        sUseResourcesForSubId = useResourcesForSubId;
-    }
-
     /**
      * Get the device resource based on SIM
      *
@@ -862,8 +836,18 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
      * @return The resource
      */
     public static @NonNull Resources getResources(@NonNull Context context, int subId) {
-        if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-                || !SubscriptionManager.isValidSubscriptionId(subId) || !sUseResourcesForSubId) {
+
+        try {
+            if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
+                    || !SubscriptionManager.isValidSubscriptionId(subId)
+                    // per the latest design, subId can be valid earlier than mcc mnc is known to
+                    // telephony. check if sim is loaded to avoid caching the wrong resources.
+                    || context.getSystemService(TelephonyManager.class).getSimApplicationState(
+                    SubscriptionManager.getSlotIndex(subId)) != TelephonyManager.SIM_STATE_LOADED) {
+                return context.getResources();
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Fail to getSimApplicationState due to " + e);
             return context.getResources();
         }
 
