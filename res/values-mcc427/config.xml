@@ -15,15 +15,18 @@
 -->
 
 <resources>
-    <!-- Emergency alerts toggle default value -->
-    <bool name="emergency_alerts_enabled_default">false</bool>
-    <!-- 50 -->
-    <string-array name="emergency_alerts_channels_range_strings" translatable="false">
-        <item>0x0032:rat=gsm, emergency=true, dialog_with_notification=true</item>
+    <!-- Channels to receive public safety messages -->
+    <string-array name="public_safety_messages_channels_range_strings" translatable="false">
+        <!-- Public safety messages -->
+        <item>0x112C:rat=gsm, emergency=true</item>
+        <!-- Public safety messages for additional language -->
+        <item>0x112D:rat=gsm, emergency=true</item>
     </string-array>
-    <!-- Channel 919 -->
-    <string-array name="additional_cbs_channels_strings" translatable="false">
-        <item>0x397:rat=gsm, emergency=true, alert_duration=86400000</item>
+    <!-- Channels to receive state/local test messages -->
+    <string-array name="state_local_test_alert_range_strings" translatable="false">
+        <!-- state/local test -->
+        <item>0x112E:rat=gsm, emergency=true</item>
+        <!-- state/local test additional language -->
+        <item>0x112F:rat=gsm, emergency=true</item>
     </string-array>
-
 </resources>
