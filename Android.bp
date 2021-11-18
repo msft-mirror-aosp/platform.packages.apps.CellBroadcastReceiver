@@ -39,6 +39,8 @@ java_defaults {
         "androidx.legacy_legacy-preference-v14",
         "SettingsLibSettingsTheme",
         "SettingsLibCollapsingToolbarBaseActivity",
+        "SettingsLibMainSwitchPreference",
+	"SettingsLibTopIntroPreference",
         "modules-utils-build_system",
     ],
     optimize: {
