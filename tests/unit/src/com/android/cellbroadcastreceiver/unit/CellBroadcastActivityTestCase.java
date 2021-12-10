@@ -21,6 +21,7 @@ import android.app.ResourcesManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.test.ActivityUnitTestCase;
 import android.util.Log;
@@ -67,6 +68,15 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
             @Override
             public void run() {
                 getInstrumentation().callActivityOnStop(mActivity);
+            }
+        });
+    }
+
+    protected void leaveActivity() throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getInstrumentation().callActivityOnUserLeaving(mActivity);
             }
         });
     }
@@ -132,6 +142,19 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
             }
             Log.d(TAG, "return real system service for " + name);
             return super.getSystemService(name);
+        }
+
+        Resources mResources;
+        @Override
+        public Resources getResources() {
+            if (mResources != null) {
+                return mResources;
+            }
+            return super.getResources();
+        }
+
+        public void setResources(Resources resources) {
+            mResources = resources;
         }
     }
 }
