@@ -129,6 +129,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
             if (!intent.getBooleanExtra(
                     "android.telephony.extra.REBROADCAST_ON_UNLOCK", false)) {
+                resetCellBroadcastChannelRanges();
                 int subId = intent.getIntExtra(CarrierConfigManager.EXTRA_SUBSCRIPTION_INDEX,
                         SubscriptionManager.INVALID_SUBSCRIPTION_ID);
                 initializeSharedPreference(context, subId);
@@ -178,14 +179,17 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             // rename registered notification channels on locale change
             CellBroadcastAlertService.createNotificationChannels(mContext);
         } else if (TelephonyManager.ACTION_SECRET_CODE.equals(action)) {
-            setTestingMode(!isTestingMode(mContext));
-            int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
-                    : R.string.testing_mode_disabled;
-            String msg =  res.getString(msgId);
-            Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
-            LocalBroadcastManager.getInstance(mContext)
-                    .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
-            log(msg);
+            if (SystemProperties.getInt("ro.debuggable", 0) == 1
+                    || res.getBoolean(R.bool.allow_testing_mode_on_user_build)) {
+                setTestingMode(!isTestingMode(mContext));
+                int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
+                        : R.string.testing_mode_disabled;
+                String msg = res.getString(msgId);
+                Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+                LocalBroadcastManager.getInstance(mContext)
+                        .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
+                log(msg);
+            }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             new CellBroadcastContentProvider.AsyncCellBroadcastTask(
                     mContext.getContentResolver()).execute((CellBroadcastContentProvider
@@ -193,14 +197,6 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                         provider.resyncToSmsInbox(mContext);
                         return true;
                     });
-        } else if (TelephonyManager.ACTION_SIM_CARD_STATE_CHANGED.equals(action)) {
-            int sim_state = intent.getIntExtra(
-                TelephonyManager.EXTRA_SIM_STATE, TelephonyManager.SIM_STATE_UNKNOWN);
-
-            if (sim_state == TelephonyManager.SIM_STATE_ABSENT
-                || sim_state == TelephonyManager.SIM_STATE_PRESENT) {
-                CellBroadcastChannelManager.clearAllCellBroadcastChannelRanges();
-            }
         } else {
             Log.w(TAG, "onReceive() unexpected action " + action);
         }
@@ -272,7 +268,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * @param context the context
      * @param subId subId of the carrier config event
      */
-    private void resetSettingsIfCarrierChanged(Context context, int subId) {
+    private void resetSettingsAsNeeded(Context context, int subId) {
         // subId may be -1 if carrier config broadcast is being sent on SIM removal
         if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
             if (getPreviousCarrierIdForDefaultSub() == NO_PREVIOUS_CARRIER_ID) {
@@ -313,6 +309,17 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                     + " for first boot");
             saveCarrierIdForDefaultSub(carrierId);
             return;
+        }
+
+        /** When user_build_mode is true and alow_testing_mode_on_user_build is false
+         *  then testing_mode is not able to be true at all.
+         */
+        Resources res = getResourcesMethod();
+        if (!res.getBoolean(R.bool.allow_testing_mode_on_user_build)
+                && SystemProperties.getInt("ro.debuggable", 0) == 0
+                && CellBroadcastReceiver.isTestingMode(context)) {
+            Log.d(TAG, "it can't be testing_mode at all");
+            setTestingMode(false);
         }
 
         if (carrierId != previousCarrierId) {
@@ -442,7 +449,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         if (isSystemUser()) {
             Log.d(TAG, "initializeSharedPreference");
 
-            resetSettingsIfCarrierChanged(context, subId);
+            resetSettingsAsNeeded(context, subId);
 
             SharedPreferences sp = getDefaultSharedPreferences();
 
@@ -693,6 +700,16 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 new ComponentName(mContext, aliasLauncherActivity),
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
+    }
+
+    /**
+     * Reset cached CellBroadcastChannelRanges
+     *
+     * This method's purpose is to enable unit testing
+     */
+    @VisibleForTesting
+    public void resetCellBroadcastChannelRanges() {
+        CellBroadcastChannelManager.clearAllCellBroadcastChannelRanges();
     }
 
     private static void log(String msg) {
