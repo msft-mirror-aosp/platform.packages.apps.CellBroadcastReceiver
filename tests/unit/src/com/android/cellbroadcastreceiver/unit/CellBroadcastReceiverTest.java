@@ -138,6 +138,7 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         verify(mCellBroadcastReceiver).initializeSharedPreference(any(), anyInt());
         verify(mCellBroadcastReceiver).startConfigServiceToEnableChannels();
         verify(mCellBroadcastReceiver).enableLauncher();
+        verify(mCellBroadcastReceiver).resetCellBroadcastChannelRanges();
     }
 
     @Test
@@ -164,9 +165,8 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
     public void testOnReceive_cellbroadcastStartConfigAction() {
         doReturn(CellBroadcastReceiver.CELLBROADCAST_START_CONFIG_ACTION).when(mIntent).getAction();
         mCellBroadcastReceiver.onReceive(mContext, mIntent);
-
         verify(mCellBroadcastReceiver, never()).initializeSharedPreference(any(), anyInt());
-        verify(mCellBroadcastReceiver, never()).startConfigServiceToEnableChannels();
+        verify(mCellBroadcastReceiver).startConfigServiceToEnableChannels();
     }
 
     @Test
