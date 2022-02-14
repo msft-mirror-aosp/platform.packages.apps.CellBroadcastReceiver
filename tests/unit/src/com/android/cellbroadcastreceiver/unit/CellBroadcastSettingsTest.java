@@ -19,11 +19,11 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,20 +33,25 @@ import static org.mockito.Mockito.verify;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.UserManager;
 import android.support.test.uiautomator.UiDevice;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 
+import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.FlakyTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import com.android.cellbroadcastreceiver.CellBroadcastConfigService;
 import com.android.cellbroadcastreceiver.CellBroadcastSettings;
+import com.android.modules.utils.build.SdkLevel;
 
 import junit.framework.Assert;
 
@@ -54,6 +59,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 @RunWith(AndroidJUnit4.class)
 public class CellBroadcastSettingsTest extends
@@ -62,6 +70,17 @@ public class CellBroadcastSettingsTest extends
     private Context mContext;
     private UiDevice mDevice;
     private static final long DEVICE_WAIT_TIME = 1000L;
+
+    @Captor
+    private ArgumentCaptor<Intent> mIntent;
+    @Mock
+    private Preference mPreference;
+    @Mock
+    private UserManager mUserManager;
+    @Mock
+    private SharedPreferences mSharedPreference;
+    @Mock
+    private SharedPreferences.Editor mEditor;
 
     public CellBroadcastSettingsTest() {
         super(CellBroadcastSettings.class);
@@ -72,6 +91,7 @@ public class CellBroadcastSettingsTest extends
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mContext = mInstrumentation.getTargetContext();
         mDevice = UiDevice.getInstance(mInstrumentation);
+        MockitoAnnotations.initMocks(this);
         CellBroadcastSettings.resetResourcesCache();
     }
 
@@ -148,6 +168,25 @@ public class CellBroadcastSettingsTest extends
     }
 
     @Test
+    public void testPreferenceChangeByUser() {
+        Context mockContext = mock(Context.class);
+        Looper.prepare();
+        CellBroadcastSettings.CellBroadcastSettingsFragment fragment =
+                new CellBroadcastSettings.CellBroadcastSettingsFragment();
+        doReturn(mUserManager).when(mockContext).getSystemService(Context.USER_SERVICE);
+        doReturn(true).when(mUserManager).isSystemUser();
+        doReturn(mSharedPreference).when(mockContext).getSharedPreferences(anyString(), anyInt());
+        doReturn(mEditor).when(mSharedPreference).edit();
+        doReturn(mEditor).when(mEditor).putBoolean(anyString(), anyBoolean());
+
+        fragment.onPreferenceChangedByUser(mockContext);
+
+        verify(mockContext, times(1)).startService(mIntent.capture());
+        assertEquals(CellBroadcastConfigService.ACTION_ENABLE_CHANNELS,
+                (String) mIntent.getValue().getAction());
+    }
+
+    @Test
     public void testGetResources() {
         Context mockContext = mock(Context.class);
         Resources mockResources = mock(Resources.class);
@@ -165,43 +204,50 @@ public class CellBroadcastSettingsTest extends
 
         Context mockContext2 = mock(Context.class);
         doReturn(mockResources).when(mockContext2).getResources();
+        Configuration config = new Configuration();
+        doReturn(config).when(mockResources).getConfiguration();
         SubscriptionManager mockSubManager = mock(SubscriptionManager.class);
-        TelephonyManager mockTelephonyManager = mock(TelephonyManager.class);
         doReturn(Context.TELEPHONY_SUBSCRIPTION_SERVICE).when(mockContext)
                 .getSystemServiceName(eq(SubscriptionManager.class));
         doReturn(mockSubManager).when(mockContext).getSystemService(
                 eq(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
-        doReturn(Context.TELEPHONY_SERVICE).when(mockContext)
-                .getSystemServiceName(eq(TelephonyManager.class));
-        doReturn(mockTelephonyManager).when(mockContext)
-                .getSystemService(eq(Context.TELEPHONY_SERVICE));
-        doReturn(TelephonyManager.SIM_STATE_UNKNOWN).when(mockTelephonyManager)
-                .getSimApplicationState(anyInt());
+        SubscriptionInfo mockSubInfo = mock(SubscriptionInfo.class);
+        doReturn(mockSubInfo).when(mockSubManager).getActiveSubscriptionInfo(anyInt());
+        doReturn(0).when(mockSubInfo).getMcc();
+        doReturn(0).when(mockSubInfo).getMnc();
         doReturn(mockContext2).when(mockContext).createConfigurationContext(any());
+
+        // The resource will not be cached for the sub
         CellBroadcastSettings.getResources(
                 mockContext, SubscriptionManager.DEFAULT_SUBSCRIPTION_ID - 1);
 
-        verify(mockContext, times(1)).getSystemService(anyString());
-        verify(mockContext, times(3)).getResources();
+        verify(mockContext, times(2)).getResources();
+        verify(mockContext2, times(1)).getResources();
 
+        // The resources will be cached for ths sub
+        config.mcc = 123;
+        config.mnc = 456;
+        // The cache logic is updated on S
+        final int timesExpected = SdkLevel.isAtLeastS() ? 2 : 1;
 
-        doReturn(TelephonyManager.SIM_STATE_LOADED).when(mockTelephonyManager)
-                .getSimApplicationState(anyInt());
+        CellBroadcastSettings.getResources(
+                mockContext, SubscriptionManager.DEFAULT_SUBSCRIPTION_ID - 1);
+
+        verify(mockContext, times(2)).getResources();
+        verify(mockContext2, times(timesExpected)).getResources();
+
+        // The resources should be read from the cached directly
+        CellBroadcastSettings.getResources(
+                mockContext, SubscriptionManager.DEFAULT_SUBSCRIPTION_ID - 1);
+
+        verify(mockContext, times(2)).getResources();
+        verify(mockContext2, times(timesExpected)).getResources();
+
         CellBroadcastSettings.getResources(
                 mockContext, SubscriptionManager.DEFAULT_SUBSCRIPTION_ID - 2);
 
-        verify(mockContext, times(3)).getResources();
-        verify(mockSubManager, times(1)).getActiveSubscriptionInfo(anyInt());
-        verify(mockContext2, times(1)).getResources();
-
-        doThrow(NullPointerException.class).when(mockTelephonyManager)
-                .getSimApplicationState(anyInt());
-        CellBroadcastSettings.getResources(
-                mockContext, SubscriptionManager.DEFAULT_SUBSCRIPTION_ID - 2);
-
-        verify(mockContext, times(4)).getResources();
-        verify(mockSubManager, times(1)).getActiveSubscriptionInfo(anyInt());
-        verify(mockContext2, times(1)).getResources();
+        verify(mockContext, times(2)).getResources();
+        verify(mockContext2, times(timesExpected + 1)).getResources();
     }
 
     @Test
