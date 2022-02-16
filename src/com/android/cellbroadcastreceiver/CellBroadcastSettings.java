@@ -43,6 +43,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -158,9 +159,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     /* End of user preferences keys section. */
 
-    // Resource cache
-    private static final Map<Integer, Resources> sResourcesCache = new HashMap<>();
-
     // Resource cache per operator
     private static final Map<String, Resources> sResourcesCacheByOperator = new HashMap<>();
     private static final Object sCacheLock = new Object();
@@ -265,9 +263,12 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
           Log.d(TAG, "In not test harness mode. reset main toggle.");
           e.remove(KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         }
+        PackageManager pm = c.getPackageManager();
+        if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+            e.remove(KEY_WATCH_ALERT_REMINDER);
+        }
         e.commit();
 
-        PackageManager pm = c.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
             PreferenceManager.setDefaultValues(c, R.xml.watch_preferences, true);
         } else {
@@ -317,6 +318,9 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         private PreferenceCategory mAlertCategory;
         private PreferenceCategory mAlertPreferencesCategory;
         private boolean mDisableSevereWhenExtremeDisabled = true;
+
+        // WATCH
+        private TwoStatePreference mAlertReminder;
 
         // Show checkbox for Presidential alerts in settings
         private TwoStatePreference mPresidentialCheckBox;
@@ -379,7 +383,27 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     findPreference(KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS);
 
             PackageManager pm = getActivity().getPackageManager();
-            if (!pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+            if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                mAlertReminder = (TwoStatePreference)
+                        findPreference(KEY_WATCH_ALERT_REMINDER);
+                if (Integer.valueOf(mReminderInterval.getValue()) == 0) {
+                    mAlertReminder.setChecked(false);
+                } else {
+                    mAlertReminder.setChecked(true);
+                }
+                mAlertReminder.setOnPreferenceChangeListener((p, newVal) -> {
+                    try {
+                        mReminderInterval.setValueIndex((Boolean) newVal ? 1 : 3);
+                    } catch (IndexOutOfBoundsException e) {
+                        mReminderInterval.setValue(String.valueOf(0));
+                        Log.w(TAG, "Setting default value");
+                    }
+                    return true;
+                });
+                PreferenceScreen watchScreen = (PreferenceScreen)
+                        findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
+                watchScreen.removePreference(mReminderInterval);
+            } else {
                 mAlertPreferencesCategory = (PreferenceCategory)
                         findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
                 mAlertCategory = (PreferenceCategory)
@@ -858,21 +882,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             return context.getResources();
         }
 
-        synchronized (sCacheLock) {
-            if (sResourcesCache.containsKey(subId)) {
-                return sResourcesCache.get(subId);
-            }
-
-            Resources res = SubscriptionManager.getResourcesForSubId(context, subId);
-
-            if (res.getConfiguration().mnc != 0) {
-                Log.d(TAG, "Cache resource for sub: " + subId + ", mcc: "
-                        + res.getConfiguration().mcc + ", mnc:" + res.getConfiguration().mnc);
-                sResourcesCache.put(subId, res);
-            }
-
-            return res;
-        }
+        return SubscriptionManager.getResourcesForSubId(context, subId);
     }
 
     /**
@@ -973,7 +983,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     public static void resetResourcesCache() {
         synchronized (sCacheLock) {
             sResourcesCacheByOperator.clear();
-            sResourcesCache.clear();
         }
     }
 }
