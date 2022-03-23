@@ -91,7 +91,6 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
         if (fm.findFragmentById(com.android.settingslib.collapsingtoolbar.R.id.content_frame)
                 == null) {
             mListFragment = new CursorLoaderListFragment();
-            mListFragment.setActivity(this);
             fm.beginTransaction().add(com.android.settingslib.collapsingtoolbar.R.id.content_frame,
                     mListFragment).commit();
         }
@@ -191,12 +190,6 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
 
         private MenuItem mInformationMenuItem;
         private ArrayMap<Integer, Long> mSelectedMessages;
-
-        private CellBroadcastListActivity mActivity;
-
-        void setActivity(CellBroadcastListActivity activity) {
-            mActivity = activity;
-        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -554,12 +547,7 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
 
                 case MENU_PREFERENCES:
                     Intent intent = new Intent(getActivity(), CellBroadcastSettings.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
                     startActivity(intent);
-                    if (mActivity != null) {
-                        mActivity.finish();
-                    }
                     break;
 
                 default:
