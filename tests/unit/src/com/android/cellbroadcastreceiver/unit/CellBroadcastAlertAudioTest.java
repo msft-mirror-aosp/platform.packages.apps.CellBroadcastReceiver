@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.HandlerThread;
@@ -133,7 +132,7 @@ public class CellBroadcastAlertAudioTest extends
         phoneStateListenerHandler.start();
         waitUntilReady();
         verify(mMockedAudioManager).getRingerMode();
-        verify(mMockedVibrator).vibrate(any(), any(AudioAttributes.class));
+        verify(mMockedVibrator).vibrate(any(), any());
         phoneStateListenerHandler.quit();
     }
 
@@ -164,7 +163,7 @@ public class CellBroadcastAlertAudioTest extends
         phoneStateListenerHandler.start();
         waitUntilReady();
         verify(mMockedAudioManager).getRingerMode();
-        verify(mMockedVibrator).vibrate(any(), any(AudioAttributes.class));
+        verify(mMockedVibrator).vibrate(any(), any());
         verify(mMockedTelephonyManager, atLeastOnce()).getCallState();
         verify(mMockedAudioManager).requestAudioFocus(any(), any(), anyInt(), anyInt());
         verify(mMockedAudioManager).getDevices(anyInt());
@@ -216,7 +215,7 @@ public class CellBroadcastAlertAudioTest extends
         phoneStateListenerHandler.start();
         waitUntilReady();
         verify(mMockedAudioManager).getRingerMode();
-        verify(mMockedVibrator, times(0)).vibrate(any(), any(AudioAttributes.class));
+        verify(mMockedVibrator, times(0)).vibrate(any(), any());
         phoneStateListenerHandler.quit();
     }
 
@@ -238,7 +237,7 @@ public class CellBroadcastAlertAudioTest extends
         phoneStateListenerHandler.start();
         waitUntilReady();
         verify(mMockedAudioManager).getRingerMode();
-        verify(mMockedVibrator).vibrate(any(), any(AudioAttributes.class));
+        verify(mMockedVibrator).vibrate(any(), any());
         phoneStateListenerHandler.quit();
     }
 
