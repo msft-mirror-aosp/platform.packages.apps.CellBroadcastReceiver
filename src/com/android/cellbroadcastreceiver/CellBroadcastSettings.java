@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Switch;
@@ -159,9 +158,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             "receive_cmas_in_second_language";
 
     /* End of user preferences keys section. */
-
-    // Resource cache
-    private static final Map<Integer, Resources> sResourcesCache = new HashMap<>();
 
     // Resource cache per operator
     private static final Map<String, Resources> sResourcesCacheByOperator = new HashMap<>();
@@ -692,11 +688,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 // override DND default is turned off.
                 // In some countries, override DND is always on, which means vibration is always on.
                 // In that case, no need to show vibration toggle for users.
-                Vibrator vibrator = getContext().getSystemService(Vibrator.class);
-                boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
-                mEnableVibrateCheckBox.setVisible(supportVibration
-                        && (res.getBoolean(R.bool.show_override_dnd_settings) ||
-                        !res.getBoolean(R.bool.override_dnd)));
+                mEnableVibrateCheckBox.setVisible(isVibrationToggleVisible(getContext(), res));
             }
             if (mAlertsHeader != null) {
                 mAlertsHeader.setVisible(
@@ -838,6 +830,20 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         }
     }
 
+    /**
+     * Check whether vibration toggle is visible
+     * @param context Context
+     * @param res resources
+     */
+    public static boolean isVibrationToggleVisible(Context context, Resources res) {
+        Vibrator vibrator = context.getSystemService(Vibrator.class);
+        boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
+        boolean isVibrationToggleVisible = supportVibration
+                && (res.getBoolean(R.bool.show_override_dnd_settings)
+                || !res.getBoolean(R.bool.override_dnd));
+        return isVibrationToggleVisible;
+    }
+
     public static boolean isTestAlertsToggleVisible(Context context) {
         return isTestAlertsToggleVisible(context, null);
     }
@@ -881,31 +887,12 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
      */
     public static @NonNull Resources getResources(@NonNull Context context, int subId) {
 
-        try {
-            if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-                    || !SubscriptionManager.isValidSubscriptionId(subId)
-                    // per the latest design, subId can be valid earlier than mcc mnc is known to
-                    // telephony. check if sim is loaded to avoid caching the wrong resources.
-                    || context.getSystemService(TelephonyManager.class).getSimApplicationState(
-                    SubscriptionManager.getSlotIndex(subId)) != TelephonyManager.SIM_STATE_LOADED) {
-                return context.getResources();
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Fail to getSimApplicationState due to " + e);
+        if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
+                || !SubscriptionManager.isValidSubscriptionId(subId)) {
             return context.getResources();
         }
 
-        synchronized (sCacheLock) {
-            if (sResourcesCache.containsKey(subId)) {
-                return sResourcesCache.get(subId);
-            }
-
-            Resources res = SubscriptionManager.getResourcesForSubId(context, subId);
-
-            sResourcesCache.put(subId, res);
-
-            return res;
-        }
+        return SubscriptionManager.getResourcesForSubId(context, subId);
     }
 
     /**
@@ -1006,7 +993,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     public static void resetResourcesCache() {
         synchronized (sCacheLock) {
             sResourcesCacheByOperator.clear();
-            sResourcesCache.clear();
         }
     }
 }
