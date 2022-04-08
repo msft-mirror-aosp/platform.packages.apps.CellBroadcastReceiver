@@ -18,6 +18,7 @@ package com.android.cellbroadcastreceiver;
 
 import android.annotation.NonNull;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.backup.BackupManager;
@@ -34,10 +35,8 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Switch;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
@@ -49,10 +48,6 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.modules.utils.build.SdkLevel;
-import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
-import com.android.settingslib.widget.MainSwitchPreference;
-import com.android.settingslib.widget.OnMainSwitchChangeListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +55,7 @@ import java.util.Map;
 /**
  * Settings activity for the cell broadcast receiver.
  */
-public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
+public class CellBroadcastSettings extends Activity {
 
     private static final String TAG = "CellBroadcastSettings";
 
@@ -73,7 +68,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     // Preference key for alert header (A text view, not clickable).
     public static final String KEY_ALERTS_HEADER = "alerts_header";
 
-    // Preference key for a main toggle to enable/disable all alerts message (default enabled).
+    // Preference key for a master toggle to enable/disable all alerts message (default enabled).
     public static final String KEY_ENABLE_ALERTS_MASTER_TOGGLE = "enable_alerts_master_toggle";
 
     // Preference key for whether to enable public safety messages (default enabled).
@@ -88,7 +83,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     // Preference key for whether to enable emergency alerts (default enabled).
     public static final String KEY_ENABLE_EMERGENCY_ALERTS = "enable_emergency_alerts";
 
-    // Enable vibration on alert (unless main volume is silent).
+    // Enable vibration on alert (unless master volume is silent).
     public static final String KEY_ENABLE_ALERT_VIBRATE = "enable_alert_vibrate";
 
     // Speak contents of alert after playing the alert sound.
@@ -177,21 +172,17 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     // Key for shared preference which represents whether user has changed any preference
     private static final String ANY_PREFERENCE_CHANGED_BY_USER = "any_preference_changed_by_user";
 
+    // Test override for disabling the subId specific resources
+    private static boolean sUseResourcesForSubId = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
-            setCustomizeContentView(R.layout.cell_broadcast_list_collapsing_no_toobar);
-        }
         super.onCreate(savedInstanceState);
 
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
-            ActionBar actionBar = getActionBar();
-            if (actionBar != null) {
-                // android.R.id.home will be triggered in onOptionsItemSelected()
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // android.R.id.home will be triggered in onOptionsItemSelected()
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -201,13 +192,12 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         }
 
         // We only add new CellBroadcastSettingsFragment if no fragment is restored.
-        Fragment fragment = getFragmentManager().findFragmentById(
-                com.android.settingslib.collapsingtoolbar.R.id.content_frame);
+        Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
         if (fragment == null) {
             fragment = new CellBroadcastSettingsFragment();
             getFragmentManager()
                     .beginTransaction()
-                    .add(com.android.settingslib.collapsingtoolbar.R.id.content_frame, fragment)
+                    .add(android.R.id.content, fragment)
                     .commit();
         }
     }
@@ -298,7 +288,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         private TwoStatePreference mExtremeCheckBox;
         private TwoStatePreference mSevereCheckBox;
         private TwoStatePreference mAmberCheckBox;
-        private MainSwitchPreference mMasterToggle;
+        private TwoStatePreference mMasterToggle;
         private TwoStatePreference mPublicSafetyMessagesChannelCheckBox;
         private TwoStatePreference mPublicSafetyMessagesChannelFullScreenCheckBox;
         private TwoStatePreference mEmergencyAlertsCheckBox;
@@ -344,7 +334,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     findPreference(KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS);
             mAmberCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_CMAS_AMBER_ALERTS);
-            mMasterToggle = (MainSwitchPreference)
+            mMasterToggle = (TwoStatePreference)
                     findPreference(KEY_ENABLE_ALERTS_MASTER_TOGGLE);
             mPublicSafetyMessagesChannelCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
@@ -428,13 +418,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             mDisableSevereWhenExtremeDisabled = res.getBoolean(
                     R.bool.disable_severe_when_extreme_disabled);
 
-            final OnMainSwitchChangeListener mainSwitchListener = new OnMainSwitchChangeListener() {
-                @Override
-                public void onSwitchChanged(Switch switchView, boolean isChecked) {
-                    setAlertsEnabled(isChecked);
-                }
-            };
-
             // Handler for settings that require us to reconfigure enabled channels in radio
             Preference.OnPreferenceChangeListener startConfigServiceListener =
                     new Preference.OnPreferenceChangeListener() {
@@ -454,6 +437,11 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                                 }
                             }
 
+                            if (pref.getKey().equals(KEY_ENABLE_ALERTS_MASTER_TOGGLE)) {
+                                boolean isEnableAlerts = (Boolean) newValue;
+                                setAlertsEnabled(isEnableAlerts);
+                            }
+
                             // check if area update was disabled
                             if (pref.getKey().equals(KEY_ENABLE_AREA_UPDATE_INFO_ALERTS)) {
                                 boolean isEnabledAlert = (Boolean) newValue;
@@ -469,7 +457,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             initReminderIntervalList();
 
             if (mMasterToggle != null) {
-                mMasterToggle.addOnSwitchChangeListener(mainSwitchListener);
+                mMasterToggle.setOnPreferenceChangeListener(startConfigServiceListener);
                 // If allow alerts are disabled, we turn all sub-alerts off. If it's enabled, we
                 // leave them as they are.
                 if (!mMasterToggle.isChecked()) {
@@ -827,6 +815,30 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 && isTestAlertsAvailable;
     }
 
+    public static boolean isFeatureEnabled(Context context, String feature, boolean defaultValue) {
+        CarrierConfigManager configManager =
+                (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
+
+        if (configManager != null) {
+            PersistableBundle carrierConfig = configManager.getConfig();
+            if (carrierConfig != null) {
+                return carrierConfig.getBoolean(feature, defaultValue);
+            }
+        }
+
+        return defaultValue;
+    }
+
+    /**
+     * Override used by tests so that we don't call
+     * SubscriptionManager.getResourcesForSubId, which is a static unmockable
+     * method.
+     */
+    @VisibleForTesting
+    public static void setUseResourcesForSubId(boolean useResourcesForSubId) {
+        sUseResourcesForSubId = useResourcesForSubId;
+    }
+
     /**
      * Get the device resource based on SIM
      *
@@ -836,18 +848,8 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
      * @return The resource
      */
     public static @NonNull Resources getResources(@NonNull Context context, int subId) {
-
-        try {
-            if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-                    || !SubscriptionManager.isValidSubscriptionId(subId)
-                    // per the latest design, subId can be valid earlier than mcc mnc is known to
-                    // telephony. check if sim is loaded to avoid caching the wrong resources.
-                    || context.getSystemService(TelephonyManager.class).getSimApplicationState(
-                    SubscriptionManager.getSlotIndex(subId)) != TelephonyManager.SIM_STATE_LOADED) {
-                return context.getResources();
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Fail to getSimApplicationState due to " + e);
+        if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
+                || !SubscriptionManager.isValidSubscriptionId(subId) || !sUseResourcesForSubId) {
             return context.getResources();
         }
 

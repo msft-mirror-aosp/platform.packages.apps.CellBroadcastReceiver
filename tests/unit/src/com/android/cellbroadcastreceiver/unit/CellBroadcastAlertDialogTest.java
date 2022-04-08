@@ -16,6 +16,7 @@
 
 package com.android.cellbroadcastreceiver.unit;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -26,8 +27,11 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IPowerManager;
 import android.os.IThermalService;
@@ -35,7 +39,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.telephony.SmsCbMessage;
-import android.telephony.TelephonyManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,9 +71,6 @@ public class CellBroadcastAlertDialogTest extends
 
     @Mock
     private IThermalService.Stub mMockedThermalService;
-
-    @Mock
-    TelephonyManager mTelephonyManager;
 
     @Captor
     private ArgumentCaptor<Integer> mInt;
@@ -115,9 +115,6 @@ public class CellBroadcastAlertDialogTest extends
         mPowerManager = new PowerManager(mContext, mMockedPowerManagerService,
                 mMockedThermalService, null);
         injectSystemService(PowerManager.class, mPowerManager);
-        doReturn(TelephonyManager.SIM_STATE_UNKNOWN).when(mTelephonyManager)
-                .getSimApplicationState(anyInt());
-        injectSystemService(TelephonyManager.class, mTelephonyManager);
     }
 
     @After
@@ -211,8 +208,37 @@ public class CellBroadcastAlertDialogTest extends
                 eq(CellBroadcastAlertService.NOTIFICATION_ID));
     }
 
+    public void testCopyMessageToClipboard() {
+        Context mockContext = mock(Context.class);
+        ClipboardManager mockClipboardManager = mock(ClipboardManager.class);
+        Resources mockResources = mock(Resources.class);
+        doReturn(mockClipboardManager).when(mockContext).getSystemService(
+                eq(Context.CLIPBOARD_SERVICE));
+        doReturn(mockResources).when(mockContext).getResources();
+        CellBroadcastSettings.setUseResourcesForSubId(false);
+
+
+        SmsCbMessage testMessage =
+                CellBroadcastAlertServiceTest.createMessageForCmasMessageClass(12412,
+                        mServiceCategory,
+                        mCmasMessageClass);
+
+        boolean madeToast = false;
+        try {
+            CellBroadcastAlertDialog.copyMessageToClipboard(testMessage, mockContext);
+        } catch (NullPointerException e) {
+            // exception expected from creating the toast at the end of copyMessageToClipboard
+            madeToast = true;
+        }
+
+        assertTrue(madeToast);
+        verify(mockContext).getSystemService(eq(Context.CLIPBOARD_SERVICE));
+        verify(mockClipboardManager).setPrimaryClip(any());
+    }
+
     public void testAnimationHandler() throws Throwable {
         CellBroadcastAlertDialog activity = startActivity();
+        CellBroadcastSettings.setUseResourcesForSubId(false);
 
         activity.mAnimationHandler.startIconAnimation(mSubId);
 

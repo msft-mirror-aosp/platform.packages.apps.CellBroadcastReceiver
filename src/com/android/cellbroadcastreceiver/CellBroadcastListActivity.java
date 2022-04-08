@@ -20,6 +20,7 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 
 import android.annotation.Nullable;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -53,8 +54,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.modules.utils.build.SdkLevel;
-import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 
 import java.util.ArrayList;
 
@@ -62,25 +61,19 @@ import java.util.ArrayList;
  * This activity provides a list view of received cell broadcasts. Most of the work is handled
  * in the inner CursorLoaderListFragment class.
  */
-public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
+public class CellBroadcastListActivity extends Activity {
 
     @VisibleForTesting
     public CursorLoaderListFragment mListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
-            setCustomizeContentView(R.layout.cell_broadcast_list_collapsing_no_toobar);
-        }
         super.onCreate(savedInstanceState);
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
-            ActionBar actionBar = getActionBar();
-            if (actionBar != null) {
-                // android.R.id.home will be triggered in onOptionsItemSelected()
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // android.R.id.home will be triggered in onOptionsItemSelected()
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         setTitle(getString(R.string.cb_list_activity_title));
@@ -88,11 +81,9 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
         FragmentManager fm = getFragmentManager();
 
         // Create the list fragment and add it as our sole content.
-        if (fm.findFragmentById(com.android.settingslib.collapsingtoolbar.R.id.content_frame)
-                == null) {
+        if (fm.findFragmentById(android.R.id.content) == null) {
             mListFragment = new CursorLoaderListFragment();
-            fm.beginTransaction().add(com.android.settingslib.collapsingtoolbar.R.id.content_frame,
-                    mListFragment).commit();
+            fm.beginTransaction().add(android.R.id.content, mListFragment).commit();
         }
     }
 
@@ -454,9 +445,6 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
             if (noAlertsTextView != null) {
                 noAlertsTextView.setVisibility(!hasAlertsInHistory()
                         ? View.VISIBLE : View.INVISIBLE);
-                if (!hasAlertsInHistory()) {
-                    getListView().setContentDescription(getString(R.string.no_cell_broadcasts));
-                }
             }
         }
 

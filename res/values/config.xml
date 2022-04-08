@@ -31,8 +31,14 @@
     <bool name="show_amber_alert_settings">true</bool>
     <!-- Whether to show test settings -->
     <bool name="show_test_settings">true</bool>
-    <!-- append date-time to the alert title with specified format -->
-    <string name="date_time_format" translatable="false"></string>
+    <!-- Whether to append date-time to the alert title -->
+    <bool name="show_date_time_title">false</bool>
+    <!-- if appending date-time to alert title, whether to include year -->
+    <bool name="show_date_time_with_year_title">false</bool>
+    <!-- if appending date-time to alert title, whether to include weekday -->
+    <bool name="show_date_time_with_weekday_title">false</bool>
+    <!-- if appending date-time to alert title, whether to use numeric format -->
+    <bool name="show_date_in_numeric_format">false</bool>
     <!-- Whether to compare message body when performing message duplicate dection -->
     <bool name="duplicate_compare_body">false</bool>
     <!-- Whether to enable audio alert for non emergency broadcasts on FEATURE_WATCH devices -->
@@ -75,7 +81,7 @@
     <bool name="retry_message_history_data_migration">false</bool>
 
     <!-- Section for switch default value -->
-    <!-- Main toggle default value -->
+    <!-- Master toggle default value -->
     <bool name="master_toggle_enabled_default">true</bool>
     <!-- Emergency alerts toggle default value -->
     <bool name="emergency_alerts_enabled_default">true</bool>
@@ -252,16 +258,21 @@
     <!-- Whether to override the language of the alert dialog's title to match the message locale -->
     <bool name="override_alert_title_language_to_match_message_locale">false</bool>
 
-    <!-- Whether to display a notification with the pop-up dialog in the foreground when the device
-    has active connections to companion devices.
-    TODO: enable this feature by default in the future. -->
-    <bool name="show_notification_if_connected_to_companion_devices">false</bool>
-
     <!-- Whether to display a notification with pop-up dialog in the foreground.
-    KR carriers mandate to always show notifications along with alert dialog.  -->
+    This is used to support emergency alert on the companion devices by bridged notification -->
     <bool name="show_alert_dialog_with_notification">false</bool>
+
+    <!-- Whether to disable status bar while alert dialog is showing.
+    Some carriers mandate this to make sure users do not switch to other activities
+    until pressing the "ok" button -->
+    <bool name="disable_status_bar">false</bool>
 
     <!-- Whether to show the alert dialog at the bottom of the screen in order to avoid blocking
          other content -->
     <bool name="alert_dialog_bottom">false</bool>
+
+    <!-- String used to override message body for certain service categories.
+         The format for each entry is: "service_category:message".
+         '>' is a special character which indicates that the carrier's name should be shown -->
+    <string-array name="message_body_override" translatable="false"></string-array>
 </resources>

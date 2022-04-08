@@ -52,17 +52,4 @@
      </integer-array>
     <!-- Do not interrupt active voice call -->
     <bool name="enable_alert_handling_during_call">true</bool>
-
-    <!-- CA has 4396~4399 reserved for future use-->
-    <string-array name="additional_cbs_channels_strings" translatable="false">
-        <item>0x112C-0x112F:rat=gsm, emergency=true</item>
-    </string-array>
-
-    <!-- Whether enabling copy message text into clipboard by long press -->
-    <bool name="enable_text_copy">false</bool>
-
-    <!-- Allow user to enable/disable audio speech alert (text-to-speech for received messages)-->
-    <bool name="show_alert_speech_setting">true</bool>
-    <!-- Default value which determines whether spoken alerts enabled -->
-    <bool name="enable_alert_speech_default">false</bool>
 </resources>

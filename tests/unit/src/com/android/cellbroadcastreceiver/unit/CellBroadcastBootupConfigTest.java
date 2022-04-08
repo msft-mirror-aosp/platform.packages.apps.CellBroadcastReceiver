@@ -46,8 +46,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.telephony.SmsCbMessage;
 
-import androidx.test.filters.FlakyTest;
-
 import com.android.cellbroadcastreceiver.CellBroadcastConfigService;
 import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.internal.telephony.ISms;
@@ -135,8 +133,6 @@ public class CellBroadcastBootupConfigTest extends
     }
 
     // Test if CellbroadcastConfigService properly configure all the required channels.
-
-    @FlakyTest
     public void testConfiguration() throws Exception {
         String[] preferenceKeys = {
                 CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE,
@@ -200,7 +196,7 @@ public class CellBroadcastBootupConfigTest extends
                         SmsCbMessage.MESSAGE_FORMAT_3GPP),
         };
 
-        verify(mSmsService, timeout(10000).times(configs.length))
+        verify(mSmsService, timeout(WAIT_TIMEOUT_MS).times(configs.length))
                 .enableCellBroadcastRangeForSubscriber(
                         anyInt(), mStartIds.capture(), mEndIds.capture(), mTypes.capture());
 

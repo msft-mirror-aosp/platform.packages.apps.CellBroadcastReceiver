@@ -21,13 +21,12 @@
 
   <original-package android:name="com.android.cellbroadcastreceiver" />
 
-  <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
   <uses-permission android:name="android.permission.RECEIVE_SMS" />
   <uses-permission android:name="android.permission.RECEIVE_EMERGENCY_BROADCAST" />
   <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
   <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
-  <uses-permission android:name="android.permission.MODIFY_CELL_BROADCASTS" />
   <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+  <uses-permission android:name="android.permission.STATUS_BAR" />
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
   <uses-permission android:name="android.permission.MANAGE_USERS" />
@@ -38,10 +37,8 @@
   <uses-permission android:name="android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS"/>
   <uses-permission android:name="com.android.cellbroadcastservice.FULL_ACCESS_CELL_BROADCAST_HISTORY" />
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-  <uses-permission android:name="android.permission.BLUETOOTH" />
-  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-  <uses-sdk android:minSdkVersion="21"/>
+  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
 
   <application android:name="CellBroadcastReceiverApp"
       android:label="@string/app_label"
@@ -72,8 +69,7 @@
 
     <activity android:name="CellBroadcastListActivity"
         android:label="@string/app_label"
-        android:theme="@style/CellBroadcastListActivityTheme"
-        android:exported="true"
+        android:theme="@style/CellBroadcastSettingsTheme"
         android:configChanges="orientation|keyboardHidden" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -109,7 +105,7 @@
         android:exported="true" />
 
     <activity android:name="CellBroadcastAlertDialog"
-        android:theme="@style/CellBroadcastAlertTheme"
+        android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
         android:launchMode="singleTask"
         android:exported="false"
         android:excludeFromRecents="true"
@@ -123,8 +119,7 @@
     <activity android:name="CellBroadcastOptOutActivity"
         android:exported="false" />
 
-    <receiver android:name="CellBroadcastReceiver"
-        android:exported="true">
+    <receiver android:name="CellBroadcastReceiver">
       <intent-filter>
         <action android:name="android.provider.action.SMS_EMERGENCY_CB_RECEIVED" />
         <action android:name="android.provider.Telephony.SMS_CB_RECEIVED" />

@@ -32,7 +32,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserManager;
-import androidx.preference.PreferenceManager;
+import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.provider.Telephony.CellBroadcasts;
 import android.telephony.CarrierConfigManager;
@@ -174,14 +174,17 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             // rename registered notification channels on locale change
             CellBroadcastAlertService.createNotificationChannels(mContext);
         } else if (TelephonyManager.ACTION_SECRET_CODE.equals(action)) {
-            setTestingMode(!isTestingMode(mContext));
-            int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
-                    : R.string.testing_mode_disabled;
-            String msg =  res.getString(msgId);
-            Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
-            LocalBroadcastManager.getInstance(mContext)
-                    .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
-            log(msg);
+            if (SystemProperties.getInt("ro.debuggable", 0) == 1
+                    || res.getBoolean(R.bool.allow_testing_mode_on_user_build)) {
+                setTestingMode(!isTestingMode(mContext));
+                int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
+                        : R.string.testing_mode_disabled;
+                String msg =  res.getString(msgId);
+                Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+                LocalBroadcastManager.getInstance(mContext)
+                        .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
+                log(msg);
+            }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             new CellBroadcastContentProvider.AsyncCellBroadcastTask(
                     mContext.getContentResolver()).execute((CellBroadcastContentProvider

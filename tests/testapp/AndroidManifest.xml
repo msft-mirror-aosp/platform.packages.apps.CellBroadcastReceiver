@@ -33,7 +33,6 @@
         <activity android:name="SendTestBroadcastActivity"
                   android:label="@string/app_label"
                   android:configChanges="orientation|keyboardHidden"
-                  android:exported="true"
                   android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

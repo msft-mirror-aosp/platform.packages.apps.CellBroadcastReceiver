@@ -17,7 +17,6 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.android.cellbroadcastreceiver"
     android:versionCode="300000000"
     android:versionName="R-initial">
@@ -34,10 +33,5 @@
           android:authorities="cellbroadcast-legacy"
           android:readPermission="android.permission.READ_CELL_BROADCASTS"
           android:exported="true" />
-      <provider
-          android:name="androidx.startup.InitializationProvider"
-          android:exported="false"
-          android:authorities="com.android.cellbroadcastreceiver.androidx-startup"
-          tools:node="remove" />
     </application>
 </manifest>

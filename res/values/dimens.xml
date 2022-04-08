@@ -26,4 +26,7 @@
     <!-- Max height of alert dialog's text content -->
     <dimen name="alert_dialog_maxheight_content_panel">0dip</dimen>
 
+    <!-- dimensions for CellBroadcastListActivity ListItems -->
+    <dimen name="list_item_internal_line_space_horizontal">16dp</dimen>
+    <dimen name="list_item_internal_line_space_vertical">4dp</dimen>
 </resources>
