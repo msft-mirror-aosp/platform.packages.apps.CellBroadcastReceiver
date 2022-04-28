@@ -259,6 +259,12 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     /**
      * Send an intent to reset the users WEA settings if there is a new carrier on the default subId
      *
+     * The settings will be reset only when a new carrier is detected on the default subId. So it
+     * tracks the previous carrier id, and ignores the case that the current carrier id is changed
+     * to invalid. In case of the first boot with a sim on the new device, FDR, or upgrade from Q,
+     * the carrier id will be stored as there is no previous carrier id, but the settings will not
+     * be reset.
+     *
      * Do nothing in other cases:
      *   - SIM insertion for the non-default subId
      *   - SIM insertion/bootup with no new carrier
