@@ -17,6 +17,7 @@
 package com.android.cellbroadcastreceiver;
 
 import android.annotation.NonNull;
+import android.app.ActionBar;
 import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.backup.BackupManager;
@@ -26,12 +27,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.os.UserManager;
 import android.os.Vibrator;
-import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -43,10 +43,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
-import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.modules.utils.build.SdkLevel;
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 import com.android.settingslib.widget.MainSwitchPreference;
 import com.android.settingslib.widget.OnMainSwitchChangeListener;
@@ -149,14 +149,18 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     // For watch layout
     private static final String KEY_WATCH_ALERT_REMINDER = "watch_alert_reminder";
 
+    // For top introduction info
+    private static final String KEY_PREFS_TOP_INTRO = "alert_prefs_top_intro";
+
     // Whether to receive alert in second language code
     public static final String KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE =
             "receive_cmas_in_second_language";
 
     /* End of user preferences keys section. */
 
-    // Resource cache
-    private static final Map<Integer, Resources> sResourcesCache = new HashMap<>();
+    // Resource cache per operator
+    private static final Map<String, Resources> sResourcesCacheByOperator = new HashMap<>();
+    private static final Object sCacheLock = new Object();
 
     // Intent sent from cellbroadcastreceiver to notify cellbroadcastservice that area info update
     // is disabled/enabled.
@@ -174,12 +178,22 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     // Key for shared preference which represents whether user has changed any preference
     private static final String ANY_PREFERENCE_CHANGED_BY_USER = "any_preference_changed_by_user";
 
-    // Test override for disabling the subId specific resources
-    private static boolean sUseResourcesForSubId = true;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // for backward compatibility on R devices
+        if (!SdkLevel.isAtLeastS()) {
+            setCustomizeContentView(R.layout.cell_broadcast_list_collapsing_no_toobar);
+        }
         super.onCreate(savedInstanceState);
+
+        // for backward compatibility on R devices
+        if (!SdkLevel.isAtLeastS()) {
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                // android.R.id.home will be triggered in onOptionsItemSelected()
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
 
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
         if (userManager.hasUserRestriction(UserManager.DISALLOW_CONFIG_CELL_BROADCASTS)) {
@@ -248,12 +262,9 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
           Log.d(TAG, "In not test harness mode. reset main toggle.");
           e.remove(KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         }
-        PackageManager pm = c.getPackageManager();
-        if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-            e.remove(KEY_WATCH_ALERT_REMINDER);
-        }
         e.commit();
 
+        PackageManager pm = c.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
             PreferenceManager.setDefaultValues(c, R.xml.watch_preferences, true);
         } else {
@@ -304,14 +315,14 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         private PreferenceCategory mAlertPreferencesCategory;
         private boolean mDisableSevereWhenExtremeDisabled = true;
 
-        // WATCH
-        private TwoStatePreference mAlertReminder;
-
         // Show checkbox for Presidential alerts in settings
         private TwoStatePreference mPresidentialCheckBox;
 
         // on/off switch in settings for receiving alert in second language code
         private TwoStatePreference mReceiveCmasInSecondLanguageCheckBox;
+
+        // Show the top introduction
+        private Preference mTopIntroPreference;
 
         private final BroadcastReceiver mTestingModeChangedReceiver = new BroadcastReceiver() {
             @Override
@@ -365,32 +376,13 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     findPreference(KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS);
 
             PackageManager pm = getActivity().getPackageManager();
-            if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-                mAlertReminder = (TwoStatePreference)
-                        findPreference(KEY_WATCH_ALERT_REMINDER);
-                if (Integer.valueOf(mReminderInterval.getValue()) == 0) {
-                    mAlertReminder.setChecked(false);
-                } else {
-                    mAlertReminder.setChecked(true);
-                }
-                mAlertReminder.setOnPreferenceChangeListener((p, newVal) -> {
-                    try {
-                        mReminderInterval.setValueIndex((Boolean) newVal ? 1 : 3);
-                    } catch (IndexOutOfBoundsException e) {
-                        mReminderInterval.setValue(String.valueOf(0));
-                        Log.w(TAG, "Setting default value");
-                    }
-                    return true;
-                });
-                PreferenceScreen watchScreen = (PreferenceScreen)
-                        findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
-                watchScreen.removePreference(mReminderInterval);
-            } else {
+            if (!pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
                 mAlertPreferencesCategory = (PreferenceCategory)
                         findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
                 mAlertCategory = (PreferenceCategory)
                         findPreference(KEY_CATEGORY_EMERGENCY_ALERTS);
             }
+            mTopIntroPreference = findPreference(KEY_PREFS_TOP_INTRO);
         }
 
         @Override
@@ -419,6 +411,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 @Override
                 public void onSwitchChanged(Switch switchView, boolean isChecked) {
                     setAlertsEnabled(isChecked);
+                    onPreferenceChangedByUser(getContext());
                 }
             };
 
@@ -427,10 +420,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     new Preference.OnPreferenceChangeListener() {
                         @Override
                         public boolean onPreferenceChange(Preference pref, Object newValue) {
-                            CellBroadcastReceiver.startConfigService(pref.getContext(),
-                                    CellBroadcastConfigService.ACTION_ENABLE_CHANNELS);
-                            setPreferenceChanged(getContext(), true);
-
                             if (mDisableSevereWhenExtremeDisabled) {
                                 if (pref.getKey().equals(KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS)) {
                                     boolean isExtremeAlertChecked = (Boolean) newValue;
@@ -447,8 +436,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                                 notifyAreaInfoUpdate(isEnabledAlert);
                             }
 
-                            // Notify backup manager a backup pass is needed.
-                            new BackupManager(getContext()).dataChanged();
+                            onPreferenceChangedByUser(getContext());
                             return true;
                         }
                     };
@@ -563,8 +551,9 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         private void updatePreferenceVisibility() {
             Resources res = CellBroadcastSettings.getResourcesForDefaultSubId(getContext());
 
+            // The settings should be based on the config by the subscription
             CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
-                    getContext(), SubscriptionManager.getDefaultSubscriptionId());
+                    getContext(), SubscriptionManager.getDefaultSubscriptionId(), null);
 
             if (mMasterToggle != null) {
                 mMasterToggle.setVisible(res.getBoolean(R.bool.show_main_switch_settings));
@@ -672,11 +661,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 // override DND default is turned off.
                 // In some countries, override DND is always on, which means vibration is always on.
                 // In that case, no need to show vibration toggle for users.
-                Vibrator vibrator = getContext().getSystemService(Vibrator.class);
-                boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
-                mEnableVibrateCheckBox.setVisible(supportVibration
-                        && (res.getBoolean(R.bool.show_override_dnd_settings) ||
-                        !res.getBoolean(R.bool.override_dnd)));
+                mEnableVibrateCheckBox.setVisible(isVibrationToggleVisible(getContext(), res));
             }
             if (mAlertsHeader != null) {
                 mAlertsHeader.setVisible(
@@ -688,6 +673,18 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                         || getActivity().getPackageManager()
                         .hasSystemFeature(PackageManager.FEATURE_WATCH));
             }
+
+            if (mTopIntroPreference != null) {
+                mTopIntroPreference.setTitle(getTopIntroduction());
+            }
+        }
+
+        private int getTopIntroduction() {
+            // Only set specific top introduction for roaming support now
+            if (!CellBroadcastReceiver.getRoamingOperatorSupported(getContext()).isEmpty()) {
+                return R.string.top_intro_roaming_text;
+            }
+            return R.string.top_intro_default_text;
         }
 
         private void initReminderIntervalList() {
@@ -790,12 +787,51 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             LocalBroadcastManager.getInstance(getContext())
                     .unregisterReceiver(mTestingModeChangedReceiver);
         }
+
+        /**
+         * Callback to be called when preference or master toggle is changed by user
+         *
+         * @param context Context to use
+         */
+        public void onPreferenceChangedByUser(Context context) {
+            CellBroadcastReceiver.startConfigService(context,
+                    CellBroadcastConfigService.ACTION_ENABLE_CHANNELS);
+            setPreferenceChanged(context, true);
+
+            // Notify backup manager a backup pass is needed.
+            new BackupManager(context).dataChanged();
+        }
+    }
+
+    /**
+     * Check whether vibration toggle is visible
+     * @param context Context
+     * @param res resources
+     */
+    public static boolean isVibrationToggleVisible(Context context, Resources res) {
+        Vibrator vibrator = context.getSystemService(Vibrator.class);
+        boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
+        boolean isVibrationToggleVisible = supportVibration
+                && (res.getBoolean(R.bool.show_override_dnd_settings)
+                || !res.getBoolean(R.bool.override_dnd));
+        return isVibrationToggleVisible;
     }
 
     public static boolean isTestAlertsToggleVisible(Context context) {
+        return isTestAlertsToggleVisible(context, null);
+    }
+
+    /**
+     * Check whether test alert toggle is visible
+     * @param context Context
+     * @param operator Opeator numeric
+     */
+    public static boolean isTestAlertsToggleVisible(Context context, String operator) {
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(context,
-                SubscriptionManager.getDefaultSubscriptionId());
-        Resources res = CellBroadcastSettings.getResourcesForDefaultSubId(context);
+                SubscriptionManager.getDefaultSubscriptionId(), operator);
+        Resources res = operator == null ? getResourcesForDefaultSubId(context)
+                : getResourcesByOperator(context,
+                        SubscriptionManager.getDefaultSubscriptionId(), operator);
         boolean isTestAlertsAvailable = !channelManager.getCellBroadcastChannelRanges(
                 R.array.required_monthly_test_range_strings).isEmpty()
                 || (!channelManager.getCellBroadcastChannelRanges(
@@ -814,30 +850,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 && isTestAlertsAvailable;
     }
 
-    public static boolean isFeatureEnabled(Context context, String feature, boolean defaultValue) {
-        CarrierConfigManager configManager =
-                (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-
-        if (configManager != null) {
-            PersistableBundle carrierConfig = configManager.getConfig();
-            if (carrierConfig != null) {
-                return carrierConfig.getBoolean(feature, defaultValue);
-            }
-        }
-
-        return defaultValue;
-    }
-
-    /**
-     * Override used by tests so that we don't call
-     * SubscriptionManager.getResourcesForSubId, which is a static unmockable
-     * method.
-     */
-    @VisibleForTesting
-    public static void setUseResourcesForSubId(boolean useResourcesForSubId) {
-        sUseResourcesForSubId = useResourcesForSubId;
-    }
-
     /**
      * Get the device resource based on SIM
      *
@@ -847,19 +859,13 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
      * @return The resource
      */
     public static @NonNull Resources getResources(@NonNull Context context, int subId) {
+
         if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-                || !SubscriptionManager.isValidSubscriptionId(subId) || !sUseResourcesForSubId) {
+                || !SubscriptionManager.isValidSubscriptionId(subId)) {
             return context.getResources();
         }
 
-        if (sResourcesCache.containsKey(subId)) {
-            return sResourcesCache.get(subId);
-        }
-
-        Resources res = SubscriptionManager.getResourcesForSubId(context, subId);
-        sResourcesCache.put(subId, res);
-
-        return res;
+        return SubscriptionManager.getResourcesForSubId(context, subId);
     }
 
     /**
@@ -870,5 +876,96 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
      */
     public static @NonNull Resources getResourcesForDefaultSubId(@NonNull Context context) {
         return getResources(context, SubscriptionManager.getDefaultSubscriptionId());
+    }
+
+    /**
+     * Get the resources per network operator
+     * @param context Context
+     * @param operator Opeator numeric
+     * @return the Resources based on network operator
+     */
+    public static @NonNull Resources getResourcesByOperator(
+            @NonNull Context context, int subId, @NonNull String operator) {
+        if (operator == null || operator.isEmpty()) {
+            return getResources(context, subId);
+        }
+
+        synchronized (sCacheLock) {
+            Resources res = sResourcesCacheByOperator.get(operator);
+            if (res != null) {
+                return res;
+            }
+
+            Configuration overrideConfig = new Configuration();
+            try {
+                int mcc = Integer.parseInt(operator.substring(0, 3));
+                int mnc = operator.length() > 3 ? Integer.parseInt(operator.substring(3))
+                        : Configuration.MNC_ZERO;
+
+                overrideConfig.mcc = mcc;
+                overrideConfig.mnc = mnc;
+            } catch (NumberFormatException e) {
+                // should not happen
+                Log.e(TAG, "invalid operator: " + operator);
+                return context.getResources();
+            }
+
+            Context newContext = context.createConfigurationContext(overrideConfig);
+            res = newContext.getResources();
+
+            sResourcesCacheByOperator.put(operator, res);
+            return res;
+        }
+    }
+
+    /**
+     * Get the resources id which is used for the default value of the preference
+     * @param key the preference key
+     * @return a valid resources id if the key is valid and the default value is
+     * defined, otherwise 0
+     */
+    public static int getResourcesIdForDefaultPrefValue(String key) {
+        switch (key) {
+            case KEY_ENABLE_ALERTS_MASTER_TOGGLE:
+                return R.bool.master_toggle_enabled_default;
+            case KEY_ENABLE_PUBLIC_SAFETY_MESSAGES:
+                return R.bool.public_safety_messages_enabled_default;
+            case KEY_ENABLE_PUBLIC_SAFETY_MESSAGES_FULL_SCREEN:
+                return R.bool.public_safety_messages_full_screen_enabled_default;
+            case KEY_ENABLE_EMERGENCY_ALERTS:
+                return R.bool.emergency_alerts_enabled_default;
+            case KEY_ENABLE_ALERT_SPEECH:
+                return R.bool.enable_alert_speech_default;
+            case KEY_OVERRIDE_DND:
+                return R.bool.override_dnd_default;
+            case KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS:
+                return R.bool.extreme_threat_alerts_enabled_default;
+            case KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS:
+                return R.bool.severe_threat_alerts_enabled_default;
+            case KEY_ENABLE_CMAS_AMBER_ALERTS:
+                return R.bool.amber_alerts_enabled_default;
+            case KEY_ENABLE_TEST_ALERTS:
+                return R.bool.test_alerts_enabled_default;
+            case KEY_ENABLE_EXERCISE_ALERTS:
+                return R.bool.test_exercise_alerts_enabled_default;
+            case KEY_OPERATOR_DEFINED_ALERTS:
+                return R.bool.test_operator_defined_alerts_enabled_default;
+            case KEY_ENABLE_STATE_LOCAL_TEST_ALERTS:
+                return R.bool.state_local_test_alerts_enabled_default;
+            case KEY_ENABLE_AREA_UPDATE_INFO_ALERTS:
+                return R.bool.area_update_info_alerts_enabled_default;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Reset the resources cache.
+     */
+    @VisibleForTesting
+    public static void resetResourcesCache() {
+        synchronized (sCacheLock) {
+            sResourcesCacheByOperator.clear();
+        }
     }
 }
