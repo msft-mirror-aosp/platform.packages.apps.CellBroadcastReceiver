@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Switch;
@@ -44,7 +43,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
-import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -160,9 +158,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     /* End of user preferences keys section. */
 
-    // Resource cache
-    private static final Map<Integer, Resources> sResourcesCache = new HashMap<>();
-
     // Resource cache per operator
     private static final Map<String, Resources> sResourcesCacheByOperator = new HashMap<>();
     private static final Object sCacheLock = new Object();
@@ -267,12 +262,9 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
           Log.d(TAG, "In not test harness mode. reset main toggle.");
           e.remove(KEY_ENABLE_ALERTS_MASTER_TOGGLE);
         }
-        PackageManager pm = c.getPackageManager();
-        if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-            e.remove(KEY_WATCH_ALERT_REMINDER);
-        }
         e.commit();
 
+        PackageManager pm = c.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
             PreferenceManager.setDefaultValues(c, R.xml.watch_preferences, true);
         } else {
@@ -322,9 +314,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         private PreferenceCategory mAlertCategory;
         private PreferenceCategory mAlertPreferencesCategory;
         private boolean mDisableSevereWhenExtremeDisabled = true;
-
-        // WATCH
-        private TwoStatePreference mAlertReminder;
 
         // Show checkbox for Presidential alerts in settings
         private TwoStatePreference mPresidentialCheckBox;
@@ -387,27 +376,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     findPreference(KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS);
 
             PackageManager pm = getActivity().getPackageManager();
-            if (pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-                mAlertReminder = (TwoStatePreference)
-                        findPreference(KEY_WATCH_ALERT_REMINDER);
-                if (Integer.valueOf(mReminderInterval.getValue()) == 0) {
-                    mAlertReminder.setChecked(false);
-                } else {
-                    mAlertReminder.setChecked(true);
-                }
-                mAlertReminder.setOnPreferenceChangeListener((p, newVal) -> {
-                    try {
-                        mReminderInterval.setValueIndex((Boolean) newVal ? 1 : 3);
-                    } catch (IndexOutOfBoundsException e) {
-                        mReminderInterval.setValue(String.valueOf(0));
-                        Log.w(TAG, "Setting default value");
-                    }
-                    return true;
-                });
-                PreferenceScreen watchScreen = (PreferenceScreen)
-                        findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
-                watchScreen.removePreference(mReminderInterval);
-            } else {
+            if (!pm.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
                 mAlertPreferencesCategory = (PreferenceCategory)
                         findPreference(KEY_CATEGORY_ALERT_PREFERENCES);
                 mAlertCategory = (PreferenceCategory)
@@ -692,11 +661,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 // override DND default is turned off.
                 // In some countries, override DND is always on, which means vibration is always on.
                 // In that case, no need to show vibration toggle for users.
-                Vibrator vibrator = getContext().getSystemService(Vibrator.class);
-                boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
-                mEnableVibrateCheckBox.setVisible(supportVibration
-                        && (res.getBoolean(R.bool.show_override_dnd_settings) ||
-                        !res.getBoolean(R.bool.override_dnd)));
+                mEnableVibrateCheckBox.setVisible(isVibrationToggleVisible(getContext(), res));
             }
             if (mAlertsHeader != null) {
                 mAlertsHeader.setVisible(
@@ -838,6 +803,20 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         }
     }
 
+    /**
+     * Check whether vibration toggle is visible
+     * @param context Context
+     * @param res resources
+     */
+    public static boolean isVibrationToggleVisible(Context context, Resources res) {
+        Vibrator vibrator = context.getSystemService(Vibrator.class);
+        boolean supportVibration = (vibrator != null) && vibrator.hasVibrator();
+        boolean isVibrationToggleVisible = supportVibration
+                && (res.getBoolean(R.bool.show_override_dnd_settings)
+                || !res.getBoolean(R.bool.override_dnd));
+        return isVibrationToggleVisible;
+    }
+
     public static boolean isTestAlertsToggleVisible(Context context) {
         return isTestAlertsToggleVisible(context, null);
     }
@@ -881,31 +860,12 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
      */
     public static @NonNull Resources getResources(@NonNull Context context, int subId) {
 
-        try {
-            if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-                    || !SubscriptionManager.isValidSubscriptionId(subId)
-                    // per the latest design, subId can be valid earlier than mcc mnc is known to
-                    // telephony. check if sim is loaded to avoid caching the wrong resources.
-                    || context.getSystemService(TelephonyManager.class).getSimApplicationState(
-                    SubscriptionManager.getSlotIndex(subId)) != TelephonyManager.SIM_STATE_LOADED) {
-                return context.getResources();
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Fail to getSimApplicationState due to " + e);
+        if (subId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
+                || !SubscriptionManager.isValidSubscriptionId(subId)) {
             return context.getResources();
         }
 
-        synchronized (sCacheLock) {
-            if (sResourcesCache.containsKey(subId)) {
-                return sResourcesCache.get(subId);
-            }
-
-            Resources res = SubscriptionManager.getResourcesForSubId(context, subId);
-
-            sResourcesCache.put(subId, res);
-
-            return res;
-        }
+        return SubscriptionManager.getResourcesForSubId(context, subId);
     }
 
     /**
@@ -1006,7 +966,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     public static void resetResourcesCache() {
         synchronized (sCacheLock) {
             sResourcesCacheByOperator.clear();
-            sResourcesCache.clear();
         }
     }
 }

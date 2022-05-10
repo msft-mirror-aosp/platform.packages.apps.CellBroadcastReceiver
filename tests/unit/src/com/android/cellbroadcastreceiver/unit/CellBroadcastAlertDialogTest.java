@@ -16,6 +16,8 @@
 
 package com.android.cellbroadcastreceiver.unit;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -24,9 +26,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.app.ActivityManager;
+import android.app.ContentProviderHolder;
+import android.app.IActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.IContentProvider;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.ProviderInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -36,7 +45,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.telephony.SmsCbMessage;
-import android.telephony.TelephonyManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
+import android.util.Singleton;
+import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +57,7 @@ import android.widget.TextView;
 
 import com.android.cellbroadcastreceiver.CellBroadcastAlertDialog;
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService;
+import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.cellbroadcastreceiver.R;
 import com.android.internal.telephony.gsm.SmsCbConstants;
 
@@ -70,7 +83,13 @@ public class CellBroadcastAlertDialogTest extends
     private IThermalService.Stub mMockedThermalService;
 
     @Mock
-    TelephonyManager mTelephonyManager;
+    private IActivityManager.Stub mMockedActivityManager;
+
+    @Mock
+    IWindowManager.Stub mWindowManagerService;
+
+    @Captor
+    private ArgumentCaptor<Integer> mFlags;
 
     @Captor
     private ArgumentCaptor<Integer> mInt;
@@ -81,6 +100,8 @@ public class CellBroadcastAlertDialogTest extends
     private PowerManager mPowerManager;
     private int mSubId = 0;
 
+    MockedServiceManager mMockedActivityManagerHelper;
+
     public CellBroadcastAlertDialogTest() {
         super(CellBroadcastAlertDialog.class);
     }
@@ -89,9 +110,6 @@ public class CellBroadcastAlertDialogTest extends
     private int mCmasMessageClass = 0;
 
     private ArrayList<SmsCbMessage> mMessageList;
-
-    @Mock
-    Resources mMockResources;
 
     @Override
     protected Intent createActivityIntent() {
@@ -118,13 +136,38 @@ public class CellBroadcastAlertDialogTest extends
         mPowerManager = new PowerManager(mContext, mMockedPowerManagerService,
                 mMockedThermalService, null);
         injectSystemService(PowerManager.class, mPowerManager);
-        doReturn(TelephonyManager.SIM_STATE_UNKNOWN).when(mTelephonyManager)
-                .getSimApplicationState(anyInt());
-        injectSystemService(TelephonyManager.class, mTelephonyManager);
+
+        SubscriptionManager mockSubManager = mock(SubscriptionManager.class);
+        injectSystemService(SubscriptionManager.class, mockSubManager);
+        SubscriptionInfo mockSubInfo = mock(SubscriptionInfo.class);
+        doReturn(mockSubInfo).when(mockSubManager).getActiveSubscriptionInfo(anyInt());
+
+        ProviderInfo providerInfo = new ProviderInfo();
+        providerInfo.authority = "test";
+        providerInfo.applicationInfo = new ApplicationInfo();
+        providerInfo.applicationInfo.uid = 999;
+        ContentProviderHolder holder = new ContentProviderHolder(providerInfo);
+        doReturn(holder).when(mMockedActivityManager)
+                .getContentProvider(any(), any(), any(), anyInt(), anyBoolean());
+        holder.provider = mock(IContentProvider.class);
+
+        Singleton<IActivityManager> activityManagerSingleton = new Singleton<IActivityManager>() {
+            @Override
+            protected IActivityManager create() {
+                return mMockedActivityManager;
+            }
+        };
+        mMockedActivityManagerHelper = new MockedServiceManager();
+        mMockedActivityManagerHelper.replaceService("window", mWindowManagerService);
+        mMockedActivityManagerHelper.replaceInstance(ActivityManager.class,
+                "IActivityManagerSingleton", null, activityManagerSingleton);
+
+        CellBroadcastSettings.resetResourcesCache();
     }
 
     @After
     public void tearDown() throws Exception {
+        mMockedActivityManagerHelper.restoreAllServices();
         super.tearDown();
     }
 
@@ -180,13 +223,32 @@ public class CellBroadcastAlertDialogTest extends
                 b.getCharSequence(Notification.EXTRA_TITLE).toString()));
         assertEquals(CellBroadcastAlertServiceTest.createMessage(98235).getMessageBody(),
                 b.getCharSequence(Notification.EXTRA_TEXT));
+
+        verify(mMockedActivityManager, times(2))
+                .getIntentSenderWithFeature(anyInt(), any(), any(), any(), any(), anyInt(),
+                        any(), any(), mFlags.capture(), any(), anyInt());
+
+        assertTrue((PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
+                ==  mFlags.getAllValues().get(0));
+        assertTrue((PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
+                ==  mFlags.getAllValues().get(1));
+    }
+
+    public void testDoNotAddToNotificationOnStop() throws Throwable {
+        startActivity();
+        waitForMs(100);
+        stopActivity();
+        waitForMs(100);
+        verify(mMockedNotificationManager, times(0)).notify(mInt.capture(),
+                mNotification.capture());
     }
 
     public void testGetNewMessageListIfNeeded() throws Throwable {
         CellBroadcastAlertDialog activity = startActivity();
-        mContext.setResources(mMockResources);
-        doReturn(false).when(mMockResources).getBoolean(
+        Resources spyRes = mContext.getResources();
+        doReturn(false).when(spyRes).getBoolean(
                 R.bool.show_cmas_messages_in_priority_order);
+
         SmsCbMessage testMessage1 = CellBroadcastAlertServiceTest
                 .createMessageForCmasMessageClass(12412,
                         SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL,
@@ -215,13 +277,12 @@ public class CellBroadcastAlertDialogTest extends
         assertTrue(messageList.size() == 2);
         assertEquals(testMessage2.getReceivedTime(), messageList.get(1).getReceivedTime());
 
-        doReturn(true).when(mMockResources).getBoolean(
+        doReturn(true).when(spyRes).getBoolean(
                 R.bool.show_cmas_messages_in_priority_order);
+
         messageList = activity.getNewMessageListIfNeeded(inputList1, inputList2);
         assertTrue(messageList.size() == 2);
         assertEquals(testMessage1.getReceivedTime(), messageList.get(1).getReceivedTime());
-
-        mContext.setResources(null);
     }
 
     @InstrumentationTest
