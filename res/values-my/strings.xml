@@ -140,6 +140,8 @@
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"Yes"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"No"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"အရေးပေါ်သတိပေးချက် မှတ်တမ်း"</string>
+    <string name="action_delete" msgid="7435661404543945861">"ဖျက်ရန်"</string>
+    <string name="action_detail_info" msgid="8486524382178381810">"အသေးစိတ်ပြပါ"</string>
   <string-array name="alert_reminder_interval_entries">
     <item msgid="6595211083588795160">"တစ်ကြိမ်"</item>
     <item msgid="9097229303902157183">"၂ မိနစ်တိုင်း"</item>
@@ -167,6 +169,8 @@
     <string name="maximum_waiting_time" msgid="3504809124079381356">"အကြာဆုံး စောင့်ဆိုင်းချိန်−"</string>
     <string name="seconds" msgid="141450721520515025">"စက္ကန့်"</string>
     <string name="message_copied" msgid="6922953753733166675">"မက်ဆေ့ဂျ် မိတ္တူကူးပြီးပြီ"</string>
+    <string name="top_intro_default_text" msgid="1922926733152511202"></string>
+    <string name="top_intro_roaming_text" msgid="186872150397081032">"ပြင်ပကွန်ရက်သုံးနေပါက ဤဆက်တင်များတွင် မပါဝင်သည့် သတိပေးချက်များ ရနိုင်ပါသည်"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"ဆက်တင်များကို ဝန်ဆောင်မှုပေးသူက ပြောင်းထားသည်"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"ကြိုးမဲ့ အရေးပေါ်သတိပေးချက် ဆက်တင်များကို ကြည့်ရန် တို့ပါ"</string>
 </resources>

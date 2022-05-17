@@ -140,6 +140,8 @@
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"Si"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"Non"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"Historial de alertas de emerxencia"</string>
+    <string name="action_delete" msgid="7435661404543945861">"Eliminar"</string>
+    <string name="action_detail_info" msgid="8486524382178381810">"Mostrar detalles"</string>
   <string-array name="alert_reminder_interval_entries">
     <item msgid="6595211083588795160">"Unha vez"</item>
     <item msgid="9097229303902157183">"Cada 2 minutos"</item>
@@ -167,6 +169,8 @@
     <string name="maximum_waiting_time" msgid="3504809124079381356">"Tempo de espera máximo:"</string>
     <string name="seconds" msgid="141450721520515025">"segundos"</string>
     <string name="message_copied" msgid="6922953753733166675">"Copiouse a mensaxe"</string>
+    <string name="top_intro_default_text" msgid="1922926733152511202"></string>
+    <string name="top_intro_roaming_text" msgid="186872150397081032">"Mentres estás en itinerancia, pode que recibas algunhas alertas que non están incluídas nesta configuración"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"O operador cambiou a configuración"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Toca para ver a configuración das alertas de emerxencia sen fíos"</string>
 </resources>

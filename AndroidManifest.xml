@@ -55,6 +55,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-sdk android:minSdkVersion="30" />
 
@@ -89,7 +90,6 @@
 
         <activity android:name="com.android.cellbroadcastreceiver.CellBroadcastListActivity"
                   android:label="@string/app_label"
-                  android:launchMode="singleTask"
                   android:theme="@style/CellBroadcastListActivityTheme"
                   android:exported="true"
                   android:configChanges="orientation|keyboardHidden" >
@@ -123,7 +123,6 @@
         <!-- Settings opened by ListActivity menu, Settings app link or opt-out dialog. -->
         <activity android:name="com.android.cellbroadcastreceiver.CellBroadcastSettings"
                   android:theme="@style/CellBroadcastSettingsTheme"
-                  android:launchMode="singleTask"
                   android:label="@string/sms_cb_settings"
                   android:exported="true" />
 
@@ -151,12 +150,10 @@
                 <action android:name="android.telephony.action.CARRIER_CONFIG_CHANGED" />
                 <action android:name="android.provider.action.SMS_EMERGENCY_CB_RECEIVED" />
                 <action android:name="android.provider.Telephony.SMS_CB_RECEIVED" />
-                <action android:name="android.cellbroadcastreceiver.START_CONFIG" />
                 <action android:name="android.provider.Telephony.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.SERVICE_STATE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.telephony.action.SIM_CARD_STATE_CHANGED" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.telephony.action.SECRET_CODE" />

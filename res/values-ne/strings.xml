@@ -140,6 +140,8 @@
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"हो"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"होइन"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"आपत्‌कालीन अलर्टको इतिहास"</string>
+    <string name="action_delete" msgid="7435661404543945861">"मेटाउनुहोस्"</string>
+    <string name="action_detail_info" msgid="8486524382178381810">"विस्तृत विवरण देखाइयोस्"</string>
   <string-array name="alert_reminder_interval_entries">
     <item msgid="6595211083588795160">"एक पटक"</item>
     <item msgid="9097229303902157183">"हरेक २ मिनेट"</item>
@@ -167,6 +169,8 @@
     <string name="maximum_waiting_time" msgid="3504809124079381356">"पर्खनु पर्ने अधिकतम समय:"</string>
     <string name="seconds" msgid="141450721520515025">"सेकेन्ड"</string>
     <string name="message_copied" msgid="6922953753733166675">"सन्देश प्रतिलिपि गरियो"</string>
+    <string name="top_intro_default_text" msgid="1922926733152511202"></string>
+    <string name="top_intro_roaming_text" msgid="186872150397081032">"रोमिङ मोडमा हुँदा तपाईं यी सेटिङमा समावेश नभएका केही अलर्टहरू प्राप्त गर्न सक्नुहुन्छ"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"सेवा प्रदायकले यी सेटिङ परिवर्तन गरेको छ"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"आपत्‌कालीन वायरलेस सतर्कता सूचनासम्बन्धी सेटिङ हेर्न ट्याप गर्नुहोस्"</string>
 </resources>

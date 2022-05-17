@@ -140,6 +140,8 @@
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"დიახ"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"არა"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"საგანგებო გაფრთხილებათა ისტორია"</string>
+    <string name="action_delete" msgid="7435661404543945861">"წაშლა"</string>
+    <string name="action_detail_info" msgid="8486524382178381810">"დეტალის ჩვენება"</string>
   <string-array name="alert_reminder_interval_entries">
     <item msgid="6595211083588795160">"ერთხელ"</item>
     <item msgid="9097229303902157183">"ყოველ 2 წუთში"</item>
@@ -167,6 +169,8 @@
     <string name="maximum_waiting_time" msgid="3504809124079381356">"ლოდინის მაქსიმალური დრო:"</string>
     <string name="seconds" msgid="141450721520515025">"წამი"</string>
     <string name="message_copied" msgid="6922953753733166675">"შეტყობინება კოპირებულია"</string>
+    <string name="top_intro_default_text" msgid="1922926733152511202"></string>
+    <string name="top_intro_roaming_text" msgid="186872150397081032">"როუმინგით სარგებლობისას თქვენ, შესაძლოა, მიიღოთ ისეთი გაფრთხილებები, რომლებიც ამ პარამეტრებში არ შედის"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"პარამეტრები შეიცვალა ოპერატორის მიერ"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"შეეხეთ უსადენო საგანგებო გაფრთხილებების პარამეტრების სანახავად"</string>
 </resources>

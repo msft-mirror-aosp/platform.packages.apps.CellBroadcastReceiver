@@ -140,6 +140,8 @@
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"Тийм"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"Үгүй"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"Гамшгийн аюулын дохионы түүх"</string>
+    <string name="action_delete" msgid="7435661404543945861">"Устгах"</string>
+    <string name="action_detail_info" msgid="8486524382178381810">"Дэлгэрэнгүйг харуулах"</string>
   <string-array name="alert_reminder_interval_entries">
     <item msgid="6595211083588795160">"Нэг удаа"</item>
     <item msgid="9097229303902157183">"2 минут тутамд"</item>
@@ -167,6 +169,8 @@
     <string name="maximum_waiting_time" msgid="3504809124079381356">"Хамгийн дээд хүлээх хугацаа:"</string>
     <string name="seconds" msgid="141450721520515025">"секунд"</string>
     <string name="message_copied" msgid="6922953753733166675">"Мессежийг хуулсан"</string>
+    <string name="top_intro_default_text" msgid="1922926733152511202"></string>
+    <string name="top_intro_roaming_text" msgid="186872150397081032">"Та роуминг хийж байхдаа эдгээр тохиргоонд багтаагүй зарим сэрэмжлүүлгийг авч магадгүй"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Оператор компани тохиргоог өөрчилсөн"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Утасгүй яаралтай тусламжийн сэрэмжлүүлгийн тохиргоог харахын тулд товшино уу"</string>
 </resources>
