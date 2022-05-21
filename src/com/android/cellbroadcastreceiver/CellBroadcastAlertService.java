@@ -565,8 +565,10 @@ public class CellBroadcastAlertService extends Service {
         }
 
         if (resourcesKey == R.array.state_local_test_alert_range_strings) {
-            return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_STATE_LOCAL_TEST_ALERTS, false);
+            return emergencyAlertEnabled && (checkAlertConfigEnabled(
+                    subId, CellBroadcastSettings.KEY_ENABLE_STATE_LOCAL_TEST_ALERTS, false)
+                    || (!res.getBoolean(R.bool.show_state_local_test_settings)
+                    && res.getBoolean(R.bool.state_local_test_alerts_enabled_default)));
         }
 
         Log.e(TAG, "received undefined channels: " + channel);
@@ -732,8 +734,7 @@ public class CellBroadcastAlertService extends Service {
             pi = PendingIntent.getBroadcast(context, 0, intent, 0);
         } else {
             pi = PendingIntent.getActivity(context, REQUEST_CODE_CONTENT_INTENT, intent,
-                    PendingIntent.FLAG_ONE_SHOT
-                            | PendingIntent.FLAG_UPDATE_CURRENT
+                            PendingIntent.FLAG_UPDATE_CURRENT
                             | PendingIntent.FLAG_IMMUTABLE);
         }
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
@@ -782,8 +783,7 @@ public class CellBroadcastAlertService extends Service {
             Intent deleteIntent = new Intent(intent);
             deleteIntent.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, true);
             builder.setDeleteIntent(PendingIntent.getActivity(context, REQUEST_CODE_DELETE_INTENT,
-                    deleteIntent, PendingIntent.FLAG_ONE_SHOT
-                            | PendingIntent.FLAG_UPDATE_CURRENT
+                    deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT
                             | PendingIntent.FLAG_IMMUTABLE));
 
             builder.setContentIntent(pi);
