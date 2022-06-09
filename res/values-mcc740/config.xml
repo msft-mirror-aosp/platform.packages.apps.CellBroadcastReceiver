@@ -33,7 +33,7 @@
     </string-array>
     <string-array name="additional_cbs_channels_strings" translatable="false">
         <!-- Channel 50 for area update info -->
-        <item>0x50:type=area, emergency=false</item>
+        <item>0x32:type=area, emergency=false</item>
     </string-array>
     <string-array name="cmas_alert_extreme_channels_range_strings" translatable="false" />
     <string-array name="cmas_alerts_severe_range_strings" translatable="false" />
@@ -48,7 +48,7 @@
     <bool name="test_alerts_enabled_default">true</bool>
     <!-- Exercise test alerts toggle default value -->
     <bool name="test_exercise_alerts_enabled_default">true</bool>
-    <string name="date_time_format" translatable="false">YYYY-MM-DD HH:MM</string>
+    <string name="date_time_format" translatable="false">yyyy-MM-dd HH:mm</string>
     <!-- Show area update info settings in CellBroadcastReceiver and information in SIM status in Settings app -->
     <bool name="config_showAreaUpdateInfoSettings">true</bool>
     <!-- Whether the user can mute the alert by physical button -->
