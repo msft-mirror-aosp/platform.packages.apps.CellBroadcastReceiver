@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_label" msgid="2008319089248760277">"إنذارات الطوارئ اللاسلكية"</string>
-    <string name="sms_cb_settings" msgid="9021266457863671070">"إنذارات الطوارئ اللاسلكية"</string>
+    <string name="sms_cb_settings" msgid="9021266457863671070">"تنبيهات الطوارئ اللاسلكية"</string>
     <string name="sms_cb_sender_name_default" msgid="972946539768958828">"تنبيهات الطوارئ اللاسلكية"</string>
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"تنبيهات الطوارئ اللاسلكية"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"تنبيهات الطوارئ اللاسلكية"</string>
@@ -140,6 +140,8 @@
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"نعم"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"لا"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"سجلّ إنذارات الطوارئ"</string>
+    <string name="action_delete" msgid="7435661404543945861">"حذف"</string>
+    <string name="action_detail_info" msgid="8486524382178381810">"عرض التفاصيل"</string>
   <string-array name="alert_reminder_interval_entries">
     <item msgid="6595211083588795160">"مرة واحدة"</item>
     <item msgid="9097229303902157183">"كل دقيقتين"</item>
