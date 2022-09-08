@@ -176,14 +176,6 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         mCellBroadcastReceiver.onReceive(mContext, mIntent);
         verify(mCellBroadcastReceiver, never()).initializeSharedPreference(any(), anyInt());
         verify(mCellBroadcastReceiver).startConfigServiceToEnableChannels();
-
-        doReturn(true).when(mCellBroadcastReceiver).isMockModemRunning();
-        mCellBroadcastReceiver.onReceive(mContext, mIntent);
-        verify(mCellBroadcastReceiver, times(1)).startConfigServiceToEnableChannels();
-
-        doReturn(false).when(mCellBroadcastReceiver).isMockModemRunning();
-        mCellBroadcastReceiver.onReceive(mContext, mIntent);
-        verify(mCellBroadcastReceiver, times(2)).startConfigServiceToEnableChannels();
     }
 
     @Test
@@ -515,16 +507,6 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         verify(mCellBroadcastReceiver).startConfigServiceToEnableChannels();
         assertThat(mFakeSharedPreferences.getInt("service_state", ServiceState.STATE_POWER_OFF))
                 .isEqualTo(ServiceState.STATE_IN_SERVICE);
-
-        doReturn(true).when(mCellBroadcastReceiver).isMockModemRunning();
-        mFakeSharedPreferences.putInt("service_state", ServiceState.STATE_POWER_OFF);
-        mCellBroadcastReceiver.onReceive(mContext, mIntent);
-        verify(mCellBroadcastReceiver, times(1)).startConfigServiceToEnableChannels();
-
-        doReturn(false).when(mCellBroadcastReceiver).isMockModemRunning();
-        mFakeSharedPreferences.putInt("service_state", ServiceState.STATE_POWER_OFF);
-        mCellBroadcastReceiver.onReceive(mContext, mIntent);
-        verify(mCellBroadcastReceiver, times(2)).startConfigServiceToEnableChannels();
     }
 
 

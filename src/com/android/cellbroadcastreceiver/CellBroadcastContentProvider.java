@@ -16,9 +16,6 @@
 
 package com.android.cellbroadcastreceiver;
 
-import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRSRC_CBR;
-import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_PROVIDERINIT;
-
 import android.annotation.NonNull;
 import android.content.ContentProvider;
 import android.content.ContentProviderClient;
@@ -119,8 +116,6 @@ public class CellBroadcastContentProvider extends ContentProvider {
             try {
                 mInitializedLatch.await();
             } catch (InterruptedException e) {
-                CellBroadcastReceiverMetrics.getInstance().logModuleError(
-                        ERRSRC_CBR, ERRTYPE_PROVIDERINIT);
                 Log.e(TAG, "Interrupted while waiting for db initialization. e=" + e);
             }
         }
@@ -132,8 +127,6 @@ public class CellBroadcastContentProvider extends ContentProvider {
             try {
                 mInitializedLatch.await();
             } catch (InterruptedException e) {
-                CellBroadcastReceiverMetrics.getInstance().logModuleError(
-                        ERRSRC_CBR, ERRTYPE_PROVIDERINIT);
                 Log.e(TAG, "Interrupted while waiting for db initialization. e=" + e);
             }
         }

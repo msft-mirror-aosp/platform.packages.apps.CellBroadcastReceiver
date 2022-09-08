@@ -123,7 +123,6 @@
 
     <!-- Container activity for CMAS opt-in/opt-out dialog. -->
     <activity android:name="CellBroadcastOptOutActivity"
-        android:excludeFromRecents="true"
         android:exported="false" />
 
     <receiver android:name="CellBroadcastReceiver"
