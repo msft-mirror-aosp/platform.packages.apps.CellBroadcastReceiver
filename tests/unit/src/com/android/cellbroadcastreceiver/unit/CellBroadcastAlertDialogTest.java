@@ -16,6 +16,8 @@
 
 package com.android.cellbroadcastreceiver.unit;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -24,9 +26,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.app.ActivityManager;
+import android.app.ContentProviderHolder;
+import android.app.IActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.IContentProvider;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.ProviderInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -38,14 +47,19 @@ import android.os.PowerManager;
 import android.telephony.SmsCbMessage;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.util.Singleton;
+import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManagerGlobal;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.cellbroadcastreceiver.CellBroadcastAlertDialog;
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService;
+import com.android.cellbroadcastreceiver.CellBroadcastChannelManager;
 import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.cellbroadcastreceiver.R;
 import com.android.internal.telephony.gsm.SmsCbConstants;
@@ -57,6 +71,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class CellBroadcastAlertDialogTest extends
@@ -70,6 +85,18 @@ public class CellBroadcastAlertDialogTest extends
 
     @Mock
     private IThermalService.Stub mMockedThermalService;
+
+    @Mock
+    private IActivityManager.Stub mMockedActivityManager;
+
+    @Mock
+    IWindowManager.Stub mWindowManagerService;
+
+    @Mock
+    LinearLayout mMockLinearLayout;
+
+    @Captor
+    private ArgumentCaptor<Integer> mFlags;
 
     @Captor
     private ArgumentCaptor<Integer> mInt;
@@ -88,6 +115,8 @@ public class CellBroadcastAlertDialogTest extends
     private int mCmasMessageClass = 0;
 
     private ArrayList<SmsCbMessage> mMessageList;
+
+    MockedServiceManager mMockedActivityManagerHelper;
 
     @Override
     protected Intent createActivityIntent() {
@@ -120,11 +149,36 @@ public class CellBroadcastAlertDialogTest extends
         SubscriptionInfo mockSubInfo = mock(SubscriptionInfo.class);
         doReturn(mockSubInfo).when(mockSubManager).getActiveSubscriptionInfo(anyInt());
 
+        ProviderInfo providerInfo = new ProviderInfo();
+        providerInfo.authority = "test";
+        providerInfo.applicationInfo = new ApplicationInfo();
+        providerInfo.applicationInfo.uid = 999;
+        ContentProviderHolder holder = new ContentProviderHolder(providerInfo);
+        doReturn(holder).when(mMockedActivityManager)
+                .getContentProvider(any(), any(), any(), anyInt(), anyBoolean());
+        holder.provider = mock(IContentProvider.class);
+
+        Singleton<IActivityManager> activityManagerSingleton = new Singleton<IActivityManager>() {
+            @Override
+            protected IActivityManager create() {
+                return mMockedActivityManager;
+            }
+        };
+
+        mMockedActivityManagerHelper = new MockedServiceManager();
+        mMockedActivityManagerHelper.replaceService("window", mWindowManagerService);
+        mMockedActivityManagerHelper.replaceInstance(ActivityManager.class,
+                "IActivityManagerSingleton", null, activityManagerSingleton);
+
         CellBroadcastSettings.resetResourcesCache();
+        CellBroadcastChannelManager.clearAllCellBroadcastChannelRanges();
     }
 
     @After
     public void tearDown() throws Exception {
+        CellBroadcastSettings.resetResourcesCache();
+        CellBroadcastChannelManager.clearAllCellBroadcastChannelRanges();
+        mMockedActivityManagerHelper.restoreAllServices();
         super.tearDown();
     }
 
@@ -180,6 +234,19 @@ public class CellBroadcastAlertDialogTest extends
                 b.getCharSequence(Notification.EXTRA_TITLE).toString()));
         assertEquals(CellBroadcastAlertServiceTest.createMessage(98235).getMessageBody(),
                 b.getCharSequence(Notification.EXTRA_TEXT));
+
+        verify(mMockedActivityManager, times(2))
+                .getIntentSenderWithFeature(anyInt(), any(), any(), any(), any(), anyInt(),
+                        any(), any(), mFlags.capture(), any(), anyInt());
+
+        assertTrue((PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
+                ==  mFlags.getAllValues().get(0));
+        assertTrue((PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
+                ==  mFlags.getAllValues().get(1));
+
+        Field field = ((Class) WindowManagerGlobal.class).getDeclaredField("sWindowManagerService");
+        field.setAccessible(true);
+        field.set(null, null);
     }
 
     public void testDoNotAddToNotificationOnStop() throws Throwable {
@@ -363,5 +430,117 @@ public class CellBroadcastAlertDialogTest extends
 
         assertTrue(activity.onKeyDown(0,
                 new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_FOCUS)));
+    }
+
+    public void testPulsationHandlerStart() throws Throwable {
+        int[] pattern = new int[] {0xFFFF0000, 100000, 500, 1000};
+        doReturn(pattern).when(mContext.getResources()).getIntArray(
+                eq(com.android.cellbroadcastreceiver.R.array.default_pulsation_pattern));
+
+        CellBroadcastAlertDialog activity = startActivity();
+        waitForMs(100);
+        activity.mPulsationHandler.mLayout = mMockLinearLayout;
+
+        assertEquals(0xFFFF0000, activity.mPulsationHandler.mHighlightColor);
+        assertEquals(100000, activity.mPulsationHandler.mDuration);
+        assertEquals(500, activity.mPulsationHandler.mOnInterval);
+        assertEquals(1000, activity.mPulsationHandler.mOffInterval);
+
+        waitForMs(2000);
+
+        verify(mMockLinearLayout, atLeastOnce()).setBackgroundColor(eq(0xFFFF0000));
+    }
+
+    public void testPulsationRestartOnNewIntent() throws Throwable {
+        int[] pattern = new int[] {0xFFFF0000, 100000, 500, 1000};
+        doReturn(pattern).when(mContext.getResources()).getIntArray(
+                eq(com.android.cellbroadcastreceiver.R.array.default_pulsation_pattern));
+
+        CellBroadcastAlertDialog activity = startActivity();
+        waitForMs(100);
+        activity.mPulsationHandler.mLayout = mMockLinearLayout;
+
+        assertEquals(0xFFFF0000, activity.mPulsationHandler.mHighlightColor);
+        assertEquals(100000, activity.mPulsationHandler.mDuration);
+        assertEquals(500, activity.mPulsationHandler.mOnInterval);
+        assertEquals(1000, activity.mPulsationHandler.mOffInterval);
+
+        pattern = new int[] {0xFFFFFFFF, 200000, 1000, 500};
+        doReturn(pattern).when(mContext.getResources()).getIntArray(
+                eq(com.android.cellbroadcastreceiver.R.array.default_pulsation_pattern));
+        mMessageList.add(CellBroadcastAlertServiceTest.createMessageForCmasMessageClass(12413,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY));
+        Intent intent = createActivityIntent();
+        intent.putParcelableArrayListExtra(CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA,
+                new ArrayList<>(mMessageList));
+        CellBroadcastSettings.resetResourcesCache();
+        CellBroadcastChannelManager.clearAllCellBroadcastChannelRanges();
+        activity.onNewIntent(intent);
+        waitForMs(100);
+
+        // Verify existing pulsation has been stopped
+        verify(mMockLinearLayout, times(1)).setBackgroundColor(
+                eq(activity.mPulsationHandler.mBackgroundColor));
+
+        activity.mPulsationHandler.mLayout = mMockLinearLayout;
+
+        // Verify new parameters have been applied
+        assertEquals(0xFFFFFFFF, activity.mPulsationHandler.mHighlightColor);
+        assertEquals(200000, activity.mPulsationHandler.mDuration);
+        assertEquals(1000, activity.mPulsationHandler.mOnInterval);
+        assertEquals(500, activity.mPulsationHandler.mOffInterval);
+
+        waitForMs(2000);
+
+        // Verify new pulsation takes effect
+        verify(mMockLinearLayout, atLeastOnce()).setBackgroundColor(eq(0xFFFFFFFF));
+    }
+
+    public void testPulsationHandlerHandleMessageAndStop() throws Throwable {
+        CellBroadcastAlertDialog activity = startActivity();
+        waitForMs(100);
+
+        int backgroundColor = activity.mPulsationHandler.mBackgroundColor;
+        activity.mPulsationHandler.mHighlightColor = 0xFFFF0000;
+        activity.mPulsationHandler.mLayout = mMockLinearLayout;
+        activity.mPulsationHandler.mOnInterval = 60000;
+        activity.mPulsationHandler.mOffInterval = 60000;
+        activity.mPulsationHandler.mDuration = 300000;
+
+        Message m = Message.obtain();
+        m.what = activity.mPulsationHandler.mCount.get();
+        activity.mPulsationHandler.handleMessage(m);
+
+        // assert that message count has gone up, and the background color is highlighted
+        assertEquals(m.what + 1, activity.mPulsationHandler.mCount.get());
+        assertTrue(activity.mPulsationHandler.mIsPulsationOn);
+        verify(mMockLinearLayout, times(1)).setBackgroundColor(eq(0xFFFF0000));
+
+        m = Message.obtain();
+        m.what = activity.mPulsationHandler.mCount.get();
+        activity.mPulsationHandler.handleMessage(m);
+
+        // assert that message count has gone up, and the background color is restored
+        assertEquals(m.what + 1, activity.mPulsationHandler.mCount.get());
+        assertFalse(activity.mPulsationHandler.mIsPulsationOn);
+        verify(mMockLinearLayout, times(1)).setBackgroundColor(eq(backgroundColor));
+
+        m = Message.obtain();
+        m.what = activity.mPulsationHandler.mCount.get();
+        activity.mPulsationHandler.handleMessage(m);
+
+        // assert that the background color is highlighted again
+        assertEquals(m.what + 1, activity.mPulsationHandler.mCount.get());
+        assertTrue(activity.mPulsationHandler.mIsPulsationOn);
+        verify(mMockLinearLayout, times(2)).setBackgroundColor(eq(0xFFFF0000));
+
+        activity.mPulsationHandler.stop();
+        waitForMs(100);
+
+        // assert that the background color is restored
+        assertEquals(m.what + 2, activity.mPulsationHandler.mCount.get());
+        assertFalse(activity.mPulsationHandler.mIsPulsationOn);
+        verify(mMockLinearLayout, times(2)).setBackgroundColor(eq(backgroundColor));
     }
 }
