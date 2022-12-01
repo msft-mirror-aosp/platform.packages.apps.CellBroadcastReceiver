@@ -160,7 +160,7 @@
     }
   },
   "ecuador_telefonica": {
-    "Mensaje local de prueba": { //Avisos del operador with translation update // "Operator warnings": {
+    "Avisos del operador": {
       "default_value": "false",
       "toggle_avail": "true"
     },
@@ -788,6 +788,12 @@
       "toggle_avail": "true"
     },
     "Reserved for future deployments": {
+      "default_value": "true",
+      "toggle_avail": "true"
+    }
+  },
+  "bahamas": {
+    "Test Alert": {
       "default_value": "true",
       "toggle_avail": "true"
     }
