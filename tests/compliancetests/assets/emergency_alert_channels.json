@@ -3133,7 +3133,7 @@
       "alert_time": 10
     },
     "50": {
-      "title": "EC-Information",
+      "title": "Avisos del operador",
       "default_value": "true",
       "toggle_avail": "true"
     }
