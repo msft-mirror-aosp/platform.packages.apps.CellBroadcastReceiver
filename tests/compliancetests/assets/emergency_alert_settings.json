@@ -415,6 +415,20 @@
       "toggle_avail": "true"
     }
   },
+  "norway": {
+    "Important warning": { //"Viktig melding"
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "Test": { //"Test"
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
+    "Vibration": {
+      "default_value": "true",
+      "toggle_avail": "true"
+    }
+  },
   "oman": {
     "تمارين": { //"Exercises Alerts"
       "default_value": "true",
@@ -726,6 +740,12 @@
       "toggle_avail": "true"
     }
   },
+  "ukraine": {
+    "Emergency Alert": {
+      "default_value": "true",
+      "toggle_avail": "true"
+    }
+  },
   "australia": {
     "Extreme threats": {
       "default_value": "true",
@@ -788,6 +808,12 @@
       "toggle_avail": "true"
     },
     "Reserved for future deployments": {
+      "default_value": "true",
+      "toggle_avail": "true"
+    }
+  },
+  "bahamas": {
+    "Test Alert": {
       "default_value": "true",
       "toggle_avail": "true"
     }
