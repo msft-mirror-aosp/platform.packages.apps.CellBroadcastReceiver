@@ -924,6 +924,10 @@ public class CellBroadcastAlertDialog extends Activity {
     private void setPictogram(Context context, SmsCbMessage message) {
         int resId = CellBroadcastResources.getDialogPictogramResource(context, message);
         ImageView image = findViewById(R.id.pictogramImage);
+        // not all layouts may have a pictogram image, e.g. watch
+        if (image == null) {
+            return;
+        }
         if (resId != -1) {
             image.setImageResource(resId);
             image.setVisibility(View.VISIBLE);
@@ -939,6 +943,10 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     private void setPictogramAreaLayout(int orientation) {
         ImageView image = findViewById(R.id.pictogramImage);
+        // not all layouts may have a pictogram image, e.g. watch
+        if (image == null) {
+            return;
+        }
         if (image.getVisibility() == View.VISIBLE) {
             ViewGroup.LayoutParams params = image.getLayoutParams();
 
@@ -1044,7 +1052,12 @@ public class CellBroadcastAlertDialog extends Activity {
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
-            CellBroadcastReceiverApp.clearNewMessageList();
+
+            // Clear new message list when user swipe the notification
+            // except dialog and notification are visible at the same time.
+            if (intent.getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+                CellBroadcastReceiverApp.clearNewMessageList();
+            }
         }
     }
 
@@ -1306,9 +1319,9 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     @VisibleForTesting
     public ArrayList<SmsCbMessage> getNewMessageListIfNeeded(
-            @NonNull ArrayList<SmsCbMessage> dialogMessageList,
+            ArrayList<SmsCbMessage> dialogMessageList,
             ArrayList<SmsCbMessage> newMessageList) {
-        if (newMessageList == null) {
+        if (newMessageList == null || dialogMessageList == null) {
             return dialogMessageList;
         }
         ArrayList<SmsCbMessage> clonedNewMessageList = new ArrayList<>(newMessageList);
