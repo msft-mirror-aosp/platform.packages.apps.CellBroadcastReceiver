@@ -20,6 +20,7 @@ import static com.android.cellbroadcastreceiver.CellBroadcastAlertAudio.ALERT_AU
 import static com.android.cellbroadcastreceiver.CellBroadcastAlertService.SHOW_NEW_ALERT_ACTION;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,10 +28,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.provider.Telephony;
 import android.telephony.AccessNetworkConstants;
@@ -45,12 +52,16 @@ import com.android.cellbroadcastreceiver.CellBroadcastAlertAudio;
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService;
 import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.internal.telephony.gsm.SmsCbConstants;
+import com.android.modules.utils.build.SdkLevel;
 
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CellBroadcastAlertServiceTest extends
         CellBroadcastServiceTestCase<CellBroadcastAlertService> {
@@ -166,6 +177,12 @@ public class CellBroadcastAlertServiceTest extends
 
     private void waitForServiceIntent() {
         waitFor(() -> mServiceIntentToVerify != null);
+    }
+
+    private void setWatchFeatureEnabled(boolean enabled) {
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        doReturn(enabled).when(mockPackageManager).hasSystemFeature(PackageManager.FEATURE_WATCH);
+        injectPackageManager(mockPackageManager);
     }
 
     // Test handleCellBroadcastIntent method
@@ -518,4 +535,94 @@ public class CellBroadcastAlertServiceTest extends
         assertTrue("Should display the message",
                 cellBroadcastAlertService.shouldDisplayMessage(message3));
     }
+
+    public void testMuteAlert() {
+        if (!SdkLevel.isAtLeastS()) {
+            return;
+        }
+
+        doReturn(new String[]{
+                "0x1113:rat=gsm, type=mute, emergency=true, always_on=true",
+                "0x112F:rat=gsm, emergency=true"}).when(mResources).getStringArray(
+                eq(com.android.cellbroadcastreceiver.R.array
+                        .additional_cbs_channels_strings));
+
+        Intent intent = new Intent(mContext, CellBroadcastAlertService.class);
+        intent.setAction(SHOW_NEW_ALERT_ACTION);
+
+        SmsCbMessage message = createMessageForCmasMessageClass(13788634, 0x1113, 0x1113);
+        intent.putExtra("message", message);
+        startService(intent);
+        waitForServiceIntent();
+
+        assertEquals(CellBroadcastAlertService.AlertType.MUTE,
+                mServiceIntentToVerify.getSerializableExtra(ALERT_AUDIO_TONE_TYPE));
+
+        message = createMessageForCmasMessageClass(14788634, 0x112F, 0x112F);
+        intent.putExtra("message", message);
+        startService(intent);
+        waitForServiceIntent();
+
+        assertNotEquals(CellBroadcastAlertService.AlertType.MUTE,
+                mServiceIntentToVerify.getSerializableExtra(ALERT_AUDIO_TONE_TYPE));
+    }
+
+    private static Map<String, NotificationChannel> mapNotificationChannelCaptor(
+            ArgumentCaptor<NotificationChannel> captor) {
+        Map<String, NotificationChannel> m = new HashMap<>();
+        for (NotificationChannel notificationChannel : captor.getAllValues()) {
+            m.put(notificationChannel.getId(), notificationChannel);
+        }
+        return m;
+    }
+
+
+    public void testAddToNotificationBarForWatch() {
+        setWatchFeatureEnabled(true);
+
+        Intent intent = new Intent(mContext, CellBroadcastAlertService.class);
+        intent.setAction(SHOW_NEW_ALERT_ACTION);
+        SmsCbMessage message = createMessage(14788634);
+        intent.putExtra("message", message);
+        startService(intent);
+
+        waitForServiceIntent();
+        assertEquals(CellBroadcastAlertAudio.ACTION_START_ALERT_AUDIO,
+                mServiceIntentToVerify.getAction());
+        assertEquals(CellBroadcastAlertService.AlertType.DEFAULT,
+                mServiceIntentToVerify.getSerializableExtra(ALERT_AUDIO_TONE_TYPE));
+        assertEquals(message.getMessageBody(),
+                mServiceIntentToVerify.getStringExtra(
+                        CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_BODY));
+        ArgumentCaptor<NotificationChannel> notificationChannelCaptor =
+                ArgumentCaptor.forClass(NotificationChannel.class);
+        verify(mMockedNotificationManager, times(5))
+                .createNotificationChannel(notificationChannelCaptor.capture());
+        Map<String, NotificationChannel> notificationChannelCreated =
+                mapNotificationChannelCaptor(notificationChannelCaptor);
+        assertTrue(notificationChannelCreated.get("broadcastMessagesHighPriority")
+                .shouldVibrate());
+        assertTrue(notificationChannelCreated.get("broadcastMessages").shouldVibrate());
+        assertTrue(notificationChannelCreated.get("broadcastMessagesNonEmergency").shouldVibrate());
+        assertTrue(notificationChannelCreated.get("broadcastMessagesInVoiceCall").shouldVibrate());
+        assertEquals(NotificationManager.IMPORTANCE_HIGH,
+                notificationChannelCreated.get("broadcastMessagesHighPriority")
+                .getImportance());
+        assertEquals(NotificationManager.IMPORTANCE_HIGH,
+                notificationChannelCreated.get("broadcastMessages")
+                .getImportance());
+        assertEquals(NotificationManager.IMPORTANCE_HIGH,
+                notificationChannelCreated.get("broadcastMessagesNonEmergency")
+                .getImportance());
+        assertEquals(NotificationManager.IMPORTANCE_HIGH,
+                notificationChannelCreated.get("broadcastMessagesInVoiceCall")
+                .getImportance());
+        ArgumentCaptor<Notification> notificationCaptor =
+                ArgumentCaptor.forClass(Notification.class);
+        verify(mMockedNotificationManager, times(1))
+            .notify(eq(CellBroadcastAlertService.NOTIFICATION_ID), notificationCaptor.capture());
+        Notification notificationPosted = notificationCaptor.getValue();
+        assertTrue(notificationPosted.deleteIntent.isBroadcast());
+    }
+
 }
