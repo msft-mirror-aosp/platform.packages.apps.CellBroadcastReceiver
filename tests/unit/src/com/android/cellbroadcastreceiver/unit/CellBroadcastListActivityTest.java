@@ -50,6 +50,7 @@ import static org.mockito.Mockito.verify;
 import android.app.Fragment;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
@@ -57,6 +58,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserManager;
 import android.provider.Telephony;
+import android.telephony.SmsCbMessage;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -101,6 +105,11 @@ public class CellBroadcastListActivityTest extends
         injectSystemService(UserManager.class, mMockUserManager);
 
         doReturn(true).when(mMockUserManager).isAdminUser();
+
+        SubscriptionManager mockSubscriptionManager = mock(SubscriptionManager.class);
+        injectSystemService(SubscriptionManager.class, mockSubscriptionManager);
+        SubscriptionInfo mockSubInfo = mock(SubscriptionInfo.class);
+        doReturn(mockSubInfo).when(mockSubscriptionManager).getActiveSubscriptionInfo(anyInt());
     }
 
     @After
@@ -113,7 +122,21 @@ public class CellBroadcastListActivityTest extends
     }
 
     public void testOnCreate() throws Throwable {
-        startActivity();
+        Resources spyRes = mContext.getResources();
+        doReturn(false).when(spyRes).getBoolean(R.bool.disable_capture_alert_dialog);
+        CellBroadcastListActivity activity = startActivity();
+        int flags = activity.getWindow().getAttributes().flags;
+        assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE), 0);
+        stopActivity();
+    }
+
+    public void testOnCreateWithCaptureRestriction() throws Throwable {
+        Resources spyRes = mContext.getResources();
+        doReturn(true).when(spyRes).getBoolean(R.bool.disable_capture_alert_dialog);
+        CellBroadcastListActivity activity = startActivity();
+        int flags = activity.getWindow().getAttributes().flags;
+        assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE),
+                WindowManager.LayoutParams.FLAG_SECURE);
         stopActivity();
     }
 
