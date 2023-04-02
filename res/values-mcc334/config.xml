@@ -83,6 +83,8 @@
     <bool name="show_state_local_test_settings">false</bool>
     <!-- Whether enabling capture message screen -->
     <bool name="disable_capture_alert_dialog">true</bool>
+    <!-- Whether enabling copy message text into clipboard by long press -->
+    <bool name="enable_text_copy">false</bool>
 
     <!-- Values that for the vibration pattern. -->
     <integer-array name="default_vibration_pattern">
@@ -107,5 +109,7 @@
 
     <!-- always overriding dnd settings: Play alert sound in full volume regardless DND is on. Applied to all channels -->
     <bool name="override_dnd">true</bool>
+    <!-- Whether to show the alert dialog title -->
+    <bool name="show_alert_title">false</bool>
 
 </resources>
