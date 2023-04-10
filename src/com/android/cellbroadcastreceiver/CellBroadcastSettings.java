@@ -34,8 +34,11 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.SubscriptionManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
@@ -43,6 +46,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -145,9 +149,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     // Preference key for emergency alerts history
     public static final String KEY_EMERGENCY_ALERT_HISTORY = "emergency_alert_history";
-
-    // For watch layout
-    private static final String KEY_WATCH_ALERT_REMINDER = "watch_alert_reminder";
 
     // For top introduction info
     private static final String KEY_PREFS_TOP_INTRO = "alert_prefs_top_intro";
@@ -387,6 +388,26 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         }
 
         @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View root = super.onCreateView(inflater, container, savedInstanceState);
+            PackageManager pm = getActivity().getPackageManager();
+            if (pm != null
+                    && pm.hasSystemFeature(
+                    PackageManager.FEATURE_WATCH)) {
+                ViewGroup.LayoutParams layoutParams = getListView().getLayoutParams();
+                if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
+                    int watchMarginInPixel = (int) getResources().getDimension(
+                            R.dimen.pref_top_margin);
+                    ((ViewGroup.MarginLayoutParams) layoutParams).topMargin = watchMarginInPixel;
+                    ((ViewGroup.MarginLayoutParams) layoutParams).bottomMargin = watchMarginInPixel;
+                    getListView().setLayoutParams(layoutParams);
+                }
+            }
+            return root;
+        }
+
+        @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 
             LocalBroadcastManager.getInstance(getContext())
@@ -556,6 +577,10 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
                     getContext(), SubscriptionManager.getDefaultSubscriptionId(), null);
 
+            PreferenceScreen preferenceScreen = getPreferenceScreen();
+            boolean isWatch = getActivity().getPackageManager().hasSystemFeature(
+                    PackageManager.FEATURE_WATCH);
+
             if (mMasterToggle != null) {
                 mMasterToggle.setVisible(res.getBoolean(R.bool.show_main_switch_settings));
             }
@@ -563,24 +588,36 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             if (mPresidentialCheckBox != null) {
                 mPresidentialCheckBox.setVisible(
                         res.getBoolean(R.bool.show_presidential_alerts_settings));
+                if (isWatch && !mPresidentialCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mPresidentialCheckBox);
+                }
             }
 
             if (mExtremeCheckBox != null) {
                 mExtremeCheckBox.setVisible(res.getBoolean(R.bool.show_extreme_alert_settings)
                         && !channelManager.getCellBroadcastChannelRanges(
                                 R.array.cmas_alert_extreme_channels_range_strings).isEmpty());
+                if (isWatch && !mExtremeCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mExtremeCheckBox);
+                }
             }
 
             if (mSevereCheckBox != null) {
                 mSevereCheckBox.setVisible(res.getBoolean(R.bool.show_severe_alert_settings)
                         && !channelManager.getCellBroadcastChannelRanges(
                                 R.array.cmas_alerts_severe_range_strings).isEmpty());
+                if (isWatch && !mSevereCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mSevereCheckBox);
+                }
             }
 
             if (mAmberCheckBox != null) {
                 mAmberCheckBox.setVisible(res.getBoolean(R.bool.show_amber_alert_settings)
                         && !channelManager.getCellBroadcastChannelRanges(
                                 R.array.cmas_amber_alerts_channels_range_strings).isEmpty());
+                if (isWatch && !mAmberCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mAmberCheckBox);
+                }
             }
 
             if (mPublicSafetyMessagesChannelCheckBox != null) {
@@ -589,6 +626,9 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                                 && !channelManager.getCellBroadcastChannelRanges(
                                         R.array.public_safety_messages_channels_range_strings)
                                 .isEmpty());
+                if (isWatch && !mPublicSafetyMessagesChannelCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mPublicSafetyMessagesChannelCheckBox);
+                }
             }
             // this is the matching full screen settings for public safety toggle. shown only if
             // public safety toggle is displayed.
@@ -634,6 +674,9 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             if (mEmergencyAlertsCheckBox != null) {
                 mEmergencyAlertsCheckBox.setVisible(!channelManager.getCellBroadcastChannelRanges(
                         R.array.emergency_alerts_channels_range_strings).isEmpty());
+                if (isWatch && !mEmergencyAlertsCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mEmergencyAlertsCheckBox);
+                }
             }
 
             if (mStateLocalTestCheckBox != null) {
@@ -641,20 +684,32 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                         res.getBoolean(R.bool.show_state_local_test_settings)
                                 && !channelManager.getCellBroadcastChannelRanges(
                                         R.array.state_local_test_alert_range_strings).isEmpty());
+                if (isWatch && !mStateLocalTestCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mStateLocalTestCheckBox);
+                }
             }
 
             if (mReceiveCmasInSecondLanguageCheckBox != null) {
                 mReceiveCmasInSecondLanguageCheckBox.setVisible(!res.getString(
                         R.string.emergency_alert_second_language_code).isEmpty());
+                if (isWatch && !mReceiveCmasInSecondLanguageCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mReceiveCmasInSecondLanguageCheckBox);
+                }
             }
 
             if (mAreaUpdateInfoCheckBox != null) {
                 mAreaUpdateInfoCheckBox.setVisible(
                         res.getBoolean(R.bool.config_showAreaUpdateInfoSettings));
+                if (isWatch && !mAreaUpdateInfoCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mAreaUpdateInfoCheckBox);
+                }
             }
 
             if (mOverrideDndCheckBox != null) {
                 mOverrideDndCheckBox.setVisible(res.getBoolean(R.bool.show_override_dnd_settings));
+                if (isWatch && !mOverrideDndCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mOverrideDndCheckBox);
+                }
             }
 
             if (mEnableVibrateCheckBox != null) {
@@ -663,10 +718,16 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 // In some countries, override DND is always on, which means vibration is always on.
                 // In that case, no need to show vibration toggle for users.
                 mEnableVibrateCheckBox.setVisible(isVibrationToggleVisible(getContext(), res));
+                if (isWatch && !mEnableVibrateCheckBox.isVisible()) {
+                    preferenceScreen.removePreference(mEnableVibrateCheckBox);
+                }
             }
             if (mAlertsHeader != null) {
                 mAlertsHeader.setVisible(
                         !getContext().getString(R.string.alerts_header_summary).isEmpty());
+                if (isWatch && !mAlertsHeader.isVisible()) {
+                    preferenceScreen.removePreference(mAlertsHeader);
+                }
             }
 
             if (mSpeechCheckBox != null) {
