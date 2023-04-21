@@ -32,6 +32,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -68,13 +70,14 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
+        boolean isWatch = getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH);
+        // for backward compatibility on R devices or wearable devices due to small screen device.
+        boolean hideToolbar = !SdkLevel.isAtLeastS() || isWatch;
+        if (hideToolbar) {
             setCustomizeContentView(R.layout.cell_broadcast_list_collapsing_no_toobar);
         }
         super.onCreate(savedInstanceState);
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
+        if (hideToolbar) {
             ActionBar actionBar = getActionBar();
             if (actionBar != null) {
                 // android.R.id.home will be triggered in onOptionsItemSelected()
@@ -93,6 +96,11 @@ public class CellBroadcastListActivity extends CollapsingToolbarBaseActivity {
             mListFragment.setActivity(this);
             fm.beginTransaction().add(com.android.settingslib.widget.R.id.content_frame,
                     mListFragment).commit();
+        }
+
+        if (CellBroadcastSettings.getResourcesForDefaultSubId(getApplicationContext()).getBoolean(
+                R.bool.disable_capture_alert_dialog)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         }
     }
 
