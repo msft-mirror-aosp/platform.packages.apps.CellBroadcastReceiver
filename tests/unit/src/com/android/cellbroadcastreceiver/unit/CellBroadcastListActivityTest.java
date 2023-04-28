@@ -50,6 +50,8 @@ import static org.mockito.Mockito.verify;
 import android.app.Fragment;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
@@ -58,6 +60,7 @@ import android.os.Looper;
 import android.os.UserManager;
 import android.provider.Telephony;
 import android.telephony.SmsCbMessage;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -72,6 +75,8 @@ import com.android.cellbroadcastreceiver.CellBroadcastCursorAdapter;
 import com.android.cellbroadcastreceiver.CellBroadcastListActivity;
 import com.android.cellbroadcastreceiver.CellBroadcastListItem;
 import com.android.cellbroadcastreceiver.R;
+import com.android.internal.view.menu.ContextMenuBuilder;
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,6 +85,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,6 +103,12 @@ public class CellBroadcastListActivityTest extends
     @Captor
     private ArgumentCaptor<String> mColumnCaptor;
 
+    private void setWatchFeatureEnabled(boolean enabled) {
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        doReturn(enabled).when(mockPackageManager).hasSystemFeature(PackageManager.FEATURE_WATCH);
+        mContext.injectPackageManager(mockPackageManager);
+    }
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -105,6 +117,11 @@ public class CellBroadcastListActivityTest extends
         injectSystemService(UserManager.class, mMockUserManager);
 
         doReturn(true).when(mMockUserManager).isAdminUser();
+
+        SubscriptionManager mockSubscriptionManager = mock(SubscriptionManager.class);
+        injectSystemService(SubscriptionManager.class, mockSubscriptionManager);
+        SubscriptionInfo mockSubInfo = mock(SubscriptionInfo.class);
+        doReturn(mockSubInfo).when(mockSubscriptionManager).getActiveSubscriptionInfo(anyInt());
     }
 
     @After
@@ -117,7 +134,45 @@ public class CellBroadcastListActivityTest extends
     }
 
     public void testOnCreate() throws Throwable {
-        startActivity();
+        Resources spyRes = mContext.getResources();
+        doReturn(false).when(spyRes).getBoolean(R.bool.disable_capture_alert_dialog);
+        CellBroadcastListActivity activity = startActivity();
+        int flags = activity.getWindow().getAttributes().flags;
+        assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE), 0);
+        stopActivity();
+    }
+
+    public void testOnCreateForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+
+        CellBroadcastListActivity activity = startActivity();
+
+        Field customizeLayoutResIdField =
+                CollapsingToolbarBaseActivity.class.getDeclaredField("mCustomizeLayoutResId");
+        customizeLayoutResIdField.setAccessible(true);
+        assertTrue(customizeLayoutResIdField.getInt(activity) != 0);
+
+        assertNotNull(activity.findViewById(R.id.content_frame));
+        stopActivity();
+    }
+
+    public void testContextMenuForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+        CellBroadcastListActivity activity = startActivity();
+        ContextMenuBuilder contextMenu = new ContextMenuBuilder(mContext);
+
+        activity.mListFragment.getListView().createContextMenu(contextMenu);
+
+        assertNotNull(contextMenu.findItem(MENU_DELETE));
+    }
+
+    public void testOnCreateWithCaptureRestriction() throws Throwable {
+        Resources spyRes = mContext.getResources();
+        doReturn(true).when(spyRes).getBoolean(R.bool.disable_capture_alert_dialog);
+        CellBroadcastListActivity activity = startActivity();
+        int flags = activity.getWindow().getAttributes().flags;
+        assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE),
+                WindowManager.LayoutParams.FLAG_SECURE);
         stopActivity();
     }
 
@@ -245,6 +300,32 @@ public class CellBroadcastListActivityTest extends
                         CellBroadcastListActivity.CursorLoaderListFragment.KEY_DELETE_DIALOG));
 
         verify(mockCursor, atLeastOnce()).getColumnIndex(eq(Telephony.CellBroadcasts._ID));
+        stopActivity();
+    }
+
+    public void testOnContextItemSelectedDeleteForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+        CellBroadcastListActivity activity = startActivity();
+        Cursor mockCursor = mock(Cursor.class);
+        doReturn(0).when(mockCursor).getPosition();
+        doReturn(10L).when(mockCursor).getLong(anyInt());
+        activity.mListFragment.mAdapter.swapCursor(mockCursor);
+        MenuItem mockMenuItem = mock(MenuItem.class);
+        doReturn(MENU_DELETE).when(mockMenuItem).getItemId();
+        activity.mListFragment.getListView().setSelection(1);
+
+        activity.mListFragment.onContextItemSelected(mockMenuItem);
+        waitForHandlerAction(Handler.getMain(), TEST_TIMEOUT_MILLIS);
+
+
+        Fragment frag = activity.mListFragment.getFragmentManager().findFragmentByTag(
+                CellBroadcastListActivity.CursorLoaderListFragment.KEY_DELETE_DIALOG);
+        assertNotNull("onContextItemSelected - MENU_DELETE should create alert dialog",
+                frag);
+        long[] rowId = frag.getArguments().getLongArray(
+                CellBroadcastListActivity.CursorLoaderListFragment.DeleteDialogFragment.ROW_ID);
+        long[] expectedResult = {10L};
+        assertTrue(Arrays.equals(expectedResult, rowId));
         stopActivity();
     }
 
@@ -635,18 +716,14 @@ public class CellBroadcastListActivityTest extends
         // Watch layout misses checkbox.
         // mockListItemView.findViewById(R.id.checkBox) returns null as default setting up this
         // usecase.
-        SubscriptionManager mockSubscriptionManager = mock(SubscriptionManager.class);
-        Context mockContext = mock(Context.class);
-        doReturn(mockSubscriptionManager).when(mockContext)
-                .getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         CellBroadcastListItem mockListItemView = mock(CellBroadcastListItem.class);
         ListView mockListView = mock(ListView.class);
         MatrixCursor data = makeTestCursor();
         data.moveToFirst();
-        CellBroadcastCursorAdapter adapter = new CellBroadcastCursorAdapter(mockContext,
+        CellBroadcastCursorAdapter adapter = new CellBroadcastCursorAdapter(mContext,
                 mockListView);
 
-        adapter.bindView(mockListItemView, mockContext, data);
+        adapter.bindView(mockListItemView, mContext, data);
 
         ArgumentCaptor<SmsCbMessage> messageCaptor = ArgumentCaptor.forClass(SmsCbMessage.class);
         verify(mockListItemView).bind(messageCaptor.capture());
@@ -654,25 +731,21 @@ public class CellBroadcastListActivityTest extends
     }
 
     public void testCursorAdaptorBindView() {
-        SubscriptionManager mockSubscriptionManager = mock(SubscriptionManager.class);
-        Context mockContext = mock(Context.class);
-        doReturn(mockSubscriptionManager).when(mockContext)
-                .getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         CellBroadcastListItem mockListItemView = mock(CellBroadcastListItem.class);
         ListView mockListView = mock(ListView.class);
         CheckedTextView mockCheckbox = mock(CheckedTextView.class);
         doReturn(mockCheckbox).when(mockListItemView).findViewById(R.id.checkBox);
         MatrixCursor data = makeTestCursor();
         data.moveToFirst();
-        CellBroadcastCursorAdapter adapter = new CellBroadcastCursorAdapter(mockContext,
+        CellBroadcastCursorAdapter adapter = new CellBroadcastCursorAdapter(mContext,
                 mockListView);
 
         adapter.setIsActionMode(true);
-        adapter.bindView(mockListItemView, mockContext, data);
+        adapter.bindView(mockListItemView, mContext, data);
         verify(mockCheckbox).setVisibility(View.VISIBLE);
 
         adapter.setIsActionMode(false);
-        adapter.bindView(mockListItemView, mockContext, data);
+        adapter.bindView(mockListItemView, mContext, data);
         verify(mockCheckbox).setVisibility(View.GONE);
     }
 }
