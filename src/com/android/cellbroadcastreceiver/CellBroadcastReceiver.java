@@ -98,6 +98,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             "com.android.cellbroadcastreceiver.intent.action.MARK_AS_READ";
     public static final String EXTRA_DELIVERY_TIME =
             "com.android.cellbroadcastreceiver.intent.extra.ID";
+    public static final String EXTRA_NOTIF_ID =
+            "com.android.cellbroadcastreceiver.intent.extra.NOTIF_ID";
 
     public static final String ACTION_TESTING_MODE_CHANGED =
             "com.android.cellbroadcastreceiver.intent.ACTION_TESTING_MODE_CHANGED";
@@ -131,8 +133,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         Resources res = getResourcesMethod();
 
         if (ACTION_MARK_AS_READ.equals(action)) {
-            // The only way this'll be called is if someone tries to maliciously set something as
-            // read. Log an event.
+            // The only way this'll be called is if someone tries to maliciously set something
+            // as read. Log an event.
             EventLog.writeEvent(0x534e4554, "162741784", -1, null);
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
             if (!intent.getBooleanExtra(
@@ -276,7 +278,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             setRoamingOperatorSupported(roamingOperator);
         }
         CellBroadcastReceiverMetrics.getInstance().getFeatureMetrics(mContext)
-                .onChangedRoamingSupport((roamingOperator != null) ? true : false);
+                .onChangedRoamingSupport(!TextUtils.isEmpty(roamingOperator) ? true : false);
     }
 
     /**

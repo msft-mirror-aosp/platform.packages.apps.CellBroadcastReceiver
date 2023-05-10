@@ -588,6 +588,9 @@ public class CellBroadcastAlertDialog extends Activity {
                 }
             }
 
+            if (res.getBoolean(R.bool.disable_capture_alert_dialog)) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            }
             startPulsatingAsNeeded(channelManager
                     .getCellBroadcastChannelRangeFromMessage(message));
         }
@@ -879,17 +882,21 @@ public class CellBroadcastAlertDialog extends Activity {
             languageCode = message.getLanguageCode();
         }
 
-        String title = overrideTranslation(titleId, res, languageCode);
-        TextView titleTextView = findViewById(R.id.alertTitle);
+        if (CellBroadcastSettings.getResourcesForDefaultSubId(context).getBoolean(
+                R.bool.show_alert_title)) {
+            String title = overrideTranslation(titleId, res, languageCode);
+            TextView titleTextView = findViewById(R.id.alertTitle);
 
-        if (titleTextView != null) {
-            String timeFormat = res.getString(R.string.date_time_format);
-            if (!TextUtils.isEmpty(timeFormat)) {
-                titleTextView.setSingleLine(false);
-                title += "\n" + new SimpleDateFormat(timeFormat).format(message.getReceivedTime());
+            if (titleTextView != null) {
+                String timeFormat = res.getString(R.string.date_time_format);
+                if (!TextUtils.isEmpty(timeFormat)) {
+                    titleTextView.setSingleLine(false);
+                    title += "\n" + new SimpleDateFormat(timeFormat).format(
+                            message.getReceivedTime());
+                }
+                setTitle(title);
+                titleTextView.setText(title);
             }
-            setTitle(title);
-            titleTextView.setText(title);
         }
 
         TextView textView = findViewById(R.id.message);
@@ -924,6 +931,10 @@ public class CellBroadcastAlertDialog extends Activity {
     private void setPictogram(Context context, SmsCbMessage message) {
         int resId = CellBroadcastResources.getDialogPictogramResource(context, message);
         ImageView image = findViewById(R.id.pictogramImage);
+        // not all layouts may have a pictogram image, e.g. watch
+        if (image == null) {
+            return;
+        }
         if (resId != -1) {
             image.setImageResource(resId);
             image.setVisibility(View.VISIBLE);
@@ -939,6 +950,10 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     private void setPictogramAreaLayout(int orientation) {
         ImageView image = findViewById(R.id.pictogramImage);
+        // not all layouts may have a pictogram image, e.g. watch
+        if (image == null) {
+            return;
+        }
         if (image.getVisibility() == View.VISIBLE) {
             ViewGroup.LayoutParams params = image.getLayoutParams();
 
@@ -1044,7 +1059,12 @@ public class CellBroadcastAlertDialog extends Activity {
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
-            CellBroadcastReceiverApp.clearNewMessageList();
+
+            // Clear new message list when user swipe the notification
+            // except dialog and notification are visible at the same time.
+            if (intent.getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+                CellBroadcastReceiverApp.clearNewMessageList();
+            }
         }
     }
 
@@ -1306,9 +1326,9 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     @VisibleForTesting
     public ArrayList<SmsCbMessage> getNewMessageListIfNeeded(
-            @NonNull ArrayList<SmsCbMessage> dialogMessageList,
+            ArrayList<SmsCbMessage> dialogMessageList,
             ArrayList<SmsCbMessage> newMessageList) {
-        if (newMessageList == null) {
+        if (newMessageList == null || dialogMessageList == null) {
             return dialogMessageList;
         }
         ArrayList<SmsCbMessage> clonedNewMessageList = new ArrayList<>(newMessageList);
