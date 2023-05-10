@@ -35,6 +35,7 @@ import static com.android.cellbroadcastservice.CellBroadcastMetrics.SRC_CBR;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.Notification;
+import android.app.Notification.Action;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -53,6 +54,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.preference.PreferenceManager;
@@ -101,7 +103,6 @@ public class CellBroadcastAlertService extends Service {
     private static final int REQUEST_CODE_DELETE_INTENT = 2;
 
     /** Use the same notification ID for non-emergency alerts. */
-    @VisibleForTesting
     public static final int NOTIFICATION_ID = 1;
     public static final int SETTINGS_CHANGED_NOTIFICATION_ID = 2;
 
@@ -682,8 +683,9 @@ public class CellBroadcastAlertService extends Service {
         // range.mOverrideDnd is per channel configuration. override_dnd is the main config
         // applied for all channels.
         Resources res = CellBroadcastSettings.getResources(mContext, message.getSubscriptionId());
+        boolean isWatch = getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH);
         boolean isOverallEnabledOverrideDnD =
-                (res.getBoolean(R.bool.show_override_dnd_settings)
+                isWatch || (res.getBoolean(R.bool.show_override_dnd_settings)
                 && prefs.getBoolean(CellBroadcastSettings.KEY_OVERRIDE_DND, false))
                 || res.getBoolean(R.bool.override_dnd);
         if (isOverallEnabledOverrideDnD || (range != null && range.mOverrideDnd)) {
@@ -724,8 +726,9 @@ public class CellBroadcastAlertService extends Service {
         ArrayList<SmsCbMessage> messageList = new ArrayList<>();
         messageList.add(message);
 
-        // For FEATURE_WATCH, the dialog doesn't make sense from a UI/UX perspective
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+        // For FEATURE_WATCH, the dialog doesn't make sense from a UI/UX perspective.
+        // But the audio & vibration still breakthrough DND.
+        if (isWatch) {
             addToNotificationBar(message, messageList, this, false, true, false);
         } else {
             Intent alertDialogIntent = createDisplayMessageIntent(this,
@@ -761,11 +764,13 @@ public class CellBroadcastAlertService extends Service {
 
         boolean isWatch = context.getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_WATCH);
+        int notificationId = NOTIFICATION_ID;
         // Create intent to show the new messages when user selects the notification.
         Intent intent;
         if (isWatch) {
-            // For FEATURE_WATCH we want to mark as read
-            intent = createMarkAsReadIntent(context, message.getReceivedTime());
+            // For FEATURE_WATCH we want to mark as read and use a unique notification id
+            notificationId = (message.getServiceCategory() << 16 | message.getSerialNumber());
+            intent = createMarkAsReadIntent(context, message.getReceivedTime(), notificationId);
         } else {
             // For anything else we handle it normally
             intent = createDisplayMessageIntent(context, CellBroadcastAlertDialog.class,
@@ -819,6 +824,8 @@ public class CellBroadcastAlertService extends Service {
 
         if (isWatch) {
             builder.setDeleteIntent(pi);
+            builder.addAction(new Action(android.R.drawable.ic_delete,
+                    context.getString(android.R.string.ok), pi));
         } else {
             // If this is a notification coming from the foreground dialog, should dismiss the
             // foreground alert dialog when swipe the notification. This is needed
@@ -840,18 +847,32 @@ public class CellBroadcastAlertService extends Service {
 
         // increment unread alert count (decremented when user dismisses alert dialog)
         int unreadCount = messageList.size();
-        if (unreadCount > 1) {
+        if (unreadCount > 1 || res.getBoolean(R.bool.disable_capture_alert_dialog)) {
             // use generic count of unread broadcasts if more than one unread
-            builder.setContentTitle(context.getString(R.string.notification_multiple_title));
+            if (res.getBoolean(R.bool.show_alert_title)) {
+                builder.setContentTitle(context.getString(R.string.notification_multiple_title));
+            }
             builder.setContentText(context.getString(R.string.notification_multiple, unreadCount));
         } else {
-            builder.setContentTitle(channelName)
-                    .setContentText(messageBody)
-                    .setStyle(new Notification.BigTextStyle()
-                            .bigText(messageBody));
+            if (res.getBoolean(R.bool.show_alert_title)) {
+                builder.setContentTitle(channelName);
+            }
+            builder.setContentText(messageBody)
+                    .setStyle(new Notification.BigTextStyle().bigText(messageBody));
         }
 
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        notificationManager.notify(notificationId, builder.build());
+
+        // SysUI does not wake screen up when notification received. For emergency alert, manually
+        // wakes up the screen for 1 second.
+        if (isWatch) {
+            PowerManager powerManager = (PowerManager) context
+                    .getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock fullWakeLock = powerManager.newWakeLock(
+                    (PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK
+                            | PowerManager.ACQUIRE_CAUSES_WAKEUP), TAG);
+            fullWakeLock.acquire(1000);
+        }
 
         // FEATURE_WATCH devices do not have global sounds for notifications; only vibrate.
         // TW requires sounds for 911/919
@@ -901,13 +922,15 @@ public class CellBroadcastAlertService extends Service {
         emergencyAlertInVoiceCall.enableVibration(true);
 
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-            highPriorityEmergency.setImportance(NotificationManager.IMPORTANCE_HIGH);
+            highPriorityEmergency.setImportance(NotificationManager.IMPORTANCE_MAX);
             highPriorityEmergency.enableVibration(true);
             highPriorityEmergency.setVibrationPattern(new long[]{0});
+            highPriorityEmergency.setBypassDnd(true);
 
             emergency.setImportance(NotificationManager.IMPORTANCE_HIGH);
             emergency.enableVibration(true);
             emergency.setVibrationPattern(new long[]{0});
+            emergency.setBypassDnd(true);
 
             nonEmergency.setImportance(NotificationManager.IMPORTANCE_HIGH);
             nonEmergency.enableVibration(true);
@@ -949,10 +972,11 @@ public class CellBroadcastAlertService extends Service {
      * @param deliveryTime time the message was sent in order to mark as read
      * @return delete intent to add to the pending intent
      */
-    static Intent createMarkAsReadIntent(Context context, long deliveryTime) {
+    static Intent createMarkAsReadIntent(Context context, long deliveryTime, int notificationId) {
         Intent deleteIntent = new Intent(context, CellBroadcastInternalReceiver.class);
         deleteIntent.setAction(CellBroadcastReceiver.ACTION_MARK_AS_READ);
         deleteIntent.putExtra(CellBroadcastReceiver.EXTRA_DELIVERY_TIME, deliveryTime);
+        deleteIntent.putExtra(CellBroadcastReceiver.EXTRA_NOTIF_ID, notificationId);
         return deleteIntent;
     }
 

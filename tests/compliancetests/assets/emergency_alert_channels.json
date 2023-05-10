@@ -1882,77 +1882,77 @@
   },
   "mexico_telefonica": {
     "50": {
-      "title": "Operator warning",
+      "title": "",
       "default_value": "false",
       "toggle_avail": "true",
       "alert_type":"notification"
     },
     "4370": {
-      "title": "Alert Messages Level 1",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4383": {
-      "title": "Alert Messages Level 1",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "919": {
-      "title": "Alert Messages Level 1",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4371": {
-      "title": "Alert Messages Level 2",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4372"
     },
     "4384": {
-      "title": "Alert Messages Level 2",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4385"
     },
     "4373": {
-      "title": "Alert Messages Level 3",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4378"
     },
     "4386": {
-      "title": "Alert Messages Level 3",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4391"
     },
     "4379": {
-      "title": "Amber Alert Messages in Spanish",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true"
     },
     "4380": {
-      "title": "Test Alert Messages in Spanish",
+      "title": "",
       "default_value": "false",
       "toggle_avail": "false"
     },
     "519": {
-      "title": "Test Alert Messages in Spanish",
+      "title": "",
       "default_value": "false",
       "toggle_avail": "false"
     },
     "4381": {
-      "title": "Exercise Alert Messages in Spanish",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true"
     },
     "6400": {
-      "title": "Information Messages in Spanish",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true"
     },
     "4396": {
-      "title": "Reserved for future deployments",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4399"
@@ -4356,6 +4356,11 @@
       "toggle_avail": "false",
       "end_channel": "4354"
     },
+    "4355": {
+      "title": "",
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
     "4356": {
       "title": "",
       "default_value": "true",
@@ -4374,25 +4379,25 @@
     "4371": {
       "title": "Emergency alert: Extreme",
       "default_value": "true",
-      "toggle_avail": "true",
+      "toggle_avail": "false",
       "end_channel": "4372"
     },
     "4384": {
       "title": "Emergency alert: Extreme",
       "default_value": "true",
-      "toggle_avail": "true",
+      "toggle_avail": "false",
       "end_channel": "4385"
     },
     "4373": {
       "title": "Emergency alert: Severe",
       "default_value": "true",
-      "toggle_avail": "true",
+      "toggle_avail": "false",
       "end_channel": "4378"
     },
     "4386": {
       "title": "Emergency alert: Severe",
       "default_value": "true",
-      "toggle_avail": "true",
+      "toggle_avail": "false",
       "end_channel": "4391"
     },
     "4379": {
@@ -4434,12 +4439,6 @@
       "title": "Emergency alert (operator)",
       "default_value": "false",
       "toggle_avail": "true"
-    },
-    "60": {
-      "title": "Broadcast messages",
-      "default_value": "true",
-      "toggle_avail": "true",
-      "alert_type":"notification"
     }
   },
   "hungary_telekom": {
@@ -4736,71 +4735,71 @@
   },
   "mexico": {
     "4370": {
-      "title": "Alert Messages Level 1",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4383": {
-      "title": "Alert Messages Level 1",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "919": {
-      "title": "Alert Messages Level 1",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4371": {
-      "title": "Alert Messages Level 2",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4372"
     },
     "4384": {
-      "title": "Alert Messages Level 2",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4385"
     },
     "4373": {
-      "title": "Alert Messages Level 3",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4378"
     },
     "4386": {
-      "title": "Alert Messages Level 3",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4391"
     },
     "4379": {
-      "title": "Amber Alert Messages in Spanish",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true"
     },
     "4380": {
-      "title": "Test Alert Messages in Spanish",
+      "title": "",
       "default_value": "false",
       "toggle_avail": "false"
     },
     "519": {
-      "title": "Test Alert Messages in Spanish",
+      "title": "",
       "default_value": "false",
       "toggle_avail": "false"
     },
     "4381": {
-      "title": "Exercise Alert Messages in Spanish",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true"
     },
     "6400": {
-      "title": "Information Messages in Spanish",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true"
     },
     "4396": {
-      "title": "Reserved for future deployments",
+      "title": "",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4399"
