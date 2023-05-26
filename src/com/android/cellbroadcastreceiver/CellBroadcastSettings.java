@@ -36,9 +36,9 @@ import android.telephony.SubscriptionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.widget.Switch;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
@@ -150,9 +150,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     // Preference key for emergency alerts history
     public static final String KEY_EMERGENCY_ALERT_HISTORY = "emergency_alert_history";
 
-    // For watch layout
-    private static final String KEY_WATCH_ALERT_REMINDER = "watch_alert_reminder";
-
     // For top introduction info
     private static final String KEY_PREFS_TOP_INTRO = "alert_prefs_top_intro";
 
@@ -185,14 +182,16 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
+        boolean isWatch = getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH);
+        // for backward compatibility on R devices or wearable devices due to small screen device.
+        boolean hideToolbar = !SdkLevel.isAtLeastS() || isWatch;
+        if (hideToolbar) {
             setCustomizeContentView(R.layout.cell_broadcast_list_collapsing_no_toobar);
         }
+
         super.onCreate(savedInstanceState);
 
-        // for backward compatibility on R devices
-        if (!SdkLevel.isAtLeastS()) {
+        if (hideToolbar) {
             ActionBar actionBar = getActionBar();
             if (actionBar != null) {
                 // android.R.id.home will be triggered in onOptionsItemSelected()
@@ -301,7 +300,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         private TwoStatePreference mExtremeCheckBox;
         private TwoStatePreference mSevereCheckBox;
         private TwoStatePreference mAmberCheckBox;
-        private MainSwitchPreference mMasterToggle;
+        private TwoStatePreference mMasterToggle;
         private TwoStatePreference mPublicSafetyMessagesChannelCheckBox;
         private TwoStatePreference mPublicSafetyMessagesChannelFullScreenCheckBox;
         private TwoStatePreference mEmergencyAlertsCheckBox;
@@ -347,7 +346,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     findPreference(KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS);
             mAmberCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_CMAS_AMBER_ALERTS);
-            mMasterToggle = (MainSwitchPreference)
+            mMasterToggle = (TwoStatePreference)
                     findPreference(KEY_ENABLE_ALERTS_MASTER_TOGGLE);
             mPublicSafetyMessagesChannelCheckBox = (TwoStatePreference)
                     findPreference(KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
@@ -400,9 +399,10 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                     PackageManager.FEATURE_WATCH)) {
                 ViewGroup.LayoutParams layoutParams = getListView().getLayoutParams();
                 if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
-                    int topMarginInPixel = (int) getResources().getDimension(
+                    int watchMarginInPixel = (int) getResources().getDimension(
                             R.dimen.pref_top_margin);
-                    ((ViewGroup.MarginLayoutParams) layoutParams).topMargin = topMarginInPixel;
+                    ((ViewGroup.MarginLayoutParams) layoutParams).topMargin = watchMarginInPixel;
+                    ((ViewGroup.MarginLayoutParams) layoutParams).bottomMargin = watchMarginInPixel;
                     getListView().setLayoutParams(layoutParams);
                 }
             }
@@ -430,14 +430,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
             mDisableSevereWhenExtremeDisabled = res.getBoolean(
                     R.bool.disable_severe_when_extreme_disabled);
-
-            final OnMainSwitchChangeListener mainSwitchListener = new OnMainSwitchChangeListener() {
-                @Override
-                public void onSwitchChanged(Switch switchView, boolean isChecked) {
-                    setAlertsEnabled(isChecked);
-                    onPreferenceChangedByUser(getContext());
-                }
-            };
 
             // Handler for settings that require us to reconfigure enabled channels in radio
             Preference.OnPreferenceChangeListener startConfigServiceListener =
@@ -468,7 +460,31 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
             initReminderIntervalList();
 
             if (mMasterToggle != null) {
-                mMasterToggle.addOnSwitchChangeListener(mainSwitchListener);
+                if (mMasterToggle instanceof MainSwitchPreference) {
+                    MainSwitchPreference mainSwitchPreference =
+                            (MainSwitchPreference) mMasterToggle;
+                    final OnMainSwitchChangeListener mainSwitchListener =
+                            new OnMainSwitchChangeListener() {
+                        @Override
+                        public void onSwitchChanged(Switch switchView, boolean isChecked) {
+                            setAlertsEnabled(isChecked);
+                            onPreferenceChangedByUser(getContext());
+                        }
+                    };
+                    mainSwitchPreference.addOnSwitchChangeListener(mainSwitchListener);
+                } else {
+                    Preference.OnPreferenceChangeListener mainSwitchListener =
+                            new Preference.OnPreferenceChangeListener() {
+                                @Override
+                                public boolean onPreferenceChange(
+                                        Preference pref, Object newValue) {
+                                    setAlertsEnabled((Boolean) newValue);
+                                    onPreferenceChangedByUser(getContext());
+                                    return true;
+                                }
+                            };
+                    mMasterToggle.setOnPreferenceChangeListener(mainSwitchListener);
+                }
                 // If allow alerts are disabled, we turn all sub-alerts off. If it's enabled, we
                 // leave them as they are.
                 if (!mMasterToggle.isChecked()) {
@@ -643,9 +659,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
 
             if (mTestCheckBox != null) {
                 mTestCheckBox.setVisible(isTestAlertsToggleVisible(getContext()));
-                if (isWatch && !mTestCheckBox.isVisible()) {
-                    preferenceScreen.removePreference(mTestCheckBox);
-                }
             }
 
             if (mExerciseTestCheckBox != null) {
