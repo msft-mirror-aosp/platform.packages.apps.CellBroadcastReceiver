@@ -167,6 +167,10 @@
     "mccmnc": "24702",
     "imsi": "247020123456789"
   },
+  "bulgaria": {
+    "mccmnc": "28401",
+    "imsi": "284010123456789"
+  },
   "greece": {
     "mccmnc": "20201",
     "imsi": "202010123456789"
@@ -215,6 +219,10 @@
   "us_tmo": {
     "mccmnc": "310160",
     "imsi": "310160012345678"
+  },
+  "us_dish": {
+    "mccmnc": "313340",
+    "imsi": "313340012345678"
   },
   "ukraine": {
     "mccmnc": "25502",
@@ -278,7 +286,9 @@
   },
   "india": {
     "mccmnc": "40401",
-    "imsi": "404010123456789"
+    "imsi": "404010123456789",
+    "disable_navigation": "true",
+    "fullscreen": "true"
   },
   "hungary_telekom": {
     "mccmnc": "21630",
@@ -295,10 +305,6 @@
   "slovakia_telekom": {
     "mccmnc": "23102",
     "imsi": "231020123456789"
-  },
-  "austria_magenta": {
-    "mccmnc": "23203",
-    "imsi": "232030123456789"
   },
   "poland_tmobile": {
     "mccmnc": "26002",
