@@ -23,6 +23,8 @@ import android.app.ResourcesManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -121,6 +123,10 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
 
         boolean mIsOverrideConfigurationEnabled;
 
+        private PackageManager mPackageManager;
+
+        private SharedPreferences mSharedPreferences;
+
         public TestContext(Context base) {
             super(base);
             mResources = spy(super.getResources());
@@ -129,6 +135,14 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
         public <S> void injectSystemService(Class<S> cls, S service) {
             final String name = getSystemServiceName(cls);
             mInjectedSystemServices.put(name, service);
+        }
+
+        public void injectPackageManager(PackageManager packageManager) {
+            mPackageManager = packageManager;
+        }
+
+        public void injectSharedPreferences(SharedPreferences sp) {
+            mSharedPreferences = sp;
         }
 
         @Override
@@ -155,6 +169,22 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
         @Override
         public Resources getResources() {
             return mResources;
+        }
+
+        @Override
+        public PackageManager getPackageManager() {
+            if (mPackageManager != null) {
+                return mPackageManager;
+            }
+            return super.getPackageManager();
+        }
+
+        @Override
+        public SharedPreferences getSharedPreferences(String name, int mode) {
+            if (mSharedPreferences != null) {
+                return mSharedPreferences;
+            }
+            return super.getSharedPreferences(name, mode);
         }
 
         @Override
