@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2020 The Android Open Source Project
+<!-- Copyright (C) 2023 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,8 +13,15 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<resources>
-    <!-- Main toggle default value -->
-    <bool name="master_toggle_enabled_default">false</bool>
-</resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="
+    @color/cell_broadcast_color_primary,
+    @color/cell_broadcast_color_primary_dark,
+    @string/alert_reminder_interval_summary,
+    @string/cmas_extreme_immediate_likely_alert,
+    @string/cmas_extreme_immediate_observed_alert,
+    @string/enable_etws_test_alerts_summary,
+    @string/enable_etws_test_alerts_title,
+    @string/menu_delete,
+    @string/menu_view_details,
+    @string/message_options" />
