@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import android.app.NotificationManager;
 import android.app.Service;
@@ -168,6 +169,14 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
         }
 
         @Override
+        public String getSystemServiceName(Class<?> serviceClass) {
+            if (TelephonyManager.class.equals(serviceClass)) {
+                return Context.TELEPHONY_SERVICE;
+            }
+            return super.getSystemServiceName(serviceClass);
+        }
+
+        @Override
         public SharedPreferences getSharedPreferences(String name, int mode) {
             return mMockedSharedPreferences;
         }
@@ -198,6 +207,12 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
 
     public void injectPackageManager(PackageManager packageManager) {
         mPackageManager = packageManager;
+    }
+
+    public void setWatchFeatureEnabled(boolean enabled) {
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        doReturn(enabled).when(mockPackageManager).hasSystemFeature(PackageManager.FEATURE_WATCH);
+        injectPackageManager(mockPackageManager);
     }
 
     @Before
