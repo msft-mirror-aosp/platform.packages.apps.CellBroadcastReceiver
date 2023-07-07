@@ -48,6 +48,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 public class CellBroadcastAlertAudioTest extends
         CellBroadcastServiceTestCase<CellBroadcastAlertAudio> {
@@ -119,6 +120,15 @@ public class CellBroadcastAlertAudioTest extends
         super.tearDown();
     }
 
+    private Intent createStartAudioIntent() {
+        Intent intent = new Intent(mContext, CellBroadcastAlertAudio.class);
+        intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_BODY,
+                TEST_MESSAGE_BODY);
+        intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_VIBRATION_PATTERN_EXTRA,
+                TEST_VIBRATION_PATTERN);
+        return intent;
+    }
+
     public void testStartService() throws Throwable {
         PhoneStateListenerHandler phoneStateListenerHandler = new PhoneStateListenerHandler(
                 "testStartService",
@@ -136,6 +146,45 @@ public class CellBroadcastAlertAudioTest extends
                             TEST_MESSAGE_LANGUAGE);
                     intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_OVERRIDE_DND_EXTRA,
                             true);
+                    startService(intent);
+                });
+        phoneStateListenerHandler.start();
+        waitUntilReady();
+        verify(mMockedAudioManager).getRingerMode();
+        verify(mMockedVibrator).vibrate(any(), any(AudioAttributes.class));
+        phoneStateListenerHandler.quit();
+    }
+
+    public void testPlayAlertToneInfo() throws Throwable {
+        setWatchFeatureEnabled(false);
+        doReturn(AudioManager.RINGER_MODE_NORMAL).when(
+                mMockedAudioManager).getRingerMode();
+        PhoneStateListenerHandler phoneStateListenerHandler = new PhoneStateListenerHandler(
+                "testPlayAlertToneInfo",
+                () -> {
+                    Intent intent = createStartAudioIntent();
+                    intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_TONE_TYPE,
+                            CellBroadcastAlertService.AlertType.INFO);
+                    startService(intent);
+                });
+        phoneStateListenerHandler.start();
+        waitUntilReady();
+        verify(mMockedAudioManager).getRingerMode();
+        verify(mMockedVibrator).vibrate(any(), any(AudioAttributes.class));
+        phoneStateListenerHandler.quit();
+    }
+
+    public void testPlayAlertToneInfoForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+        doReturn(AudioManager.RINGER_MODE_NORMAL).when(
+                mMockedAudioManager).getRingerMode();
+        PhoneStateListenerHandler phoneStateListenerHandler = new PhoneStateListenerHandler(
+                "testPlayAlertToneInfoForWatch",
+                () -> {
+
+                    Intent intent = createStartAudioIntent();
+                    intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_TONE_TYPE,
+                            CellBroadcastAlertService.AlertType.INFO);
                     startService(intent);
                 });
         phoneStateListenerHandler.start();
@@ -314,6 +363,47 @@ public class CellBroadcastAlertAudioTest extends
 
         phoneStateListenerHandler.quit();
         waitUntilReady();
+    }
+
+    public void testSetTtsLanguage() throws Throwable {
+        PhoneStateListenerHandler phoneStateListenerHandler = new PhoneStateListenerHandler(
+                "testStartService",
+                () -> {
+                    doReturn(AudioManager.RINGER_MODE_NORMAL).when(
+                            mMockedAudioManager).getRingerMode();
+
+                    Intent intent = new Intent(mContext, CellBroadcastAlertAudio.class);
+                    intent.setAction(SHOW_NEW_ALERT_ACTION);
+                    intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_BODY,
+                            TEST_MESSAGE_BODY);
+                    intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_VIBRATION_PATTERN_EXTRA,
+                            TEST_VIBRATION_PATTERN);
+                    intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_MESSAGE_LANGUAGE,
+                            TEST_MESSAGE_LANGUAGE);
+                    intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_OVERRIDE_DND_EXTRA,
+                            true);
+                    startService(intent);
+                });
+        phoneStateListenerHandler.start();
+        waitUntilReady();
+
+        Locale original_locale = Locale.getDefault();
+        Locale.setDefault(Locale.UK);
+
+        CellBroadcastAlertAudio audio = (CellBroadcastAlertAudio) getService();
+
+        Field fieldTts = CellBroadcastAlertAudio.class.getDeclaredField("mTts");
+        fieldTts.setAccessible(true);
+        TextToSpeech mockTts = mock(TextToSpeech.class);
+        fieldTts.set(audio, mockTts);
+
+        audio.onInit(TextToSpeech.SUCCESS);
+
+        ArgumentCaptor<Locale> localeArgumentCaptor = ArgumentCaptor.forClass(Locale.class);
+        verify(mockTts, times(1)).setLanguage(localeArgumentCaptor.capture());
+        assertEquals(Locale.UK, localeArgumentCaptor.getValue());
+
+        Locale.setDefault(original_locale);
     }
 
     /**
