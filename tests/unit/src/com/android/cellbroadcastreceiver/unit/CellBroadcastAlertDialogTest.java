@@ -34,6 +34,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.IContentProvider;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.content.res.Configuration;
@@ -47,11 +48,13 @@ import android.os.PowerManager;
 import android.telephony.SmsCbMessage;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.text.TextUtils;
 import android.util.Singleton;
 import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,6 +63,7 @@ import android.widget.TextView;
 import com.android.cellbroadcastreceiver.CellBroadcastAlertDialog;
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService;
 import com.android.cellbroadcastreceiver.CellBroadcastChannelManager;
+import com.android.cellbroadcastreceiver.CellBroadcastReceiverApp;
 import com.android.cellbroadcastreceiver.CellBroadcastSettings;
 import com.android.cellbroadcastreceiver.R;
 import com.android.internal.telephony.gsm.SmsCbConstants;
@@ -72,7 +76,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class CellBroadcastAlertDialogTest extends
         CellBroadcastActivityTestCase<CellBroadcastAlertDialog> {
@@ -183,6 +189,8 @@ public class CellBroadcastAlertDialogTest extends
     }
 
     public void testTitleAndMessageText() throws Throwable {
+        doReturn(true).when(mContext.getResources()).getBoolean(R.bool.show_alert_title);
+
         startActivity();
         waitForMs(100);
 
@@ -200,6 +208,14 @@ public class CellBroadcastAlertDialogTest extends
                             com.android.cellbroadcastreceiver.R.id.message)).getText().toString());
         }, 1000);
 
+        stopActivity();
+    }
+    public void testNoTitle() throws Throwable {
+        doReturn(false).when(mContext.getResources()).getBoolean(R.bool.show_alert_title);
+        startActivity();
+        waitForMs(100);
+        assertTrue(TextUtils.isEmpty(((TextView) getActivity().findViewById(
+                com.android.cellbroadcastreceiver.R.id.alertTitle)).getText()));
         stopActivity();
     }
 
@@ -220,6 +236,10 @@ public class CellBroadcastAlertDialogTest extends
     }
 
     public void testAddToNotification() throws Throwable {
+        doReturn(true).when(mContext.getResources()).getBoolean(R.bool.show_alert_title);
+        doReturn(false).when(mContext.getResources()).getBoolean(
+                R.bool.disable_capture_alert_dialog);
+
         startActivity();
         waitForMs(100);
         leaveActivity();
@@ -249,6 +269,25 @@ public class CellBroadcastAlertDialogTest extends
         field.set(null, null);
     }
 
+    public void testAddToNotificationWithDifferentConfiguration() throws Throwable {
+        doReturn(false).when(mContext.getResources()).getBoolean(R.bool.show_alert_title);
+        doReturn(true).when(mContext.getResources()).getBoolean(
+                R.bool.disable_capture_alert_dialog);
+
+        startActivity();
+        waitForMs(100);
+        leaveActivity();
+        waitForMs(100);
+        verify(mMockedNotificationManager, times(1)).notify(mInt.capture(),
+                mNotification.capture());
+        Bundle b = mNotification.getValue().extras;
+
+        assertEquals(1, (int) mInt.getValue());
+        assertTrue(TextUtils.isEmpty(b.getCharSequence(Notification.EXTRA_TITLE)));
+        verify(mContext.getResources(), times(1)).getString(mInt.capture(), anyInt());
+        assertEquals(R.string.notification_multiple, (int) mInt.getValue());
+    }
+
     public void testDoNotAddToNotificationOnStop() throws Throwable {
         startActivity();
         waitForMs(100);
@@ -256,6 +295,18 @@ public class CellBroadcastAlertDialogTest extends
         waitForMs(100);
         verify(mMockedNotificationManager, times(0)).notify(mInt.capture(),
                 mNotification.capture());
+    }
+
+    public void testDismissByDeleteIntent() throws Throwable {
+        final Intent intent = createActivityIntent();
+        intent.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, true);
+        intent.putExtra(CellBroadcastAlertDialog.DISMISS_NOTIFICATION_EXTRA, true);
+        Looper.prepare();
+        CellBroadcastAlertDialog activity =
+                startActivity(intent, null, null);
+        getInstrumentation().callActivityOnUserLeaving(activity);
+        verify(mMockedNotificationManager, atLeastOnce()).cancel(
+                eq(CellBroadcastAlertService.NOTIFICATION_ID));
     }
 
     public void testGetNewMessageListIfNeeded() throws Throwable {
@@ -542,5 +593,152 @@ public class CellBroadcastAlertDialogTest extends
         assertEquals(m.what + 2, activity.mPulsationHandler.mCount.get());
         assertFalse(activity.mPulsationHandler.mIsPulsationOn);
         verify(mMockLinearLayout, times(2)).setBackgroundColor(eq(backgroundColor));
+    }
+
+    private ArrayList<SmsCbMessage> getNewMessageList() throws Exception {
+        Method method = CellBroadcastReceiverApp.class.getDeclaredMethod("getNewMessageList");
+        method.setAccessible(true);
+        return (ArrayList<SmsCbMessage>) method.invoke(null);
+    }
+
+    private ArrayList<SmsCbMessage> addNewMessageToList(SmsCbMessage message) {
+        Class[] args = new Class[1];
+        args[0] = SmsCbMessage.class;
+        try {
+            Method method = CellBroadcastReceiverApp.class.getDeclaredMethod(
+                    "addNewMessageToList", args);
+            method.setAccessible(true);
+            return (ArrayList<SmsCbMessage>) method.invoke(null, message);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void testNewMessageListCount() throws Throwable {
+        SmsCbMessage testMessage1 = CellBroadcastAlertServiceTest
+                .createMessageForCmasMessageClass(75103,
+                        SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PRESIDENTIAL_LEVEL,
+                        mCmasMessageClass);
+        SmsCbMessage testMessage2 = CellBroadcastAlertServiceTest
+                .createMessageForCmasMessageClass(51030,
+                        SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
+                        mCmasMessageClass);
+        SmsCbMessage testMessage3 = CellBroadcastAlertServiceTest
+                .createMessageForCmasMessageClass(10307,
+                        SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
+                        mCmasMessageClass);
+
+        // touch a notification for on-going message
+        Intent intent1 = createActivityIntent();
+        intent1.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, false);
+        intent1.putExtra(CellBroadcastAlertDialog.DISMISS_NOTIFICATION_EXTRA, false);
+        addNewMessageToList(testMessage1);
+        Looper.prepare();
+        CellBroadcastAlertDialog activity = startActivity(intent1, null, null);
+        waitForMs(100);
+
+        assertEquals(1, getNewMessageList().size());
+
+        // touch a notification for pending message
+        Intent intent2 = createActivityIntent();
+        intent2.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, false);
+        intent2.putExtra(CellBroadcastAlertDialog.DISMISS_NOTIFICATION_EXTRA, true);
+        addNewMessageToList(testMessage2);
+        activity.onNewIntent(intent2);
+
+        assertEquals(2, getNewMessageList().size());
+
+        // swipe a notification for pending message
+        Intent intent3 = createActivityIntent();
+        intent3.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, true);
+        intent3.putExtra(CellBroadcastAlertDialog.DISMISS_NOTIFICATION_EXTRA, true);
+        addNewMessageToList(testMessage3);
+        activity.onNewIntent(intent3);
+
+        assertEquals(getNewMessageList().size(), 0);
+
+        // swipe a notification for on-going message
+        Intent intent4 = createActivityIntent();
+        intent4.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, true);
+        intent4.putExtra(CellBroadcastAlertDialog.DISMISS_NOTIFICATION_EXTRA, false);
+        addNewMessageToList(testMessage1);
+        activity.onNewIntent(intent4);
+
+        assertEquals(getNewMessageList().size(), 1);
+    }
+
+    private void setWatchUiMode() {
+        Configuration configuration = new Configuration(
+                mContext.getResources().getConfiguration());
+        configuration.uiMode =
+                (configuration.uiMode & ~Configuration.UI_MODE_TYPE_MASK)
+                | Configuration.UI_MODE_TYPE_WATCH;
+        mContext.enableOverrideConfiguration(true);
+        mContext = (TestContext) mContext.createConfigurationContext(configuration);
+        setActivityContext(mContext);
+    }
+
+    public void testOnConfigurationChangedForWatch() throws Throwable {
+        setWatchUiMode();
+        CellBroadcastAlertDialog activity = startActivity();
+
+        Configuration newConfig = new Configuration();
+        newConfig.orientation = Configuration.ORIENTATION_LANDSCAPE;
+        activity.onConfigurationChanged(newConfig);
+
+        newConfig.orientation = Configuration.ORIENTATION_PORTRAIT;
+        activity.onConfigurationChanged(newConfig);
+
+        assertNull(activity.findViewById(R.id.pictogramImage));
+    }
+
+    public void testOnCreate() throws Throwable {
+        doReturn(false).when(mContext.getResources()).getBoolean(
+                R.bool.disable_capture_alert_dialog);
+        CellBroadcastAlertDialog activity = startActivity();
+        int flags = activity.getWindow().getAttributes().flags;
+        assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE), 0);
+        stopActivity();
+    }
+
+    public void testOnCreateWithCaptureRestriction() throws Throwable {
+        doReturn(true).when(mContext.getResources()).getBoolean(
+                R.bool.disable_capture_alert_dialog);
+        CellBroadcastAlertDialog activity = startActivity();
+        int flags = activity.getWindow().getAttributes().flags;
+        assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE),
+                WindowManager.LayoutParams.FLAG_SECURE);
+        stopActivity();
+    }
+
+    public void testTitleOnNonDefaultSubId() throws Throwable {
+        Intent intent = createActivityIntent();
+        Looper.prepare();
+        CellBroadcastAlertDialog activity = startActivity(intent, null, null);
+        waitForMs(100);
+
+        assertFalse(TextUtils.isEmpty(((TextView) getActivity().findViewById(
+                com.android.cellbroadcastreceiver.R.id.alertTitle)).getText()));
+
+        SharedPreferences mockSharedPreferences = mock(SharedPreferences.class);
+        doReturn("334090").when(mockSharedPreferences).getString(any(), any());
+        mContext.injectSharedPreferences(mockSharedPreferences);
+        Resources mockResources2 = mock(Resources.class);
+        doReturn(false).when(mockResources2).getBoolean(R.bool.show_alert_title);
+
+        Field field = CellBroadcastSettings.class.getDeclaredField("sResourcesCacheByOperator");
+        field.setAccessible(true);
+        Map<String, Resources> roamingMap = (Map<String, Resources>) field.get(null);
+        roamingMap.put("334090", mockResources2);
+
+        mMessageList.add(CellBroadcastAlertServiceTest.createMessageForCmasMessageClass(12413,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY));
+        intent.putParcelableArrayListExtra(CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA,
+                new ArrayList<>(mMessageList));
+        activity.onNewIntent(intent);
+
+        assertTrue(TextUtils.isEmpty(((TextView) getActivity().findViewById(
+                com.android.cellbroadcastreceiver.R.id.alertTitle)).getText()));
     }
 }

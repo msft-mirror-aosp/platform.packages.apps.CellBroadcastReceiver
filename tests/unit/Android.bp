@@ -83,11 +83,24 @@ android_test {
 }
 
 android_test {
+    name: "CellBroadcastReceiverGoogleUnitTests",
+    certificate: "networkstack",
+    defaults: ["CellBroadcastTestCommon"],
+    instrumentation_for: "CellBroadcastApp",
+    test_suites: ["device-tests", "mts-cellbroadcast"],
+    manifest: "AndroidManifest.xml",
+    test_config: "AndroidTest_PixelExperience.xml",
+}
+
+android_test {
     name: "CellBroadcastReceiverPlatformUnitTests",
     certificate: "platform",
     defaults: ["CellBroadcastTestCommon"],
     instrumentation_for: "CellBroadcastAppPlatform",
     test_suites: ["device-tests"],
+    data: [
+        ":CellBroadcastReceiverUnitTests",
+    ],
 }
 
 // used to share src with unit test app
