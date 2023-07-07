@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.hardware.camera2.CameraAccessException;
@@ -184,17 +185,18 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
      * it to the default language. mTtsLanguageSupported will be updated based on the response.
      */
     private void setTtsLanguage() {
-        Locale locale;
+        Locale locale = null;
         if (!TextUtils.isEmpty(mMessageLanguage)) {
             locale = new Locale(mMessageLanguage);
-        } else {
+        }
+        if (locale == null || locale.getLanguage().equalsIgnoreCase(
+                Locale.getDefault().getLanguage())) {
             // If the cell broadcast message does not specify the language, use device's default
             // language.
             locale = Locale.getDefault();
         }
 
         if (DBG) log("Setting TTS language to '" + locale + '\'');
-
         int result = mTts.setLanguage(locale);
         if (DBG) log("TTS setLanguage() returned: " + result);
         mTtsLanguageSupported = (result >= TextToSpeech.LANG_AVAILABLE);
@@ -416,7 +418,7 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
             }
         }
 
-        if (mEnableAudio || mEnableVibrate) {
+        if ((mEnableAudio || mEnableVibrate) && (mAlertType != AlertType.MUTE)) {
             playAlertTone(mAlertType, mVibrationPattern);
         } else {
             if (DBG) log("No audio/vibrate playing. Stop CellBroadcastAlertAudio service");
@@ -540,7 +542,13 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
                         break;
                     case INFO:
                     case AREA:
-                        mMediaPlayer.setDataSource(this, Settings.System.DEFAULT_NOTIFICATION_URI);
+                        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                            //TODO(b/279183006): remove watch workaround when URI supported.
+                            setDataSourceFromResource(res, mMediaPlayer, R.raw.watch_info);
+                        } else {
+                            mMediaPlayer.setDataSource(this,
+                                    Settings.System.DEFAULT_NOTIFICATION_URI);
+                        }
                         break;
                     case TEST:
                     case DEFAULT:
