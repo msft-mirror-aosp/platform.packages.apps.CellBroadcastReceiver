@@ -50,6 +50,7 @@ import static org.mockito.Mockito.verify;
 import android.app.Fragment;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -74,6 +75,8 @@ import com.android.cellbroadcastreceiver.CellBroadcastCursorAdapter;
 import com.android.cellbroadcastreceiver.CellBroadcastListActivity;
 import com.android.cellbroadcastreceiver.CellBroadcastListItem;
 import com.android.cellbroadcastreceiver.R;
+import com.android.internal.view.menu.ContextMenuBuilder;
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -82,6 +85,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -98,6 +102,12 @@ public class CellBroadcastListActivityTest extends
 
     @Captor
     private ArgumentCaptor<String> mColumnCaptor;
+
+    private void setWatchFeatureEnabled(boolean enabled) {
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        doReturn(enabled).when(mockPackageManager).hasSystemFeature(PackageManager.FEATURE_WATCH);
+        mContext.injectPackageManager(mockPackageManager);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -130,6 +140,30 @@ public class CellBroadcastListActivityTest extends
         int flags = activity.getWindow().getAttributes().flags;
         assertEquals((flags & WindowManager.LayoutParams.FLAG_SECURE), 0);
         stopActivity();
+    }
+
+    public void testOnCreateForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+
+        CellBroadcastListActivity activity = startActivity();
+
+        Field customizeLayoutResIdField =
+                CollapsingToolbarBaseActivity.class.getDeclaredField("mCustomizeLayoutResId");
+        customizeLayoutResIdField.setAccessible(true);
+        assertTrue(customizeLayoutResIdField.getInt(activity) != 0);
+
+        assertNotNull(activity.findViewById(R.id.content_frame));
+        stopActivity();
+    }
+
+    public void testContextMenuForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+        CellBroadcastListActivity activity = startActivity();
+        ContextMenuBuilder contextMenu = new ContextMenuBuilder(mContext);
+
+        activity.mListFragment.getListView().createContextMenu(contextMenu);
+
+        assertNotNull(contextMenu.findItem(MENU_DELETE));
     }
 
     public void testOnCreateWithCaptureRestriction() throws Throwable {
@@ -216,6 +250,7 @@ public class CellBroadcastListActivityTest extends
         // create data with one entry so that the "no alert" text view is invisible
         activity.mListFragment.onLoadFinished(null, makeTestCursor());
         assertEquals(View.INVISIBLE, activity.findViewById(R.id.empty).getVisibility());
+        assertTrue(activity.findViewById(android.R.id.list).isLongClickable());
         stopActivity();
     }
 
@@ -228,6 +263,25 @@ public class CellBroadcastListActivityTest extends
                 new MatrixCursor(CellBroadcastListActivity.CursorLoaderListFragment.QUERY_COLUMNS);
         activity.mListFragment.onLoadFinished(null, data);
         assertEquals(View.VISIBLE, activity.findViewById(R.id.empty).getVisibility());
+        assertFalse(activity.findViewById(android.R.id.list).isLongClickable());
+        stopActivity();
+    }
+
+    public void testOnLoadFinishedEmptyToExistData() throws Throwable {
+        CellBroadcastListActivity activity = startActivity();
+        assertNotNull(activity.mListFragment);
+
+        // When the history changes from empty to exist,
+        // the ListView's LongClickable is from false to true.
+        Cursor data =
+                new MatrixCursor(CellBroadcastListActivity.CursorLoaderListFragment.QUERY_COLUMNS);
+        activity.mListFragment.onLoadFinished(null, data);
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.empty).getVisibility());
+        assertFalse(activity.findViewById(android.R.id.list).isLongClickable());
+
+        activity.mListFragment.onLoadFinished(null, makeTestCursor());
+        assertEquals(View.INVISIBLE, activity.findViewById(R.id.empty).getVisibility());
+        assertTrue(activity.findViewById(android.R.id.list).isLongClickable());
         stopActivity();
     }
 
@@ -266,6 +320,32 @@ public class CellBroadcastListActivityTest extends
                         CellBroadcastListActivity.CursorLoaderListFragment.KEY_DELETE_DIALOG));
 
         verify(mockCursor, atLeastOnce()).getColumnIndex(eq(Telephony.CellBroadcasts._ID));
+        stopActivity();
+    }
+
+    public void testOnContextItemSelectedDeleteForWatch() throws Throwable {
+        setWatchFeatureEnabled(true);
+        CellBroadcastListActivity activity = startActivity();
+        Cursor mockCursor = mock(Cursor.class);
+        doReturn(0).when(mockCursor).getPosition();
+        doReturn(10L).when(mockCursor).getLong(anyInt());
+        activity.mListFragment.mAdapter.swapCursor(mockCursor);
+        MenuItem mockMenuItem = mock(MenuItem.class);
+        doReturn(MENU_DELETE).when(mockMenuItem).getItemId();
+        activity.mListFragment.getListView().setSelection(1);
+
+        activity.mListFragment.onContextItemSelected(mockMenuItem);
+        waitForHandlerAction(Handler.getMain(), TEST_TIMEOUT_MILLIS);
+
+
+        Fragment frag = activity.mListFragment.getFragmentManager().findFragmentByTag(
+                CellBroadcastListActivity.CursorLoaderListFragment.KEY_DELETE_DIALOG);
+        assertNotNull("onContextItemSelected - MENU_DELETE should create alert dialog",
+                frag);
+        long[] rowId = frag.getArguments().getLongArray(
+                CellBroadcastListActivity.CursorLoaderListFragment.DeleteDialogFragment.ROW_ID);
+        long[] expectedResult = {10L};
+        assertTrue(Arrays.equals(expectedResult, rowId));
         stopActivity();
     }
 
