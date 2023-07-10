@@ -34,7 +34,6 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.SubscriptionManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -387,25 +386,6 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                         findPreference(KEY_CATEGORY_EMERGENCY_ALERTS);
             }
             mTopIntroPreference = findPreference(KEY_PREFS_TOP_INTRO);
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View root = super.onCreateView(inflater, container, savedInstanceState);
-            PackageManager pm = getActivity().getPackageManager();
-            if (pm != null
-                    && pm.hasSystemFeature(
-                    PackageManager.FEATURE_WATCH)) {
-                ViewGroup.LayoutParams layoutParams = getListView().getLayoutParams();
-                if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
-                    int topMarginInPixel = (int) getResources().getDimension(
-                            R.dimen.pref_top_margin);
-                    ((ViewGroup.MarginLayoutParams) layoutParams).topMargin = topMarginInPixel;
-                    getListView().setLayoutParams(layoutParams);
-                }
-            }
-            return root;
         }
 
         @Override
