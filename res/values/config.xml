@@ -188,6 +188,8 @@
     <string-array name="cmas_roaming_network_strings" translatable="false">
         <!-- France -->
         <item>208</item>
+        <!-- Denmark -->
+        <item>238</item>
         <!-- Qatar -->
         <item>427</item>
         <!-- Germany -->
@@ -196,6 +198,10 @@
         <item>242</item>
         <!-- Italy -->
         <item>222</item>
+        <!-- Austria -->
+        <item>232</item>
+        <!-- Brazil -->
+        <item>724</item>
     </string-array>
 
     <!-- Values that are retrieved from the ListPreference.
