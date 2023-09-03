@@ -26,4 +26,6 @@
     <string name="enable_cmas_test_alerts_summary" msgid="5713628754819156297">"Recebimento de alertas de testes das autoridades competentes"</string>
     <string name="enable_exercise_test_alerts_title" msgid="1926178722994782168">"Alerta de teste técnico"</string>
     <string name="enable_exercise_test_alerts_summary" msgid="2009461083781266766">"Recebimento de alertas de testes técnicos"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="3095141156358640879">"Alerta Extremo"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="6931853411327178941">"Ameaças extremas à vida ou à propriedade"</string>
 </resources>
