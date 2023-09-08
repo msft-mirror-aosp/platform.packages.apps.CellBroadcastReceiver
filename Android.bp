@@ -32,6 +32,8 @@ java_defaults {
         "SettingsLibTopIntroPreference",
         "modules-utils-build_system",
         "cellbroadcast-java-proto-lite",
+	"wearmaterial-preference",
+        "wearmaterial-theme",
     ],
     optimize: {
         shrink_resources: true,

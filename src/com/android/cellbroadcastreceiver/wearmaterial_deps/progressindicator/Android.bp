@@ -1,0 +1,21 @@
+package {
+    default_applicable_licenses: ["wear_os_application_license"],
+}
+
+android_library {
+    java_version: "1.8",
+    name: "wearmaterial-progressindicator",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    srcs: ["*.java"],
+    static_libs: [
+        "wearmaterial-animations",
+        "wearmaterial-color",
+        "wearmaterial-textappearance",
+        "wearmaterial-util",
+        "androidx.core_core",
+        "checker-qual",
+    ],
+}

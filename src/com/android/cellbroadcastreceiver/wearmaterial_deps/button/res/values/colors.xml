@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Default color of attr/colorSurface -->
+  <color name="wear_material_button_default_active">?attr/colorSurface</color>
+  <!-- Default color of attr/colorSurface -->
+  <color name="wear_material_button_default_inactive">?attr/colorSurface</color>
+  <color name="wear_material_button_control_container_translucent_background">#1AFFFFFF</color>
+  <color name="wear_chip_button_placeholder_skeleton">#0AFFFFFF</color>
+</resources>

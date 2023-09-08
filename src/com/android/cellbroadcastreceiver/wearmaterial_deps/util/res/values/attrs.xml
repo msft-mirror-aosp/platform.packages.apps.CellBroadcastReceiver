@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="BlendDrawable">
+    <attr name="android:drawable"/>
+
+    <!--
+    Determines how the BlendDrawable blends the provided drawable with the content
+    of a View's.
+    -->
+    <attr name="blendMode" format="enum">
+      <!--
+      Don't blend.
+      Just draw the provided drawable over the content.
+      This mode has no performance impact.
+      -->
+      <enum name="none" value="0"/>
+
+      <!--
+      Blend the color and alpha channels of the provided drawable onto the
+      visible parts of the content.
+      This mode may have some performance impact.
+      -->
+      <enum name="color" value="1"/>
+
+      <!--
+      Blend only the alpha channel of the provided drawable onto the visible parts
+      of the content. This has an effect of 'rubbing-out'/fading the content.
+      This mode may have some performance impact.
+      -->
+      <enum name="alpha" value="2"/>
+    </attr>
+  </declare-styleable>
+</resources>

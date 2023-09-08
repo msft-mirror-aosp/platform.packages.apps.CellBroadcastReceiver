@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="FullscreenSliderStyle" parent="Widget.TextView.WearMaterial.Button1">
+    <item name="android:textColor">@color/wear_material_system_white</item>
+  </style>
+
+  <style name="Widget.FullscreenSlider.Default" parent="android:Widget">
+    <item name="allowLongPress">true</item>
+    <item name="decrementDrawable">@drawable/ic_wear_material_subtract</item>
+    <item name="incrementDrawable">@drawable/ic_wear_material_add</item>
+  </style>
+
+  <style name="Widget.InlineSlider.Default" parent="android:Widget">
+    <item name="android:background">@drawable/wear_chip_button_background_solid</item>
+    <item name="android:backgroundTint">?attr/colorSurface</item>
+    <item name="allowLongPress">true</item>
+    <item name="baseBarColor">@color/wear_material_gray_900</item>
+    <item name="decrementDrawable">@drawable/ic_wear_material_subtract</item>
+    <item name="filledBarColor">?attr/colorSecondary</item>
+    <item name="incrementDrawable">@drawable/ic_wear_material_add</item>
+    <item name="separatorColor">?attr/colorBackground</item>
+    <item name="showIncrementSeparators">true</item>
+  </style>
+
+  <style name="Widget.GM3.InlineSlider" parent="Widget.InlineSlider.Default">
+    <item name="android:background">@drawable/wear_chip_button_background_solid</item>
+    <item name="android:backgroundTint">?attr/colorSurfaceVariant</item>
+    <item name="filledBarColor">?attr/colorTertiary</item>
+  </style>
+</resources>

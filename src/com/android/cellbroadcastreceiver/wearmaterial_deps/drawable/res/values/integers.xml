@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <integer name="wear_button_gradient_angle">135</integer>
+  <integer name="wear_button_gradient_angle_rtl">45</integer>
+  <integer name="wear_card_gradient_angle">315</integer>
+</resources>

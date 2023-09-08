@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <integer name="progress_indicator_rotation_anim_offset_ms">83</integer>
+  <integer name="progress_indicator_rotation_anim_duration_ms">1333</integer>
+  <integer name="progress_indicator_start_anim_offset_ms">583</integer>
+  <integer name="progress_indicator_start_anim_duration_ms">917</integer>
+  <integer name="progress_indicator_end_anim_offset_ms">0</integer>
+  <integer name="progress_indicator_end_anim_duration_ms">917</integer>
+  <integer name="progress_indicator_anim_pause_duration_ms">500</integer>
+  <integer name="progress_indicator_incremental_anim_duration">100</integer>
+</resources>

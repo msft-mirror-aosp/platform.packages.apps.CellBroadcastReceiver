@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+
+  <declare-styleable name="WearDialogPreference">
+    <attr name="positiveIcon" format="reference" />
+    <attr name="negativeIcon" format="reference" />
+  </declare-styleable>
+
+  <declare-styleable name="WearInlineSliderPreference">
+    <attr name="preferenceSliderMinValue" format="float" />
+    <attr name="preferenceSliderMaxValue" format="float" />
+    <attr name="preferenceSliderIncrement" format="float" />
+    <attr name="preferenceSliderIncrementSeparators" format="boolean" />
+    <attr name="preferenceSliderShowMinimumIncrement" format="boolean" />
+  </declare-styleable>
+
+  <declare-styleable name="WearPreferenceTheme">
+    <attr name="inlineSliderPreferenceStyle" format="reference"/>
+    <attr name="preferenceTitleTextColor" format="color"/>
+  </declare-styleable>
+
+  <declare-styleable name="WearListPreference">
+    <attr name="dismissDialogOnClick" format="boolean" />
+  </declare-styleable>
+</resources>

@@ -1,0 +1,44 @@
+apply plugin: "com.android.library"
+
+dependencies {
+    implementation "androidx.activity:activity:$rootProject.ext.version_androidx_activity"
+    implementation "androidx.annotation:annotation:$rootProject.ext.version_androidx_annotation"
+    implementation "androidx.constraintlayout:constraintlayout:$rootProject.ext.version_androidx_constraintlayout"
+    implementation "androidx.core:core:$rootProject.ext.version_androidx_core"
+    implementation "androidx.recyclerview:recyclerview:$rootProject.ext.version_androidx_recyclerview"
+    implementation "com.google.guava:guava:$rootProject.ext.version_guava"
+    implementation "org.checkerframework:checker-qual:$rootProject.ext.version_checker_qual"
+
+    implementation project(":common:wearable:wearmaterial:animations")
+    implementation project(":common:wearable:wearmaterial:button")
+    implementation project(":common:wearable:wearmaterial:color")
+    implementation project(":common:wearable:wearmaterial:list")
+    implementation project(":common:wearable:wearmaterial:progressindicator")
+    implementation project(":common:wearable:wearmaterial:textappearance")
+}
+
+android {
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["."]
+            res.srcDirs = ["res"]
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+idea.module.settings {
+    for (String path: rootProject.ext.default_packagePrefix_dirs) {
+        packagePrefix[path] = "${rootProject.ext.commonPackage}.wearable.wearmaterial.${file(".").name}"
+    }
+}

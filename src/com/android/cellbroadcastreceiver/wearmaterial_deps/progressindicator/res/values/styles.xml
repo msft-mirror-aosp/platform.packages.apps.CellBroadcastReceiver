@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="WearProgressSpinnerIndicatorDefault" parent="android:Widget">
+    <item name="android:theme">@style/ThemeOverlay.WearProgressSpinnerIndicatorDefault</item>
+  </style>
+
+  <style name="WearProgressSpinnerIndicatorDrawable" parent="android:Widget">
+    <item name="spinnerTrackColor">@color/wear_progress_spinner_indicator_spinner_track_color</item>
+    <item name="spinnerProgressColor">@color/wear_progress_spinner_indicator_spinner_progress_color</item>
+    <item name="spinnerTrackWidth">@dimen/wear_progress_indicator_spinner_track_width</item>
+    <item name="spinnerStartAngle">0</item>
+  </style>
+</resources>

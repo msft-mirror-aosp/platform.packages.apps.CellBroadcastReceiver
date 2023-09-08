@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+  <objectAnimator
+      android:duration="@integer/wear_picker_show_duration_ms"
+      android:interpolator="@android:anim/decelerate_interpolator"
+      android:propertyName="vignetteAlpha"
+      android:valueTo="0"
+      android:valueType="intType" />
+</set>

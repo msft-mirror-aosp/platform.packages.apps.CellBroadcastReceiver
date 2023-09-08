@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr name="wearPageIndicator" format="reference" />
+
+  <declare-styleable name="WearPageIndicator">
+    <attr name="margin" format="dimension"/>
+    <attr name="radius" format="dimension"/>
+    <attr name="selectedAlpha" format="float"/>
+    <attr name="unselectedAlpha" format="float"/>
+  </declare-styleable>
+</resources>

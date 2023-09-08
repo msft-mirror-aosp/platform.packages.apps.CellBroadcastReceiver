@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="PrimaryTextAppearanceWearButton" parent="TextAppearance.WearMaterial.Button1">
+    <item name="android:textColor">@color/wear_button_text_stateful</item>
+  </style>
+
+  <style name="SecondaryTextAppearanceWearButton" parent="TextAppearance.WearMaterial.Caption1">
+    <item name="android:textColor">@color/wear_button_secondary_text_stateful</item>
+  </style>
+
+  <style name="PrimaryTextAppearanceWearButtonSmall" parent="SecondaryTextAppearanceWearButton">
+    <item name="android:textSize">@dimen/wear_material_default_text_size_caption1_dp</item>
+  </style>
+
+  <style name="WearButtonDefault" parent="android:Widget">
+    <item name="buttonBackgroundColor">?attr/colorSurface</item>
+    <item name="wear_icon_size">@dimen/wear_chip_button_icon_size</item>
+    <item name="cornerRadius">@dimen/wear_button_corner_radius</item>
+    <item name="toggleOnClick">true</item>
+    <item name="android:checkable">false</item>
+    <item name="android:enabled">true</item>
+    <item name="android:clickable">true</item>
+    <item name="android:foreground">?attr/wearSelectableItemBackground</item>
+  </style>
+
+  <style name="WearCircularButtonDefault" parent="WearButtonDefault">
+    <item name="android:background">@drawable/wear_image_button_background</item>
+    <item name="buttonBackgroundColor">@color/wear_circular_button_background</item>
+    <item name="buttonIconTint">@color/wear_circular_button_icon</item>
+  </style>
+
+  <style name="WearCircularButtonSecondary" parent="WearCircularButtonDefault">
+    <item name="android:background">@drawable/wear_image_button_transparent</item>
+  </style>
+
+  <style name="WearCircularButtonStroked" parent="WearCircularButtonDefault">
+    <item name="android:background">@drawable/wear_image_button_stroked_background</item>
+    <item name="buttonBackgroundColor">?attr/colorPrimaryVariant</item>
+  </style>
+
+  <style name="WearChipButtonDefault" parent="WearButtonDefault">
+    <item name="android:minWidth">@dimen/wear_chip_button_default_min_width</item>
+    <item name="android:minHeight">@dimen/wear_chip_button_default_min_height</item>
+    <item name="android:background">@drawable/wear_chip_button_background_solid</item>
+    <item name="primaryTextAppearance">@style/PrimaryTextAppearanceWearButton</item>
+    <item name="secondaryTextAppearance">@style/SecondaryTextAppearanceWearButton</item>
+    <item name="controlType">none</item>
+    <item name="layoutStrategy">?attr/wearChipButtonDefaultLayoutStrategy</item>
+  </style>
+
+  <style name="WearChipButtonStroked" parent="WearChipButtonDefault">
+    <item name="android:background">@drawable/wear_chip_button_stroked_background</item>
+    <item name="buttonBackgroundColor">?attr/colorPrimaryVariant</item>
+  </style>
+
+  <style name="WearChipButtonTransparent" parent="WearChipButtonDefault">
+    <item name="android:background">@drawable/wear_chip_button_transparent</item>
+  </style>
+
+  <style name="WearChipButtonAccent" parent="WearChipButtonDefault">
+    <item name="android:background">@drawable/wear_chip_button_accented_background</item>
+    <item name="buttonBackgroundColor">?attr/colorPrimary</item>
+  </style>
+
+  <style name="WearChipButtonAvatar" parent="WearChipButtonDefault">
+    <item name="wear_icon_size">@dimen/wear_chip_button_avatar_size</item>
+    <item name="iconOnlyPadding">@dimen/wear_button_start_padding_avatar</item>
+    <item name="iconAndTextPadding">@dimen/wear_button_start_padding_avatar</item>
+  </style>
+
+  <style name="WearChipButtonAccent.Checkable">
+    <item name="buttonBackgroundColor">@color/wear_chip_button_checkable_background</item>
+    <item name="android:checkable">true</item>
+  </style>
+
+  <style name="WearChipButtonSmall" parent="WearChipButtonDefault">
+    <item name="android:minWidth">0dp</item>
+    <item name="android:minHeight">0dp</item>
+    <item name="android:maxHeight">@dimen/wear_chip_button_mini_height</item>
+    <item name="android:maxWidth">@dimen/wear_chip_button_mini_width</item>
+    <item name="secondaryTextEnabled">false</item>
+    <item name="wear_icon_size">@dimen/wear_chip_button_mini_icon_size</item>
+    <item name="iconOnlyPadding">@dimen/wear_chip_button_mini_padding</item>
+    <item name="primaryTextAppearance">@style/PrimaryTextAppearanceWearButtonSmall</item>
+    <item name="primaryTextMaxLines">1</item>
+  </style>
+
+  <!--
+  TODO(b/217216868): The three UnboundRipple styles are here for apps
+  built only from Google3. AndroidX/JetPack cannot yet correctly render these
+  background drawables assigned to these three styles.
+  After b/217216868 is fixed, these three styles should be deprecated.
+  -->
+  <style name="WearCircularButtonDefault.UnboundRipple">
+    <item name="android:background">@drawable/wear_image_button_background_unbound_ripple</item>
+    <item name="android:foreground">@null</item>
+  </style>
+
+  <style name="WearCircularButtonSecondary.UnboundRipple" parent="WearCircularButtonDefault.UnboundRipple">
+    <item name="android:background">@drawable/wear_image_button_transparent_unbound_ripple</item>
+  </style>
+
+  <style name="WearCircularButtonStroked.UnboundRipple" parent="WearCircularButtonDefault.UnboundRipple">
+    <item name="android:background">@drawable/wear_image_button_stroked_background_unbound_ripple</item>
+  </style>
+</resources>

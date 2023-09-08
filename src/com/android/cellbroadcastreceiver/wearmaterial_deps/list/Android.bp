@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Google Wearable OS & Application License"],
+}
+
+android_library {
+    java_version: "1.8",
+    name: "wearmaterial-list",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    srcs: ["*.java"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.core_core",
+        "checker-qual",
+        "wearmaterial-animations",
+        "wearmaterial-color",
+        "wearmaterial-drawable",
+        "wearmaterial-rotaryinput",
+        "wearmaterial-rotarymotioneventprocessor",
+        "wearmaterial-util",
+    ],
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="WearAlertDialogButtonPositiveStyle" parent="WearCircularButtonDefault">
+    <item name="buttonBackgroundColor">?attr/colorPrimary</item>
+    <item name="buttonIconTint">?attr/colorOnPrimary</item>
+    <item name="primaryTextColor">?attr/colorBackground</item>
+  </style>
+
+  <style name="WearAlertDialogButtonNegativeStyle" parent="WearCircularButtonDefault">
+    <item name="buttonBackgroundColor">?attr/colorSurface</item>
+    <item name="buttonIconTint">?attr/colorOnSurface</item>
+    <item name="primaryTextColor">?attr/colorOnSurface</item>
+  </style>
+
+  <!--
+  TODO(b/217216868): These two UnboundRipple styles are here for apps
+  built only from Google3. AndroidX/JetPack cannot yet correctly render these
+  background drawables assigned to these styles.
+  After b/217216868 is fixed, these styles should be deprecated.
+  -->
+  <style name="WearAlertDialogButtonPositiveStyle.UnboundRipple" parent="WearCircularButtonDefault.UnboundRipple">
+    <item name="buttonBackgroundColor">?attr/colorPrimary</item>
+    <item name="buttonIconTint">?attr/colorOnPrimary</item>
+    <item name="primaryTextColor">?attr/colorBackground</item>
+  </style>
+
+  <style name="WearAlertDialogButtonNegativeStyle.UnboundRipple" parent="WearCircularButtonDefault.UnboundRipple">
+    <item name="buttonBackgroundColor">?attr/colorSurface</item>
+    <item name="buttonIconTint">?attr/colorPrimaryVariant</item>
+    <item name="primaryTextColor">?attr/colorOnSurface</item>
+  </style>
+</resources>

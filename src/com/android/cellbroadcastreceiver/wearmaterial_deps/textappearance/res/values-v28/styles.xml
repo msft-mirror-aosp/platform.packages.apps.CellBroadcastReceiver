@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- TextView styles for use with specific text appearances -->
+  <style name="Widget.TextView.WearMaterial.Display1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearDisplay1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearDisplay1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearDisplay1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display1.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display1.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearDisplay1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearDisplay1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearDisplay1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearDisplay2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearDisplay2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearDisplay2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display2.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display2.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearDisplay2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearDisplay2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearDisplay2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearDisplay3</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearDisplay3</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearDisplay3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display3.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display3.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearDisplay3</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearDisplay3</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearDisplay3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display4</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearDisplay4</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearDisplay4</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearDisplay4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display4.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display4.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearDisplay4</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearDisplay4</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearDisplay4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearTitle1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearTitle1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearTitle1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title1.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title1.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearTitle1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearTitle1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearTitle1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearTitle2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearTitle2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearTitle2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title2.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title2.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearTitle2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearTitle2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearTitle2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearTitle3</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearTitle3</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearTitle3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title3.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title3.NonScalable</item>
+    <item name="android:lineHeight">?attr/lineHeightNonScalableWearTitle3</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopNonScalableWearTitle3</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomNonScalableWearTitle3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearBody1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearBody1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearBody1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearBody2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearBody2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearBody2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearBody3</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearBody3</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearBody3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body4</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearBody4</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearBody4</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearBody4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Button" parent="Widget.TextView.WearMaterial.Button2" />
+
+  <style name="Widget.TextView.WearMaterial.Button1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Button1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearButton1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearButton1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearButton1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Button2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Button2</item>
+    <item name="android:textSize">?attr/textSizeWearButton2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearButton2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearButton2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearButton2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Caption1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Caption1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearCaption1</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearCaption1</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearCaption1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Caption2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Caption2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearCaption2</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearCaption2</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearCaption2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Caption3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Caption3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">?attr/lineHeightWearCaption3</item>
+    <item name="android:firstBaselineToTopHeight">?attr/baselineToTopWearCaption3</item>
+    <item name="android:lastBaselineToBottomHeight">?attr/baselineToBottomWearCaption3</item>
+  </style>
+
+
+  <!-- "Static" styles do not use attributes from the current theme, and exist for compatibility reasons. -->
+  <style name="Widget.TextView.WearMaterial.Static.Display1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display1</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display1</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display1.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display1.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display1_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display1_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display1_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display2</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display2</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display2.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display2.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display2_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display2_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display2_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display3</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display3</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display3.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display3.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display3_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display3_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display3_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display4</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display4</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display4</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display4.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display4.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_display4_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_display4_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_display4_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_title1</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_title1</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_title1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title1.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title1.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_title1_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_title1_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_title1_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_title2</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_title2</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_title2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title2.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title2.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_title2_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_title2_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_title2_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_title3</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_title3</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_title3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title3.NonScalable">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title3.NonScalable</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_title3_dp</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_title3_dp</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_title3_dp</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_body1</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_body1</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_body1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_body2</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_body2</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_body2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_body3</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_body3</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_body3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body4</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_body4</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_body4</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_body4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Button" parent="Widget.TextView.WearMaterial.Static.Button2" />
+
+  <style name="Widget.TextView.WearMaterial.Static.Button1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Button1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_button1</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_button1</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_button1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Button2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Button2</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_button2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_button2</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_button2</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_button2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Caption1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Caption1</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_caption1</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_caption1</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_caption1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Caption2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Caption2</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_caption2</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_caption2</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_caption2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Caption3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Caption3</item>
+    <item name="android:includeFontPadding">false</item>
+    <item name="android:lineHeight">@dimen/wear_material_line_height_caption3</item>
+    <item name="android:firstBaselineToTopHeight">@dimen/wear_material_baseline_to_top_caption3</item>
+    <item name="android:lastBaselineToBottomHeight">@dimen/wear_material_baseline_to_bottom_caption3</item>
+  </style>
+</resources>

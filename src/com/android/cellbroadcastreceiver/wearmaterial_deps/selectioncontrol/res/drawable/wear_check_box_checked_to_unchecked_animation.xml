@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_wear_check_box_checked">
+  <target android:name="check_mark">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@integer/wear_selection_default_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_incoming_80"
+            android:propertyName="fillColor"
+            android:valueFrom="?attr/wearSelectionColorSelected"
+            android:valueTo="?attr/wearSelectionColorUnselected"
+            android:valueType="colorType" />
+      </set>
+    </aapt:attr>
+  </target>
+  <target android:name="check_mark_clip">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@integer/wear_selection_default_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_incoming_80"
+            android:propertyName="pathData"
+            android:valueFrom="M 3 2 h12 v14 h-12 Z"
+            android:valueTo="M 16 2 h0 v14 h0 Z"
+            android:valueType="pathType" />
+      </set>
+    </aapt:attr>
+  </target>
+  <target android:name="outer_box">
+    <aapt:attr name="android:animation">
+      <objectAnimator
+          android:duration="@integer/wear_selection_default_anim_duration_ms"
+          android:interpolator="@anim/wear_selection_easing_incoming_80"
+          android:propertyName="fillColor"
+          android:valueFrom="?attr/wearSelectionColorSelected"
+          android:valueTo="?attr/wearSelectionColorUnselected"
+          android:valueType="colorType" />
+    </aapt:attr>
+  </target>
+</animated-vector>

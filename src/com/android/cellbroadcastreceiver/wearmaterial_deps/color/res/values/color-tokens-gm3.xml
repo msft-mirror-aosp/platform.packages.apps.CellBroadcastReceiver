@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- GM3 color constants, used with the static color theme. -->
+  <color name="wear_material3_default_colorPrimary">@color/wear_material3_default_accent1_100</color>
+  <color name="wear_material3_default_colorOnPrimary">@color/wear_material3_default_accent1_900</color>
+  <color name="wear_material3_default_colorPrimaryVariant">@color/wear_material3_default_accent1_300</color>
+  <color name="wear_material3_default_colorSecondary">@color/wear_material3_default_accent2_100</color>
+  <color name="wear_material3_default_colorOnSecondary">@color/wear_material3_default_accent2_900</color>
+  <color name="wear_material3_default_colorSecondaryVariant">@color/wear_material3_default_accent2_300</color>
+  <color name="wear_material3_default_colorTertiary">@color/wear_material3_default_accent3_100</color>
+  <color name="wear_material3_default_colorOnTertiary">@color/wear_material3_default_accent3_900</color>
+  <color name="wear_material3_default_colorTertiaryVariant">@color/wear_material3_default_accent3_300</color>
+  <color name="wear_material3_default_colorSurface">@color/wear_material3_default_neutral1_800</color>
+  <color name="wear_material3_default_colorOnSurface">@color/wear_material3_default_neutral1_20</color>
+  <color name="wear_material3_default_colorWearSurfaceHighlight">@color/wear_material3_default_neutral1_700</color>
+  <color name="wear_material3_default_colorWearOnSurfaceSecondary">@color/wear_material3_default_neutral1_200</color>
+  <color name="wear_material3_default_colorSurfaceVariant">@color/wear_material3_default_neutral2_800</color>
+  <color name="wear_material3_default_colorOnSurfaceVariant">@color/wear_material3_default_neutral2_20</color>
+  <color name="wear_material3_default_colorWearSurfaceVariantHighlight">@color/wear_material3_default_neutral2_700</color>
+  <color name="wear_material3_default_colorWearOnSurfaceVariantSecondary">@color/wear_material3_default_neutral2_200</color>
+  <color name="wear_material3_default_colorBackground">#000000</color>
+  <color name="wear_material3_default_colorOnBackgroundWear">#FFFFFF</color>
+  <color name="wear_material3_default_colorWearError">@color/wear_material_system_red</color>
+  <color name="wear_material3_default_colorOnWearError">@color/wear_material_system_red_dark</color>
+  <color name="wear_material3_default_colorOutline">@color/wear_material3_default_neutral2_400</color>
+
+  <!-- GM3 color constants, for Material You. -->
+  <color name="wear_material3_dynamic_colorPrimary">@color/wear_material3_dynamic_accent1_100</color>
+  <color name="wear_material3_dynamic_colorOnPrimary">@color/wear_material3_dynamic_accent1_900</color>
+  <color name="wear_material3_dynamic_colorPrimaryVariant">@color/wear_material3_dynamic_accent1_300</color>
+  <color name="wear_material3_dynamic_colorSecondary">@color/wear_material3_dynamic_accent2_100</color>
+  <color name="wear_material3_dynamic_colorOnSecondary">@color/wear_material3_dynamic_accent2_900</color>
+  <color name="wear_material3_dynamic_colorSecondaryVariant">@color/wear_material3_dynamic_accent2_300</color>
+  <color name="wear_material3_dynamic_colorTertiary">@color/wear_material3_dynamic_accent3_100</color>
+  <color name="wear_material3_dynamic_colorOnTertiary">@color/wear_material3_dynamic_accent3_900</color>
+  <color name="wear_material3_dynamic_colorTertiaryVariant">@color/wear_material3_dynamic_accent3_300</color>
+  <color name="wear_material3_dynamic_colorSurface">@color/wear_material3_dynamic_neutral1_800</color>
+  <color name="wear_material3_dynamic_colorOnSurface">@color/wear_material3_dynamic_neutral1_20</color>
+  <color name="wear_material3_dynamic_colorWearSurfaceHighlight">@color/wear_material3_dynamic_neutral1_700</color>
+  <color name="wear_material3_dynamic_colorWearOnSurfaceSecondary">@color/wear_material3_dynamic_neutral1_200</color>
+  <color name="wear_material3_dynamic_colorSurfaceVariant">@color/wear_material3_dynamic_neutral2_800</color>
+  <color name="wear_material3_dynamic_colorOnSurfaceVariant">@color/wear_material3_dynamic_neutral2_20</color>
+  <color name="wear_material3_dynamic_colorWearSurfaceVariantHighlight">@color/wear_material3_dynamic_neutral2_700</color>
+  <color name="wear_material3_dynamic_colorWearOnSurfaceVariantSecondary">@color/wear_material3_dynamic_neutral2_200</color>
+  <color name="wear_material3_dynamic_colorBackground">#000000</color>
+  <color name="wear_material3_dynamic_colorOnBackgroundWear">#FFFFFF</color>
+  <color name="wear_material3_dynamic_colorWearError">@color/wear_material_system_red</color>
+  <color name="wear_material3_dynamic_colorOnWearError">@color/wear_material_system_red_dark</color>
+  <color name="wear_material3_dynamic_colorOutline">@color/wear_material3_dynamic_neutral2_400</color>
+</resources>

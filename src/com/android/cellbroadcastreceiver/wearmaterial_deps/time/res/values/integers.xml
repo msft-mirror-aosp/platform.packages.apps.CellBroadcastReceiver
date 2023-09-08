@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <integer name="wear_time_text_label_max_degrees">90</integer>
+</resources>

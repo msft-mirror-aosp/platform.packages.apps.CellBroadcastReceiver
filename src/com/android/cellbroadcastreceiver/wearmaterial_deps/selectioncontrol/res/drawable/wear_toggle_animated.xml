@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedIds">
+  <item
+      android:id="@+id/wear_toggle_on"
+      android:drawable="@drawable/ic_wear_toggle_on"
+      android:state_checked="true"
+      android:state_enabled="true"/>
+  <item
+      android:id="@+id/wear_toggle_off"
+      android:drawable="@drawable/ic_wear_toggle_off"
+      android:state_checked="false"
+      android:state_enabled="true"/>
+  <item
+      android:id="@+id/wear_toggle_on_disabled"
+      android:drawable="@drawable/ic_wear_toggle_on"
+      android:state_checked="true"
+      android:state_enabled="false"/>
+  <item
+      android:id="@+id/wear_toggle_off_disabled"
+      android:drawable="@drawable/ic_wear_toggle_off"
+      android:state_checked="false"
+      android:state_enabled="false"/>
+  <transition
+      android:drawable="@drawable/wear_toggle_off_to_on_animation"
+      android:fromId="@id/wear_toggle_off"
+      android:toId="@id/wear_toggle_on" />
+  <transition
+      android:drawable="@drawable/wear_toggle_on_to_off_animation"
+      android:fromId="@id/wear_toggle_on"
+      android:toId="@id/wear_toggle_off" />
+  <transition
+      android:drawable="@drawable/wear_toggle_disabled_off_to_on_animation"
+      android:fromId="@id/wear_toggle_off_disabled"
+      android:toId="@id/wear_toggle_on_disabled" />
+  <transition
+      android:drawable="@drawable/wear_toggle_disabled_on_to_off_animation"
+      android:fromId="@id/wear_toggle_on_disabled"
+      android:toId="@id/wear_toggle_off_disabled" />
+</animated-selector>

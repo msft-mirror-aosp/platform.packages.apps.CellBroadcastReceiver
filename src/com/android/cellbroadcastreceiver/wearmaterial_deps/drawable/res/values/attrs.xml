@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--
+    Refers to a drawable that indicates a selectable item.
+    By default it refers to a bound ripple drawable with a color-state-list.
+  -->
+  <attr name="wearSelectableItemBackground" format="reference" />
+
+  <!--
+    Refers to a drawable that indicates a selectable borderless item.
+    By default it refers to an unbound ripple drawable with a color-state-list.
+  -->
+  <attr name="wearSelectableItemBackgroundBorderless" format="reference" />
+</resources>

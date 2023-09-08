@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_wear_radio_button_on">
+  <target android:name="inner_circle">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@integer/wear_selection_default_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_incoming_80"
+            android:propertyName="fillColor"
+            android:valueFrom="?attr/wearSelectionDisabledColorUnselected"
+            android:valueTo="?attr/wearSelectionDisabledColorSelected"
+            android:valueType="colorType" />
+      </set>
+    </aapt:attr>
+  </target>
+  <target android:name="inner_circle_group">
+    <aapt:attr name="android:animation">
+      <set>
+      <objectAnimator
+          android:duration="@integer/wear_radio_button_size_anim_duration_ms"
+          android:propertyName="scaleX"
+          android:valueFrom="0.0"
+          android:valueTo="1.0"
+          android:valueType="floatType"/>
+      <objectAnimator
+          android:duration="@integer/wear_radio_button_size_anim_duration_ms"
+          android:propertyName="scaleY"
+          android:valueFrom="0.0"
+          android:valueTo="1.0"
+          android:valueType="floatType"/>
+      </set>
+    </aapt:attr>
+  </target>
+  <target android:name="outer_circle">
+    <aapt:attr name="android:animation">
+      <objectAnimator
+          android:duration="@integer/wear_selection_default_anim_duration_ms"
+          android:interpolator="@anim/wear_selection_easing_incoming_80"
+          android:propertyName="fillColor"
+          android:valueFrom="?attr/wearSelectionDisabledColorUnselected"
+          android:valueTo="?attr/wearSelectionDisabledColorSelected"
+          android:valueType="colorType" />
+    </aapt:attr>
+  </target>
+</animated-vector>

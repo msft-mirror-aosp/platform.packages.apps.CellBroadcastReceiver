@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+  IMPORTANT: Please read.
+
+  Keep these styles in sync.
+
+  Some 1P consumers require different style parents, but Android styling limitations don't allow
+  multiple inheritance or composition. The best solution right now is to maintain multiple styles
+  with different parents and use lint to keep them in sync.
+
+-->
+<resources>
+  <!-- LINT.IfChange(wear_material_theme) -->
+  <style name="WearMaterialTheme" parent="WearMaterialThemeDefault">
+
+    <!-- Font attributes -->
+    <item name="fontFamilyWearMedium">@string/wear_material_font_family_medium</item>
+    <item name="fontFamilyWearDisplay1">@string/wear_material_font_family_display1</item>
+    <item name="fontFamilyWearDisplay2">@string/wear_material_font_family_display2</item>
+    <item name="fontFamilyWearDisplay3">@string/wear_material_font_family_display3</item>
+    <item name="fontFamilyWearDisplay4">@string/wear_material_font_family_display4</item>
+    <item name="fontFamilyWearTitle1">@string/wear_material_font_family_title1</item>
+    <item name="fontFamilyWearTitle2">@string/wear_material_font_family_title2</item>
+    <item name="fontFamilyWearTitle3">@string/wear_material_font_family_title3</item>
+    <item name="fontFamilyWearBody1">@string/wear_material_font_family_body1</item>
+    <item name="fontFamilyWearBody2">@string/wear_material_font_family_body2</item>
+    <item name="fontFamilyWearBody3">@string/wear_material_font_family_body3</item>
+    <item name="fontFamilyWearBody4">@string/wear_material_font_family_body4</item>
+    <item name="fontFamilyWearButton1">@string/wear_material_font_family_button1</item>
+    <item name="fontFamilyWearButton2">@string/wear_material_font_family_button2</item>
+    <item name="fontFamilyWearCaption1">@string/wear_material_font_family_caption1</item>
+    <item name="fontFamilyWearCaption2">@string/wear_material_font_family_caption2</item>
+    <item name="fontFamilyWearCaption3">@string/wear_material_font_family_caption3</item>
+
+    <item name="textSizeWearDisplay1">@dimen/wear_material_text_size_display1</item>
+    <item name="textSizeWearDisplay2">@dimen/wear_material_text_size_display2</item>
+    <item name="textSizeWearDisplay3">@dimen/wear_material_text_size_display3</item>
+    <item name="textSizeWearDisplay4">@dimen/wear_material_text_size_display4</item>
+    <item name="textSizeWearTitle1">@dimen/wear_material_text_size_title1</item>
+    <item name="textSizeWearTitle2">@dimen/wear_material_text_size_title2</item>
+    <item name="textSizeWearTitle3">@dimen/wear_material_text_size_title3</item>
+    <item name="textSizeWearBody1">@dimen/wear_material_text_size_body1</item>
+    <item name="textSizeWearBody2">@dimen/wear_material_text_size_body2</item>
+    <item name="textSizeWearBody3">@dimen/wear_material_text_size_body3</item>
+    <item name="textSizeWearBody4">@dimen/wear_material_text_size_body4</item>
+    <item name="textSizeWearButton1">@dimen/wear_material_text_size_button1</item>
+    <item name="textSizeWearButton2">@dimen/wear_material_text_size_button2</item>
+    <item name="textSizeWearCaption1">@dimen/wear_material_text_size_caption1</item>
+    <item name="textSizeWearCaption2">@dimen/wear_material_text_size_caption2</item>
+    <item name="textSizeWearCaption3">@dimen/wear_material_text_size_caption3</item>
+
+    <item name="textSizeNonScalableWearDisplay1">@dimen/wear_material_text_size_display1_dp</item>
+    <item name="textSizeNonScalableWearDisplay2">@dimen/wear_material_text_size_display2_dp</item>
+    <item name="textSizeNonScalableWearDisplay3">@dimen/wear_material_text_size_display3_dp</item>
+    <item name="textSizeNonScalableWearDisplay4">@dimen/wear_material_text_size_display4_dp</item>
+    <item name="textSizeNonScalableWearTitle1">@dimen/wear_material_text_size_title1_dp</item>
+    <item name="textSizeNonScalableWearTitle2">@dimen/wear_material_text_size_title2_dp</item>
+    <item name="textSizeNonScalableWearTitle3">@dimen/wear_material_text_size_title3_dp</item>
+
+    <item name="baselineToTopWearDisplay1">@dimen/wear_material_baseline_to_top_display1</item>
+    <item name="baselineToTopWearDisplay2">@dimen/wear_material_baseline_to_top_display2</item>
+    <item name="baselineToTopWearDisplay3">@dimen/wear_material_baseline_to_top_display3</item>
+    <item name="baselineToTopWearDisplay4">@dimen/wear_material_baseline_to_top_display4</item>
+    <item name="baselineToTopWearTitle1">@dimen/wear_material_baseline_to_top_title1</item>
+    <item name="baselineToTopWearTitle2">@dimen/wear_material_baseline_to_top_title2</item>
+    <item name="baselineToTopWearTitle3">@dimen/wear_material_baseline_to_top_title3</item>
+    <item name="baselineToTopWearBody1">@dimen/wear_material_baseline_to_top_body1</item>
+    <item name="baselineToTopWearBody2">@dimen/wear_material_baseline_to_top_body2</item>
+    <item name="baselineToTopWearBody3">@dimen/wear_material_baseline_to_top_body3</item>
+    <item name="baselineToTopWearBody4">@dimen/wear_material_baseline_to_top_body4</item>
+    <item name="baselineToTopWearButton1">@dimen/wear_material_baseline_to_top_button1</item>
+    <item name="baselineToTopWearButton2">@dimen/wear_material_baseline_to_top_button2</item>
+    <item name="baselineToTopWearCaption1">@dimen/wear_material_baseline_to_top_caption1</item>
+    <item name="baselineToTopWearCaption2">@dimen/wear_material_baseline_to_top_caption2</item>
+    <item name="baselineToTopWearCaption3">@dimen/wear_material_baseline_to_top_caption3</item>
+
+    <item name="baselineToTopNonScalableWearDisplay1">@dimen/wear_material_baseline_to_top_display1_dp</item>
+    <item name="baselineToTopNonScalableWearDisplay2">@dimen/wear_material_baseline_to_top_display2_dp</item>
+    <item name="baselineToTopNonScalableWearDisplay3">@dimen/wear_material_baseline_to_top_display3_dp</item>
+    <item name="baselineToTopNonScalableWearDisplay4">@dimen/wear_material_baseline_to_top_display4_dp</item>
+    <item name="baselineToTopNonScalableWearTitle1">@dimen/wear_material_baseline_to_top_title1_dp</item>
+    <item name="baselineToTopNonScalableWearTitle2">@dimen/wear_material_baseline_to_top_title2_dp</item>
+    <item name="baselineToTopNonScalableWearTitle3">@dimen/wear_material_baseline_to_top_title3_dp</item>
+
+    <item name="baselineToBottomWearDisplay1">@dimen/wear_material_baseline_to_bottom_display1</item>
+    <item name="baselineToBottomWearDisplay2">@dimen/wear_material_baseline_to_bottom_display2</item>
+    <item name="baselineToBottomWearDisplay3">@dimen/wear_material_baseline_to_bottom_display3</item>
+    <item name="baselineToBottomWearDisplay4">@dimen/wear_material_baseline_to_bottom_display4</item>
+    <item name="baselineToBottomWearTitle1">@dimen/wear_material_baseline_to_bottom_title1</item>
+    <item name="baselineToBottomWearTitle2">@dimen/wear_material_baseline_to_bottom_title2</item>
+    <item name="baselineToBottomWearTitle3">@dimen/wear_material_baseline_to_bottom_title3</item>
+    <item name="baselineToBottomWearBody1">@dimen/wear_material_baseline_to_bottom_body1</item>
+    <item name="baselineToBottomWearBody2">@dimen/wear_material_baseline_to_bottom_body2</item>
+    <item name="baselineToBottomWearBody3">@dimen/wear_material_baseline_to_bottom_body3</item>
+    <item name="baselineToBottomWearBody4">@dimen/wear_material_baseline_to_bottom_body4</item>
+    <item name="baselineToBottomWearButton1">@dimen/wear_material_baseline_to_bottom_button1</item>
+    <item name="baselineToBottomWearButton2">@dimen/wear_material_baseline_to_bottom_button2</item>
+    <item name="baselineToBottomWearCaption1">@dimen/wear_material_baseline_to_bottom_caption1</item>
+    <item name="baselineToBottomWearCaption2">@dimen/wear_material_baseline_to_bottom_caption2</item>
+    <item name="baselineToBottomWearCaption3">@dimen/wear_material_baseline_to_bottom_caption3</item>
+
+    <item name="baselineToBottomNonScalableWearDisplay1">@dimen/wear_material_baseline_to_bottom_display1_dp</item>
+    <item name="baselineToBottomNonScalableWearDisplay2">@dimen/wear_material_baseline_to_bottom_display2_dp</item>
+    <item name="baselineToBottomNonScalableWearDisplay3">@dimen/wear_material_baseline_to_bottom_display3_dp</item>
+    <item name="baselineToBottomNonScalableWearDisplay4">@dimen/wear_material_baseline_to_bottom_display4_dp</item>
+    <item name="baselineToBottomNonScalableWearTitle1">@dimen/wear_material_baseline_to_bottom_title1_dp</item>
+    <item name="baselineToBottomNonScalableWearTitle2">@dimen/wear_material_baseline_to_bottom_title2_dp</item>
+    <item name="baselineToBottomNonScalableWearTitle3">@dimen/wear_material_baseline_to_bottom_title3_dp</item>
+
+    <item name="lineHeightWearDisplay1">@dimen/wear_material_line_height_display1</item>
+    <item name="lineHeightWearDisplay2">@dimen/wear_material_line_height_display2</item>
+    <item name="lineHeightWearDisplay3">@dimen/wear_material_line_height_display3</item>
+    <item name="lineHeightWearDisplay4">@dimen/wear_material_line_height_display4</item>
+    <item name="lineHeightWearTitle1">@dimen/wear_material_line_height_title1</item>
+    <item name="lineHeightWearTitle2">@dimen/wear_material_line_height_title2</item>
+    <item name="lineHeightWearTitle3">@dimen/wear_material_line_height_title3</item>
+    <item name="lineHeightWearBody1">@dimen/wear_material_line_height_body1</item>
+    <item name="lineHeightWearBody2">@dimen/wear_material_line_height_body2</item>
+    <item name="lineHeightWearBody3">@dimen/wear_material_line_height_body3</item>
+    <item name="lineHeightWearBody4">@dimen/wear_material_line_height_body4</item>
+    <item name="lineHeightWearButton1">@dimen/wear_material_line_height_button1</item>
+    <item name="lineHeightWearButton2">@dimen/wear_material_line_height_button2</item>
+    <item name="lineHeightWearCaption1">@dimen/wear_material_line_height_caption1</item>
+    <item name="lineHeightWearCaption2">@dimen/wear_material_line_height_caption2</item>
+    <item name="lineHeightWearCaption3">@dimen/wear_material_line_height_caption3</item>
+
+    <item name="lineHeightNonScalableWearDisplay1">@dimen/wear_material_line_height_display1_dp</item>
+    <item name="lineHeightNonScalableWearDisplay2">@dimen/wear_material_line_height_display2_dp</item>
+    <item name="lineHeightNonScalableWearDisplay3">@dimen/wear_material_line_height_display3_dp</item>
+    <item name="lineHeightNonScalableWearDisplay4">@dimen/wear_material_line_height_display4_dp</item>
+    <item name="lineHeightNonScalableWearTitle1">@dimen/wear_material_line_height_title1_dp</item>
+    <item name="lineHeightNonScalableWearTitle2">@dimen/wear_material_line_height_title2_dp</item>
+    <item name="lineHeightNonScalableWearTitle3">@dimen/wear_material_line_height_title3_dp</item>
+
+    <item name="lineSpacingMultiplierWearDisplay1">@fraction/wear_material_line_height_display1</item>
+    <item name="lineSpacingMultiplierWearDisplay2">@fraction/wear_material_line_height_display2</item>
+    <item name="lineSpacingMultiplierWearDisplay3">@fraction/wear_material_line_height_display3</item>
+    <item name="lineSpacingMultiplierWearDisplay4">@fraction/wear_material_line_height_display4</item>
+    <item name="lineSpacingMultiplierWearTitle1">@fraction/wear_material_line_height_title1</item>
+    <item name="lineSpacingMultiplierWearTitle2">@fraction/wear_material_line_height_title2</item>
+    <item name="lineSpacingMultiplierWearTitle3">@fraction/wear_material_line_height_title3</item>
+    <item name="lineSpacingMultiplierWearBody1">@fraction/wear_material_line_height_body1</item>
+    <item name="lineSpacingMultiplierWearBody2">@fraction/wear_material_line_height_body2</item>
+    <item name="lineSpacingMultiplierWearBody3">@fraction/wear_material_line_height_body3</item>
+    <item name="lineSpacingMultiplierWearBody4">@fraction/wear_material_line_height_body4</item>
+    <item name="lineSpacingMultiplierWearButton1">@fraction/wear_material_line_height_button1</item>
+    <item name="lineSpacingMultiplierWearButton2">@fraction/wear_material_line_height_button2</item>
+    <item name="lineSpacingMultiplierWearCaption1">@fraction/wear_material_line_height_caption1</item>
+    <item name="lineSpacingMultiplierWearCaption2">@fraction/wear_material_line_height_caption2</item>
+    <item name="lineSpacingMultiplierWearCaption3">@fraction/wear_material_line_height_caption3</item>
+
+    <item name="letterSpacingWearDisplay1">@fraction/wear_material_tracking_display1</item>
+    <item name="letterSpacingWearDisplay2">@fraction/wear_material_tracking_display2</item>
+    <item name="letterSpacingWearDisplay3">@fraction/wear_material_tracking_display3</item>
+    <item name="letterSpacingWearDisplay4">@fraction/wear_material_tracking_display4</item>
+    <item name="letterSpacingWearTitle1">@fraction/wear_material_tracking_title1</item>
+    <item name="letterSpacingWearTitle2">@fraction/wear_material_tracking_title2</item>
+    <item name="letterSpacingWearTitle3">@fraction/wear_material_tracking_title3</item>
+    <item name="letterSpacingWearBody1">@fraction/wear_material_tracking_body1</item>
+    <item name="letterSpacingWearBody2">@fraction/wear_material_tracking_body2</item>
+    <item name="letterSpacingWearBody3">@fraction/wear_material_tracking_body3</item>
+    <item name="letterSpacingWearBody4">@fraction/wear_material_tracking_body4</item>
+    <item name="letterSpacingWearButton1">@fraction/wear_material_tracking_button1</item>
+    <item name="letterSpacingWearButton2">@fraction/wear_material_tracking_button2</item>
+    <item name="letterSpacingWearCaption1">@fraction/wear_material_tracking_caption1</item>
+    <item name="letterSpacingWearCaption2">@fraction/wear_material_tracking_caption2</item>
+    <item name="letterSpacingWearCaption3">@fraction/wear_material_tracking_caption3</item>
+  </style>
+
+  <!-- Theme for sys ui -->
+  <style name="WearMaterialThemeDefault" parent="@android:style/Theme.DeviceDefault">
+    <!-- Colors -->
+    <item name="colorPrimary">@color/wear_material_colorPrimary</item>
+    <item name="colorOnPrimary">@color/wear_material_colorOnPrimary</item>
+    <item name="colorPrimaryVariant">@color/wear_material_colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/wear_material_colorSecondary</item>
+    <item name="colorOnSecondary">@color/wear_material_colorOnSecondary</item>
+    <item name="colorSecondaryVariant">@color/wear_material_colorSecondaryVariant</item>
+    <item name="colorSurface">@color/wear_material_colorSurface</item>
+    <item name="colorOnSurface">@color/wear_material_colorOnSurface</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material_colorOnSurfaceVariant</item>
+    <item name="colorBackground">@color/wear_material_colorBackground</item>
+    <item name="colorOnBackgroundWear">@color/wear_material_colorOnBackgroundWear</item>
+    <item name="colorWearError">@color/wear_material_colorWearError</item>
+    <item name="colorOnWearError">@color/wear_material_colorOnWearError</item>
+
+    <!-- Color aliases -->
+    <item name="colorSecondaryCompat">?attr/colorSecondary</item>
+    <item name="colorOnSecondaryCompat">?attr/colorOnSecondary</item>
+    <item name="colorSecondaryVariantCompat">?attr/colorSecondaryVariant</item>
+    <item name="colorAccent">?attr/colorSecondary</item>
+    <item name="colorSurfaceVariant">?attr/colorOnSurfaceVariant</item>
+
+    <item name="fullscreenSliderStyle">@style/Widget.FullscreenSlider.Default</item>
+    <item name="inlineSliderStyle">@style/Widget.InlineSlider.Default</item>
+    <item name="wearButtonStyle">@style/WearButtonDefault</item>
+    <!-- Circular Button Styles. -->
+    <item name="wearCircularButtonStyle">@style/WearCircularButtonDefault</item>
+    <item name="wearCircularButtonStrokedStyle">@style/WearCircularButtonStroked</item>
+    <item name="wearCircularButtonTransparentStyle">@style/WearCircularButtonSecondary</item>
+    <!-- Chip Button Styles. -->
+    <item name="wearChipButtonStyle">@style/WearChipButtonDefault</item>
+    <item name="wearChipButtonAccentStyle">@style/WearChipButtonAccent</item>
+    <item name="wearChipButtonAvatarStyle">@style/WearChipButtonAvatar</item>
+    <item name="wearChipButtonCheckableStyle">@style/WearChipButtonAccent.Checkable</item>
+    <item name="wearChipButtonNeutralStyle">@style/WearChipButtonDefault</item>
+    <item name="wearChipButtonNeutralVariantStyle">@style/WearChipButtonDefault</item>
+    <item name="wearChipButtonSmallStyle">@style/WearChipButtonSmall</item>
+    <item name="wearChipButtonStrokedStyle">@style/WearChipButtonStroked</item>
+    <item name="wearChipButtonTransparentStyle">@style/WearChipButtonTransparent</item>
+
+    <item name="wearCardStyle">@style/WearCardDefault</item>
+    <item name="wearPageIndicator">@drawable/wear_page_indicator</item>
+    <item name="rsbControlStyle">@style/RsbControlDefault</item>
+    <item name="android:checkboxStyle">@style/WearCheckBoxDefault</item>
+    <item name="android:radioButtonStyle">@style/WearRadioButtonDefault</item>
+    <item name="wearToggleStyle">@style/WearToggleDefault</item>
+    <item name="wearPickerStyle">@style/WearPickerDefault</item>
+    <item name="wearAlertDialogButtonNegativeStyle">@style/WearAlertDialogButtonNegativeStyle</item>
+    <item name="wearAlertDialogButtonPositiveStyle">@style/WearAlertDialogButtonPositiveStyle</item>
+    <item name="wearAlertDialogChipStyle">?attr/wearChipButtonStyle</item>
+    <item name="wearAlertDialogCheckableChipStyle">@style/WearChipButtonAccent.Checkable</item>
+    <item name="wearSelectionColorSelected">?attr/colorSecondary</item>
+    <item name="wearSelectionColorUnselected">?attr/colorOnSurface</item>
+    <item name="wearSelectionDisabledColorSelected">?attr/colorSecondaryVariant</item>
+    <item name="wearSelectionDisabledColorUnselected">@color/wear_material_colorPrimaryVariant_disabled</item>
+    <item name="wearSelectionDisabledBackgroundColorUnselected">@color/wear_material_colorSurface</item>
+
+    <!-- Drawables -->
+    <item name="wearSelectableItemBackground">@drawable/wear_material_view_ripple</item>
+    <item name="wearSelectableItemBackgroundBorderless">@drawable/wear_material_view_ripple</item>
+
+    <!-- Use ThemeOverlay.Material.Dialog instead of Theme.DeviceDefault.Dialog,
+         which is the default, because the non-overlay theme will clobber
+         attributes from the wear material theme. There is currently no
+         significant difference between these styles on Wear, and historically
+         this has not been the case either, going back as far as API 25.-->
+    <item name="android:dialogTheme">@android:style/ThemeOverlay.Material.Dialog</item>
+
+    <!-- Preferences -->
+    <item name="preferenceTheme">@style/PreferenceThemeOverlay.WearMaterial</item>
+
+    <!-- Font attributes -->
+    <item name="fontFamilyWearMedium">@string/wear_material_default_font_family_medium</item>
+    <item name="fontFamilyWearDisplay1">@string/wear_material_default_font_family_display1</item>
+    <item name="fontFamilyWearDisplay2">@string/wear_material_default_font_family_display2</item>
+    <item name="fontFamilyWearDisplay3">@string/wear_material_default_font_family_display3</item>
+    <item name="fontFamilyWearDisplay4">@string/wear_material_default_font_family_display4</item>
+    <item name="fontFamilyWearTitle1">@string/wear_material_default_font_family_title1</item>
+    <item name="fontFamilyWearTitle2">@string/wear_material_default_font_family_title2</item>
+    <item name="fontFamilyWearTitle3">@string/wear_material_default_font_family_title3</item>
+    <item name="fontFamilyWearBody1">@string/wear_material_default_font_family_body1</item>
+    <item name="fontFamilyWearBody2">@string/wear_material_default_font_family_body2</item>
+    <item name="fontFamilyWearBody3">@string/wear_material_default_font_family_body3</item>
+    <item name="fontFamilyWearBody4">@string/wear_material_default_font_family_body4</item>
+    <item name="fontFamilyWearButton1">@string/wear_material_default_font_family_button1</item>
+    <item name="fontFamilyWearButton2">@string/wear_material_default_font_family_button2</item>
+    <item name="fontFamilyWearCaption1">@string/wear_material_default_font_family_caption1</item>
+    <item name="fontFamilyWearCaption2">@string/wear_material_default_font_family_caption2</item>
+    <item name="fontFamilyWearCaption3">@string/wear_material_default_font_family_caption3</item>
+
+    <item name="textSizeWearDisplay1">@dimen/wear_material_default_text_size_display1</item>
+    <item name="textSizeWearDisplay2">@dimen/wear_material_default_text_size_display2</item>
+    <item name="textSizeWearDisplay3">@dimen/wear_material_default_text_size_display3</item>
+    <item name="textSizeWearDisplay4">@dimen/wear_material_default_text_size_display4</item>
+    <item name="textSizeWearTitle1">@dimen/wear_material_default_text_size_title1</item>
+    <item name="textSizeWearTitle2">@dimen/wear_material_default_text_size_title2</item>
+    <item name="textSizeWearTitle3">@dimen/wear_material_default_text_size_title3</item>
+    <item name="textSizeWearBody1">@dimen/wear_material_default_text_size_body1</item>
+    <item name="textSizeWearBody2">@dimen/wear_material_default_text_size_body2</item>
+    <item name="textSizeWearBody3">@dimen/wear_material_default_text_size_body3</item>
+    <item name="textSizeWearBody4">@dimen/wear_material_default_text_size_body4</item>
+    <item name="textSizeWearButton1">@dimen/wear_material_default_text_size_button1</item>
+    <item name="textSizeWearButton2">@dimen/wear_material_default_text_size_button2</item>
+    <item name="textSizeWearCaption1">@dimen/wear_material_default_text_size_caption1</item>
+    <item name="textSizeWearCaption2">@dimen/wear_material_default_text_size_caption2</item>
+    <item name="textSizeWearCaption3">@dimen/wear_material_default_text_size_caption3</item>
+
+    <item name="textSizeNonScalableWearDisplay1">@dimen/wear_material_default_text_size_display1_dp</item>
+    <item name="textSizeNonScalableWearDisplay2">@dimen/wear_material_default_text_size_display2_dp</item>
+    <item name="textSizeNonScalableWearDisplay3">@dimen/wear_material_default_text_size_display3_dp</item>
+    <item name="textSizeNonScalableWearDisplay4">@dimen/wear_material_default_text_size_display4_dp</item>
+    <item name="textSizeNonScalableWearTitle1">@dimen/wear_material_default_text_size_title1_dp</item>
+    <item name="textSizeNonScalableWearTitle2">@dimen/wear_material_default_text_size_title2_dp</item>
+    <item name="textSizeNonScalableWearTitle3">@dimen/wear_material_default_text_size_title3_dp</item>
+
+    <item name="baselineToTopWearDisplay1">@dimen/wear_material_default_baseline_to_top_display1</item>
+    <item name="baselineToTopWearDisplay2">@dimen/wear_material_default_baseline_to_top_display2</item>
+    <item name="baselineToTopWearDisplay3">@dimen/wear_material_default_baseline_to_top_display3</item>
+    <item name="baselineToTopWearDisplay4">@dimen/wear_material_default_baseline_to_top_display4</item>
+    <item name="baselineToTopWearTitle1">@dimen/wear_material_default_baseline_to_top_title1</item>
+    <item name="baselineToTopWearTitle2">@dimen/wear_material_default_baseline_to_top_title2</item>
+    <item name="baselineToTopWearTitle3">@dimen/wear_material_default_baseline_to_top_title3</item>
+    <item name="baselineToTopWearBody1">@dimen/wear_material_default_baseline_to_top_body1</item>
+    <item name="baselineToTopWearBody2">@dimen/wear_material_default_baseline_to_top_body2</item>
+    <item name="baselineToTopWearBody3">@dimen/wear_material_default_baseline_to_top_body3</item>
+    <item name="baselineToTopWearBody4">@dimen/wear_material_default_baseline_to_top_body4</item>
+    <item name="baselineToTopWearButton1">@dimen/wear_material_default_baseline_to_top_button1</item>
+    <item name="baselineToTopWearButton2">@dimen/wear_material_default_baseline_to_top_button2</item>
+    <item name="baselineToTopWearCaption1">@dimen/wear_material_default_baseline_to_top_caption1</item>
+    <item name="baselineToTopWearCaption2">@dimen/wear_material_default_baseline_to_top_caption2</item>
+    <item name="baselineToTopWearCaption3">@dimen/wear_material_default_baseline_to_top_caption3</item>
+
+    <item name="baselineToTopNonScalableWearDisplay1">@dimen/wear_material_default_baseline_to_top_display1_dp</item>
+    <item name="baselineToTopNonScalableWearDisplay2">@dimen/wear_material_default_baseline_to_top_display2_dp</item>
+    <item name="baselineToTopNonScalableWearDisplay3">@dimen/wear_material_default_baseline_to_top_display3_dp</item>
+    <item name="baselineToTopNonScalableWearDisplay4">@dimen/wear_material_default_baseline_to_top_display4_dp</item>
+    <item name="baselineToTopNonScalableWearTitle1">@dimen/wear_material_default_baseline_to_top_title1_dp</item>
+    <item name="baselineToTopNonScalableWearTitle2">@dimen/wear_material_default_baseline_to_top_title2_dp</item>
+    <item name="baselineToTopNonScalableWearTitle3">@dimen/wear_material_default_baseline_to_top_title3_dp</item>
+
+    <item name="baselineToBottomWearDisplay1">@dimen/wear_material_default_baseline_to_bottom_display1</item>
+    <item name="baselineToBottomWearDisplay2">@dimen/wear_material_default_baseline_to_bottom_display2</item>
+    <item name="baselineToBottomWearDisplay3">@dimen/wear_material_default_baseline_to_bottom_display3</item>
+    <item name="baselineToBottomWearDisplay4">@dimen/wear_material_default_baseline_to_bottom_display4</item>
+    <item name="baselineToBottomWearTitle1">@dimen/wear_material_default_baseline_to_bottom_title1</item>
+    <item name="baselineToBottomWearTitle2">@dimen/wear_material_default_baseline_to_bottom_title2</item>
+    <item name="baselineToBottomWearTitle3">@dimen/wear_material_default_baseline_to_bottom_title3</item>
+    <item name="baselineToBottomWearBody1">@dimen/wear_material_default_baseline_to_bottom_body1</item>
+    <item name="baselineToBottomWearBody2">@dimen/wear_material_default_baseline_to_bottom_body2</item>
+    <item name="baselineToBottomWearBody3">@dimen/wear_material_default_baseline_to_bottom_body3</item>
+    <item name="baselineToBottomWearBody4">@dimen/wear_material_default_baseline_to_bottom_body4</item>
+    <item name="baselineToBottomWearButton1">@dimen/wear_material_default_baseline_to_bottom_button1</item>
+    <item name="baselineToBottomWearButton2">@dimen/wear_material_default_baseline_to_bottom_button2</item>
+    <item name="baselineToBottomWearCaption1">@dimen/wear_material_default_baseline_to_bottom_caption1</item>
+    <item name="baselineToBottomWearCaption2">@dimen/wear_material_default_baseline_to_bottom_caption2</item>
+    <item name="baselineToBottomWearCaption3">@dimen/wear_material_default_baseline_to_bottom_caption3</item>
+
+    <item name="baselineToBottomNonScalableWearDisplay1">@dimen/wear_material_default_baseline_to_bottom_display1_dp</item>
+    <item name="baselineToBottomNonScalableWearDisplay2">@dimen/wear_material_default_baseline_to_bottom_display2_dp</item>
+    <item name="baselineToBottomNonScalableWearDisplay3">@dimen/wear_material_default_baseline_to_bottom_display3_dp</item>
+    <item name="baselineToBottomNonScalableWearDisplay4">@dimen/wear_material_default_baseline_to_bottom_display4_dp</item>
+    <item name="baselineToBottomNonScalableWearTitle1">@dimen/wear_material_default_baseline_to_bottom_title1_dp</item>
+    <item name="baselineToBottomNonScalableWearTitle2">@dimen/wear_material_default_baseline_to_bottom_title2_dp</item>
+    <item name="baselineToBottomNonScalableWearTitle3">@dimen/wear_material_default_baseline_to_bottom_title3_dp</item>
+
+    <item name="lineHeightWearDisplay1">@dimen/wear_material_default_line_height_display1</item>
+    <item name="lineHeightWearDisplay2">@dimen/wear_material_default_line_height_display2</item>
+    <item name="lineHeightWearDisplay3">@dimen/wear_material_default_line_height_display3</item>
+    <item name="lineHeightWearDisplay4">@dimen/wear_material_default_line_height_display4</item>
+    <item name="lineHeightWearTitle1">@dimen/wear_material_default_line_height_title1</item>
+    <item name="lineHeightWearTitle2">@dimen/wear_material_default_line_height_title2</item>
+    <item name="lineHeightWearTitle3">@dimen/wear_material_default_line_height_title3</item>
+    <item name="lineHeightWearBody1">@dimen/wear_material_default_line_height_body1</item>
+    <item name="lineHeightWearBody2">@dimen/wear_material_default_line_height_body2</item>
+    <item name="lineHeightWearBody3">@dimen/wear_material_default_line_height_body3</item>
+    <item name="lineHeightWearBody4">@dimen/wear_material_default_line_height_body4</item>
+    <item name="lineHeightWearButton1">@dimen/wear_material_default_line_height_button1</item>
+    <item name="lineHeightWearButton2">@dimen/wear_material_default_line_height_button2</item>
+    <item name="lineHeightWearCaption1">@dimen/wear_material_default_line_height_caption1</item>
+    <item name="lineHeightWearCaption2">@dimen/wear_material_default_line_height_caption2</item>
+    <item name="lineHeightWearCaption3">@dimen/wear_material_default_line_height_caption3</item>
+
+    <item name="lineHeightNonScalableWearDisplay1">@dimen/wear_material_default_line_height_display1_dp</item>
+    <item name="lineHeightNonScalableWearDisplay2">@dimen/wear_material_default_line_height_display2_dp</item>
+    <item name="lineHeightNonScalableWearDisplay3">@dimen/wear_material_default_line_height_display3_dp</item>
+    <item name="lineHeightNonScalableWearDisplay4">@dimen/wear_material_default_line_height_display4_dp</item>
+    <item name="lineHeightNonScalableWearTitle1">@dimen/wear_material_default_line_height_title1_dp</item>
+    <item name="lineHeightNonScalableWearTitle2">@dimen/wear_material_default_line_height_title2_dp</item>
+    <item name="lineHeightNonScalableWearTitle3">@dimen/wear_material_default_line_height_title3_dp</item>
+
+    <item name="lineSpacingMultiplierWearDisplay1">@fraction/wear_material_default_line_height_display1</item>
+    <item name="lineSpacingMultiplierWearDisplay2">@fraction/wear_material_default_line_height_display2</item>
+    <item name="lineSpacingMultiplierWearDisplay3">@fraction/wear_material_default_line_height_display3</item>
+    <item name="lineSpacingMultiplierWearDisplay4">@fraction/wear_material_default_line_height_display4</item>
+    <item name="lineSpacingMultiplierWearTitle1">@fraction/wear_material_default_line_height_title1</item>
+    <item name="lineSpacingMultiplierWearTitle2">@fraction/wear_material_default_line_height_title2</item>
+    <item name="lineSpacingMultiplierWearTitle3">@fraction/wear_material_default_line_height_title3</item>
+    <item name="lineSpacingMultiplierWearBody1">@fraction/wear_material_default_line_height_body1</item>
+    <item name="lineSpacingMultiplierWearBody2">@fraction/wear_material_default_line_height_body2</item>
+    <item name="lineSpacingMultiplierWearBody3">@fraction/wear_material_default_line_height_body3</item>
+    <item name="lineSpacingMultiplierWearBody4">@fraction/wear_material_default_line_height_body4</item>
+    <item name="lineSpacingMultiplierWearButton1">@fraction/wear_material_default_line_height_button1</item>
+    <item name="lineSpacingMultiplierWearButton2">@fraction/wear_material_default_line_height_button2</item>
+    <item name="lineSpacingMultiplierWearCaption1">@fraction/wear_material_default_line_height_caption1</item>
+    <item name="lineSpacingMultiplierWearCaption2">@fraction/wear_material_default_line_height_caption2</item>
+    <item name="lineSpacingMultiplierWearCaption3">@fraction/wear_material_default_line_height_caption3</item>
+
+    <item name="letterSpacingWearDisplay1">@fraction/wear_material_default_tracking_display1</item>
+    <item name="letterSpacingWearDisplay2">@fraction/wear_material_default_tracking_display2</item>
+    <item name="letterSpacingWearDisplay3">@fraction/wear_material_default_tracking_display3</item>
+    <item name="letterSpacingWearDisplay4">@fraction/wear_material_default_tracking_display4</item>
+    <item name="letterSpacingWearTitle1">@fraction/wear_material_default_tracking_title1</item>
+    <item name="letterSpacingWearTitle2">@fraction/wear_material_default_tracking_title2</item>
+    <item name="letterSpacingWearTitle3">@fraction/wear_material_default_tracking_title3</item>
+    <item name="letterSpacingWearBody1">@fraction/wear_material_default_tracking_body1</item>
+    <item name="letterSpacingWearBody2">@fraction/wear_material_default_tracking_body2</item>
+    <item name="letterSpacingWearBody3">@fraction/wear_material_default_tracking_body3</item>
+    <item name="letterSpacingWearBody4">@fraction/wear_material_default_tracking_body4</item>
+    <item name="letterSpacingWearButton1">@fraction/wear_material_default_tracking_button1</item>
+    <item name="letterSpacingWearButton2">@fraction/wear_material_default_tracking_button2</item>
+    <item name="letterSpacingWearCaption1">@fraction/wear_material_default_tracking_caption1</item>
+    <item name="letterSpacingWearCaption2">@fraction/wear_material_default_tracking_caption2</item>
+    <item name="letterSpacingWearCaption3">@fraction/wear_material_default_tracking_caption3</item>
+
+    <!-- Text Appearance -->
+    <item name="textAppearanceWearDisplay1">@style/TextAppearance.WearMaterial.Display1</item>
+    <item name="textAppearanceWearDisplay2">@style/TextAppearance.WearMaterial.Display2</item>
+    <item name="textAppearanceWearDisplay3">@style/TextAppearance.WearMaterial.Display3</item>
+    <item name="textAppearanceWearDisplay4">@style/TextAppearance.WearMaterial.Display4</item>
+    <item name="textAppearanceWearTitle1">@style/TextAppearance.WearMaterial.Title1</item>
+    <item name="textAppearanceWearTitle2">@style/TextAppearance.WearMaterial.Title2</item>
+    <item name="textAppearanceWearTitle3">@style/TextAppearance.WearMaterial.Title3</item>
+    <item name="textAppearanceWearBody1">@style/TextAppearance.WearMaterial.Body1</item>
+    <item name="textAppearanceWearBody2">@style/TextAppearance.WearMaterial.Body2</item>
+    <item name="textAppearanceWearBody3">@style/TextAppearance.WearMaterial.Body3</item>
+    <item name="textAppearanceWearBody4">@style/TextAppearance.WearMaterial.Body4</item>
+    <item name="textAppearanceWearButton1">@style/TextAppearance.WearMaterial.Button1</item>
+    <item name="textAppearanceWearButton2">@style/TextAppearance.WearMaterial.Button2</item>
+    <item name="textAppearanceWearCaption1">@style/TextAppearance.WearMaterial.Caption1</item>
+    <item name="textAppearanceWearCaption2">@style/TextAppearance.WearMaterial.Caption2</item>
+    <item name="textAppearanceWearCaption3">@style/TextAppearance.WearMaterial.Caption3</item>
+
+    <!-- TextView Styles -->
+    <item name="textStyleWearDisplay1">@style/Widget.TextView.WearMaterial.Display1</item>
+    <item name="textStyleWearDisplay2">@style/Widget.TextView.WearMaterial.Display2</item>
+    <item name="textStyleWearDisplay3">@style/Widget.TextView.WearMaterial.Display3</item>
+    <item name="textStyleWearDisplay4">@style/Widget.TextView.WearMaterial.Display4</item>
+    <item name="textStyleWearTitle1">@style/Widget.TextView.WearMaterial.Title1</item>
+    <item name="textStyleWearTitle2">@style/Widget.TextView.WearMaterial.Title2</item>
+    <item name="textStyleWearTitle3">@style/Widget.TextView.WearMaterial.Title3</item>
+    <item name="textStyleWearBody1">@style/Widget.TextView.WearMaterial.Body1</item>
+    <item name="textStyleWearBody2">@style/Widget.TextView.WearMaterial.Body2</item>
+    <item name="textStyleWearBody3">@style/Widget.TextView.WearMaterial.Body3</item>
+    <item name="textStyleWearBody4">@style/Widget.TextView.WearMaterial.Body4</item>
+    <item name="textStyleWearButton1">@style/Widget.TextView.WearMaterial.Button1</item>
+    <item name="textStyleWearButton2">@style/Widget.TextView.WearMaterial.Button2</item>
+    <item name="textStyleWearCaption1">@style/Widget.TextView.WearMaterial.Caption1</item>
+    <item name="textStyleWearCaption2">@style/Widget.TextView.WearMaterial.Caption2</item>
+    <item name="textStyleWearCaption3">@style/Widget.TextView.WearMaterial.Caption3</item>
+
+    <!-- Buttons -->
+    <item name="wearChipButtonDefaultLayoutStrategy">fixed</item>
+
+    <item name="dynamicColorThemeOverlay">@style/WearMaterialDynamicColorOverlay</item>
+  </style>
+
+  <!-- The dynamic color theme when using Wear Material 2.5 is based on
+       Material 3 to make generating colors easier and avoid duplicate work. -->
+  <style name="WearMaterialDynamicColorOverlay">
+    <!-- Colors -->
+    <item name="colorPrimary">@color/wear_material_dynamic_colorPrimary</item>
+    <item name="colorOnPrimary">@color/wear_material_dynamic_colorOnPrimary</item>
+    <item name="colorPrimaryVariant">@color/wear_material_dynamic_colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/wear_material_dynamic_colorSecondary</item>
+    <item name="colorOnSecondary">@color/wear_material_dynamic_colorOnSecondary</item>
+    <item name="colorSecondaryVariant">@color/wear_material_dynamic_colorSecondaryVariant</item>
+    <item name="colorSurface">@color/wear_material_dynamic_colorSurface</item>
+    <item name="colorOnSurface">@color/wear_material_dynamic_colorOnSurface</item>
+    <item name="colorSurfaceVariant">@color/wear_material_dynamic_colorSurfaceVariant</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material_dynamic_colorOnSurfaceVariant</item>
+    <item name="colorBackground">@color/wear_material_dynamic_colorBackground</item>
+    <item name="colorOnBackgroundWear">@color/wear_material_dynamic_colorOnBackgroundWear</item>
+    <item name="colorWearError">@color/wear_material_dynamic_colorWearError</item>
+    <item name="colorOnWearError">@color/wear_material_dynamic_colorOnWearError</item>
+  </style>
+
+  <!-- Variant of WearMaterialTheme for apps supporting dynamic colors. -->
+  <style name="WearMaterialTheme.Dynamic">
+    <item name="colorPrimary">@color/wear_material_dynamic_colorPrimary</item>
+    <item name="colorOnPrimary">@color/wear_material_dynamic_colorOnPrimary</item>
+    <item name="colorPrimaryVariant">@color/wear_material_dynamic_colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/wear_material_dynamic_colorSecondary</item>
+    <item name="colorOnSecondary">@color/wear_material_dynamic_colorOnSecondary</item>
+    <item name="colorSecondaryVariant">@color/wear_material_dynamic_colorSecondaryVariant</item>
+    <item name="colorSurface">@color/wear_material_dynamic_colorSurface</item>
+    <item name="colorOnSurface">@color/wear_material_dynamic_colorOnSurface</item>
+    <item name="colorSurfaceVariant">@color/wear_material_dynamic_colorSurfaceVariant</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material_dynamic_colorOnSurfaceVariant</item>
+    <item name="colorBackground">@color/wear_material_dynamic_colorBackground</item>
+    <item name="colorOnBackgroundWear">@color/wear_material_dynamic_colorOnBackgroundWear</item>
+    <item name="colorWearError">@color/wear_material_dynamic_colorWearError</item>
+    <item name="colorOnWearError">@color/wear_material_dynamic_colorOnWearError</item>
+  </style>
+
+  <!-- Variant of WearMaterialThemeDefault for apps supporting dynamic colors. -->
+  <style name="WearMaterialThemeDefault.Dynamic">
+    <item name="colorPrimary">@color/wear_material_dynamic_colorPrimary</item>
+    <item name="colorOnPrimary">@color/wear_material_dynamic_colorOnPrimary</item>
+    <item name="colorPrimaryVariant">@color/wear_material_dynamic_colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/wear_material_dynamic_colorSecondary</item>
+    <item name="colorOnSecondary">@color/wear_material_dynamic_colorOnSecondary</item>
+    <item name="colorSecondaryVariant">@color/wear_material_dynamic_colorSecondaryVariant</item>
+    <item name="colorSurface">@color/wear_material_dynamic_colorSurface</item>
+    <item name="colorOnSurface">@color/wear_material_dynamic_colorOnSurface</item>
+    <item name="colorSurfaceVariant">@color/wear_material_dynamic_colorSurfaceVariant</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material_dynamic_colorOnSurfaceVariant</item>
+    <item name="colorBackground">@color/wear_material_dynamic_colorBackground</item>
+    <item name="colorOnBackgroundWear">@color/wear_material_dynamic_colorOnBackgroundWear</item>
+    <item name="colorWearError">@color/wear_material_dynamic_colorWearError</item>
+    <item name="colorOnWearError">@color/wear_material_dynamic_colorOnWearError</item>
+  </style>
+  <!-- LINT.ThenChange(//depot/google3/java/com/google/android/clockwork/common/wearable/wearmaterial/themeappcompat/res/values/themes-appcompat.xml:app_compat_wear_material_theme) -->
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedIds">
+  <item
+      android:id="@+id/radio_button_on"
+      android:drawable="@drawable/ic_wear_radio_button_on"
+      android:state_checked="true"
+      android:state_enabled="true"/>
+  <item
+      android:id="@+id/radio_button_off"
+      android:drawable="@drawable/ic_wear_radio_button_off"
+      android:state_checked="false"
+      android:state_enabled="true"/>
+  <item
+      android:id="@+id/radio_button_on_disabled"
+      android:drawable="@drawable/ic_wear_radio_button_on"
+      android:state_checked="true"
+      android:state_enabled="false"/>
+  <item
+      android:id="@+id/radio_button_off_disabled"
+      android:drawable="@drawable/ic_wear_radio_button_off"
+      android:state_checked="false"
+      android:state_enabled="false"/>
+
+  <transition
+      android:drawable="@drawable/wear_radio_button_off_to_on_animation"
+      android:fromId="@id/radio_button_off"
+      android:toId="@id/radio_button_on" />
+  <transition
+      android:drawable="@drawable/wear_radio_button_on_to_off_animation"
+      android:fromId="@id/radio_button_on"
+      android:toId="@id/radio_button_off" />
+  <transition
+      android:drawable="@drawable/wear_radio_button_disabled_off_to_on_animation"
+      android:fromId="@id/radio_button_off_disabled"
+      android:toId="@id/radio_button_on_disabled" />
+  <transition
+      android:drawable="@drawable/wear_radio_button_disabled_on_to_off_animation"
+      android:fromId="@id/radio_button_on_disabled"
+      android:toId="@id/radio_button_off_disabled" />
+</animated-selector>

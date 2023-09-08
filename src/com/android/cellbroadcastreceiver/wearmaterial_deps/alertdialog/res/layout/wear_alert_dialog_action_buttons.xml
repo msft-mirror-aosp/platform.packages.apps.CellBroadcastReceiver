@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+  <com.google.android.clockwork.common.wearable.wearmaterial.button.WearCircularButton
+      android:id="@+id/wear_alertdialog_negative_button"
+      style="?attr/wearAlertDialogButtonNegativeStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:contentDescription="@android:string/cancel" />
+
+  <com.google.android.clockwork.common.wearable.wearmaterial.button.WearCircularButton
+      android:id="@+id/wear_alertdialog_positive_button"
+      style="?attr/wearAlertDialogButtonPositiveStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:contentDescription="@android:string/ok" />
+
+</LinearLayout>

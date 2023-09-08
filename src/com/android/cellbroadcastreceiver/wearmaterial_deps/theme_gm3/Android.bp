@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["wear_os_application_license"],
+}
+
+android_library {
+    name: "wearmaterial-theme-gm3",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    static_libs: [
+        "wearmaterial-alertdialog",
+        "wearmaterial-button",
+        "wearmaterial-color",
+        "wearmaterial-card",
+        "wearmaterial-pageindicator",
+        "wearmaterial-picker",
+        "wearmaterial-preference",
+        "wearmaterial-rsbcontrol",
+        "wearmaterial-selectioncontrol",
+        "wearmaterial-slider",
+        "wearmaterial-theme",
+    ],
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/wear_open_on_phone_background">
+  <target android:name="background">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@android:integer/config_mediumAnimTime"
+            android:interpolator="@anim/wear_alertdialog_easing_incoming_80"
+            android:propertyName="fillColor"
+            android:valueFrom="?attr/colorOnSecondary"
+            android:valueTo="?attr/colorPrimaryVariant"
+            android:valueType="colorType" />
+      </set>
+    </aapt:attr>
+  </target>
+</animated-vector>

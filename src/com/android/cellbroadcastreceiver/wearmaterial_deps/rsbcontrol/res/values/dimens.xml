@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="rsb_outside_padding">5dp</dimen>
+  <dimen name="rsb_stroke">6dp</dimen>
+</resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="WearPickerDefault" parent="android:Widget">
+    <item name="android:theme">@style/ThemeOverlay.WearPickerDefault</item>
+    <item name="android:background">@drawable/wear_picker_background_overlay</item>
+    <item name="wearActionButton">@drawable/ic_wear_picker_done</item>
+    <item name="wearForcedProgressButton">@drawable/ic_wear_picker_navigate_next</item>
+  </style>
+
+  <style name="WearPickerColumnLabel" parent="Widget.TextView.WearMaterial.Caption1">
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:gravity">bottom|center_horizontal</item>
+    <item name="android:textColor">@color/wear_picker_text_color</item>
+    <item name="android:includeFontPadding">false</item>
+  </style>
+
+  <style name="WearPickerActionButton" parent="WearCircularButtonDefault">
+    <item name="size">small</item>
+    <item name="buttonIconTint">@color/wear_picker_action_button_icon</item>
+  </style>
+
+  <style name="WearPickerToggleText" parent="Widget.TextView.WearMaterial.Button1">
+    <item name="android:gravity">center_horizontal</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    <item name="android:background">@drawable/wear_picker_toggle_view</item>
+    <item name="android:paddingTop">@dimen/wear_picker_toggle_view_padding_vertical</item>
+    <item name="android:paddingBottom">@dimen/wear_picker_toggle_view_padding_vertical</item>
+    <item name="android:paddingLeft">@dimen/wear_picker_toggle_view_padding_horizontal</item>
+    <item name="android:paddingRight">@dimen/wear_picker_toggle_view_padding_horizontal</item>
+    <item name="android:textColor">@color/wear_picker_text_color</item>
+  </style>
+
+  <style name="WearPickerDefault.ListItemText" parent="android:Widget.TextView" >
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:gravity">center</item>
+    <item name="android:textAppearance">?attr/wearListItemTextAppearance</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_display2</item>
+    <item name="android:includeFontPadding">false</item>
+  </style>
+
+  <style name="WearPickerDefault.SeparatorText" parent="android:Widget.TextView">
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:paddingStart">@dimen/wear_picker_row_separator_padding_horizontal</item>
+    <item name="android:paddingEnd">@dimen/wear_picker_row_separator_padding_horizontal</item>
+    <item name="android:textAppearance">?attr/wearListItemTextAppearance</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_display2</item>
+    <item name="android:includeFontPadding">false</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Picker.ListItemText" parent="TextAppearance.WearMaterial.Display2.NonScalable">
+    <item name="android:textColor">@color/wear_picker_text_color</item>
+  </style>
+
+  <!--
+  TODO(b/217216868): The UnboundRipple style is here for apps
+  built only from Google3. AndroidX/JetPack cannot yet correctly render these
+  background drawables assigned to these styles.
+  After b/217216868 is fixed, these styles should be deprecated.
+  -->
+  <style name="WearPickerActionButton.UnboundRipple" parent="WearCircularButtonDefault.UnboundRipple">
+    <item name="size">small</item>
+    <item name="buttonIconTint">@color/wear_picker_action_button_icon</item>
+  </style>
+</resources>

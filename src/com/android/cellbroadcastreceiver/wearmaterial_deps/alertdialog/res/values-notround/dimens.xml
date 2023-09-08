@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_alertdialog_padding_top">23dp</dimen>
+  <dimen name="wear_alertdialog_padding_bottom">11dp</dimen>
+  <dimen name="wear_alertdialog_countdown_confirmation_vertical_begin">0.088</dimen>
+  <dimen name="wear_alertdialog_countdown_confirmation_vertical_end">0.912</dimen>
+</resources>

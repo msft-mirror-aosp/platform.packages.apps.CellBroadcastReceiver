@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["wear_os_application_license"],
+}
+
+android_library {
+    java_version: "1.8",
+    name: "wearmaterial-preference",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    srcs: ["*.java"],
+    static_libs: [
+        "clockwork-common-time",
+        "wearmaterial-alertdialog",
+        "wearmaterial-button",
+        "wearmaterial-drawable",
+        "wearmaterial-list",
+        "wearmaterial-slider",
+        "wearmaterial-textappearance",
+        "wearmaterial-time",
+        "wearmaterial-util",
+        "androidx.annotation_annotation",
+        "androidx.core_core",
+        "androidx.fragment_fragment",
+        "androidx.preference_preference",
+        "checker-qual",
+    ],
+}

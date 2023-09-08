@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="TextAppearanceTime" parent="TextAppearance.WearMaterial.Static.Body4">
+    <item name="android:textSize">@dimen/wear_time_text_size</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
+    <item name="android:fontFamily">?attr/fontFamilyWearMedium</item>
+  </style>
+</resources>

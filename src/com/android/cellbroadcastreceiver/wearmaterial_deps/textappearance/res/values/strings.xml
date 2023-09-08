@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="wear_material_font_family" translatable="false">google-sans</string>
+  <string name="wear_material_font_family_medium" translatable="false">google-sans-medium</string>
+  <string name="wear_material_font_family_text" translatable="false">google-sans-text</string>
+  <string name="wear_material_font_family_text_medium" translatable="false">google-sans-text-medium</string>
+
+  <!-- These are not actually overlaid on all devices, so should default to
+       something that is overlaid. -->
+  <string name="wear_material_default_font_family" translatable="false">@string/wear_material_default_font_family_body1</string>
+  <string name="wear_material_default_font_family_medium" translatable="false">@string/wear_material_default_font_family_title3</string>
+
+  <string name="wear_material_font_family_display1" translatable="false">google-sans</string>
+  <string name="wear_material_font_family_display2" translatable="false">google-sans</string>
+  <string name="wear_material_font_family_display3" translatable="false">google-sans</string>
+  <string name="wear_material_font_family_display4" translatable="false">google-sans</string>
+  <string name="wear_material_font_family_title1" translatable="false">google-sans-medium</string>
+  <string name="wear_material_font_family_title2" translatable="false">google-sans-medium</string>
+  <string name="wear_material_font_family_title3" translatable="false">google-sans-medium</string>
+  <string name="wear_material_font_family_body1" translatable="false">google-sans-text</string>
+  <string name="wear_material_font_family_body2" translatable="false">google-sans-text</string>
+  <string name="wear_material_font_family_body3" translatable="false">google-sans-text-medium</string>
+  <string name="wear_material_font_family_body4" translatable="false">google-sans-text</string>
+  <string name="wear_material_font_family_button1" translatable="false">google-sans-text-medium</string>
+  <string name="wear_material_font_family_button2" translatable="false">google-sans-text</string>
+  <string name="wear_material_font_family_caption1" translatable="false">google-sans-text-medium</string>
+  <string name="wear_material_font_family_caption2" translatable="false">google-sans-text-medium</string>
+  <string name="wear_material_font_family_caption3" translatable="false">google-sans-text-medium</string>
+
+  <string name="wear_material_default_font_family_display1" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_display2" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_display3" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_display4" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_title1" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_title2" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_title3" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_body1" translatable="false">sans-serif</string>
+  <string name="wear_material_default_font_family_body2" translatable="false">sans-serif</string>
+  <string name="wear_material_default_font_family_body3" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_body4" translatable="false">sans-serif</string>
+  <string name="wear_material_default_font_family_button1" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_button2" translatable="false">sans-serif</string>
+  <string name="wear_material_default_font_family_caption1" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_caption2" translatable="false">sans-serif-medium</string>
+  <string name="wear_material_default_font_family_caption3" translatable="false">sans-serif-medium</string>
+</resources>

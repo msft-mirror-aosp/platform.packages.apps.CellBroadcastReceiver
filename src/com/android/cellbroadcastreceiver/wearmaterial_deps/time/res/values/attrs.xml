@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="WearTimeText">
+    <attr name="android:titleTextColor" format="reference|color" />
+    <attr name="titleText" format="string" />
+  </declare-styleable>
+</resources>

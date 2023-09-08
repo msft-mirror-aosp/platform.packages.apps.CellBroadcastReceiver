@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <integer name="wear_alertdialog_countdown_progress_ring_start_angle">0</integer>
+  <integer name="wear_alertdialog_countdown_progress_ring_end_angle">360</integer>
+</resources>

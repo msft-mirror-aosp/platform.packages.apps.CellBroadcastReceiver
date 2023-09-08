@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="ThemeOverlay.WearProgressSpinnerIndicatorDefault" parent="">
+    <item name="progressIndicatorSpinnerLabelStyle">@style/Widget.TextView.WearMaterial.Caption2</item>
+    <item name="progressIndicatorSpinnerStyle">@style/WearProgressSpinnerIndicatorDrawable</item>
+  </style>
+</resources>

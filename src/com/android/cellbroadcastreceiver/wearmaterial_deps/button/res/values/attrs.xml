@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr name="primaryTextAppearanceWearButton" type="reference"/>
+  <attr name="secondaryTextAppearanceWearButton" type="reference"/>
+  <attr name="wearButtonStyle" type="reference"/>
+  <attr name="wearButtonGroupStyle" type="reference"/>
+  <!-- Circular Button Styles -->
+  <attr name="wearCircularButtonStyle" type="reference"/>
+  <attr name="wearCircularButtonNeutralStyle" type="reference"/>
+  <attr name="wearCircularButtonNeutralVariantStyle" type="reference"/>
+  <attr name="wearCircularButtonStrokedStyle" type="reference"/>
+  <attr name="wearCircularButtonTransparentStyle" type="reference"/>
+  <!-- Chip Button Styles. -->
+  <attr name="wearChipButtonStyle" type="reference"/>
+  <attr name="wearChipButtonAccentStyle" type="reference"/>
+  <attr name="wearChipButtonAvatarStyle" type="reference"/>
+  <attr name="wearChipButtonCheckableStyle" type="reference"/>
+  <attr name="wearChipButtonNeutralStyle" type="reference"/>
+  <attr name="wearChipButtonNeutralVariantStyle" type="reference"/>
+  <attr name="wearChipButtonSmallStyle" type="reference"/>
+  <attr name="wearChipButtonStrokedStyle" type="reference"/>
+  <attr name="wearChipButtonTransparentStyle" type="reference"/>
+  <!-- Default layout strategy for WearChipButton. When updating this,
+       WearChipButton_layoutStrategy should also be updated. -->
+  <attr name="wearChipButtonDefaultLayoutStrategy" format="enum">
+    <!--
+    The WearChipButton has a fixed height and text is positioned
+    in fixed vertically-centered lines within its area.
+     -->
+    <enum name="fixed" value="0"/>
+    <!-- The WearChipButton stretches vertically with the contents of it primary-text -->
+    <enum name="stretched" value="1"/>
+  </attr>
+
+  <!-- The common styleable attributes among all the Wear buttons -->
+  <declare-styleable name="WearButton">
+    <attr name="icon" format="reference"/>
+
+    <!-- Deprecated. Use the stateful 'buttonIconTint' attribute instead. -->
+    <attr name="buttonActiveIconTint" format="color"/>
+    <!-- Deprecated. Use the stateful 'buttonIconTint' attribute instead. -->
+    <attr name="buttonInactiveIconTint" format="color"/>
+    <!-- Applies a tint to the button's icon. -->
+    <attr name="buttonIconTint" format="reference|color"/>
+
+    <!-- Whether the button can be checked.
+        If true, it's a toggle button, if false, it will behave as a normal button. -->
+    <attr name="android:checkable"/>
+
+    <attr name="android:checked"/>
+
+    <!-- Whether the button border should be stroked when checked -->
+    <attr name="strokedOnChecked" format="boolean"/>
+
+    <!-- Whether the button will toggle check state on click, only applicable when checkable. -->
+    <attr name="toggleOnClick" format="boolean"/>
+
+    <attr name="cornerRadius" format="dimension"/>
+
+    <!-- Deprecated. Use the stateful 'buttonBackgroundColor' attribute instead.
+          The background colors for when button is active and inactive/pressed
+          Active means button's functionality has been applied and is currently
+          active eg: airplane mode is ON -->
+    <attr name="buttonActiveBackgroundColor" format="color"/>
+    <!-- Deprecated. Use the stateful 'buttonBackgroundColor' attribute instead. -->
+    <attr name="buttonInactiveBackgroundColor" format="color"/>
+    <!-- Applies a color/tint to the button's background drawable. -->
+    <attr name="buttonBackgroundColor" format="reference|color" />
+
+    <attr name="android:enabled"/>
+  </declare-styleable>
+
+  <declare-styleable name="WearCircularButton">
+    <attr name="size" format="enum">
+      <enum name="xsmall" value="0" />
+      <enum name="small" value="1" />
+      <enum name="standard" value="2" />
+      <enum name="large" value="3" />
+    </attr>
+  </declare-styleable>
+
+  <declare-styleable name="WearChipButton">
+    <!-- Layout Strategy of a WearChipButton. When updating this,
+       wearChipButtonDefaultLayoutStrategy should also be updated. -->
+    <attr name="layoutStrategy" format="enum">
+      <!--
+      The WearChipButton has a fixed height and text is positioned
+      in fixed vertically-centered lines within its area.
+       -->
+      <enum name="fixed" value="0"/>
+      <!-- The WearChipButton stretches vertically with the contents of it primary-text -->
+      <enum name="stretched" value="1"/>
+    </attr>
+
+    <attr name="wear_icon_size" format="dimension"/>
+    <attr name="iconOnlyPadding" format="dimension" />
+    <attr name="iconAndTextPadding" format="dimension" />
+
+    <attr name="primaryText" format="string"/>
+    <attr name="primaryTextAppearance" format="reference"/>
+    <attr name="primaryTextColor" format="reference|color"/>
+    <attr name="primaryTextHorizontalPosition" format="enum">
+        <enum name="start" value="0"/>
+        <enum name="center" value="1"/>
+    </attr>
+    <attr name="primaryTextMaxLines" format="integer" />
+    <attr name="secondaryText" format="string"/>
+    <attr name="secondaryTextAppearance" format="reference"/>
+    <attr name="secondaryTextColor" format="reference|color"/>
+    <attr name="secondaryTextMaxLines" format="integer" />
+    <attr name="secondaryTextEnabled" format="boolean"/>
+
+    <attr name="controlType" format="enum">
+      <enum name="none" value="0" />
+      <enum name="checkbox" value="1" />
+      <enum name="radio" value="2" />
+      <enum name="toggle" value="3" />
+      <enum name="icon" value="4" />
+    </attr>
+
+    <attr name="controlIcon" format="reference"/>
+    <attr name="controlIconTint" format="color"/>
+    <attr name="selectionControlContentDescription" format="string"/>
+    <attr name="enableAutomaticStateTransitions" format="boolean"/>
+
+  </declare-styleable>
+
+  <declare-styleable name="WearButtonGroup">
+    <attr name="android:checkedButton" format="integer"/>
+    <attr name="android:orientation"/>
+  </declare-styleable>
+</resources>

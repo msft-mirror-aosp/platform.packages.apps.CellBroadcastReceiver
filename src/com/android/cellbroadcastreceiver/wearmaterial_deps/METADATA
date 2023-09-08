@@ -1,0 +1,144 @@
+# http://go/google3metadata
+# proto-file: devtools/metadata/metadata.proto
+# proto-message: MetaData
+
+presubmit: {
+  check_tests: {
+    # Contains TAP projects for wearmaterial users. This may become out of sync
+    # if clients add new TAP projects, though that will happen very infrequently
+
+    # Projects for Wear3 Companion
+    project: "android.app.wear.denali"
+    project: "android.app.wear.engcompanion"
+
+    # Projects for Wear Messages
+    project: "bugle.apks"
+    project: "bugle.instrumentation_validation_tests"
+    project: "bugle.presubmit"
+    failure_status: ERROR
+
+    # Projects for Wear GPay
+    project: "tapandpay.wear.presubmit"
+
+    # GMS: Wearable Module
+    project: "gmscore.integ.modules.wearable.x86"
+
+    # GMS: OTA Module
+    project: "gmscore.integ.modules.ota.x86"
+
+    # GMS: Wear Account Auth
+    project: "gmscore.integ.modules.auth_account_wearable.robolectric"
+
+    # GMS: Find My Phone
+    project: "gmscore.integ.modules.security_wearable.x86"
+
+    # GMS: Nearby Unlock
+    project: "gmscore.integ.modules.trustagent_active_unlock_associated.x86.presubmit"
+
+    # Projects for Wear Play Store
+    project: "phonesky.presubmit"
+
+    # Projects for PocketWatch (Wear Clock)
+    project: "deskclock.wear.arm"
+    project: "deskclock.wear.x86"
+    project: "deskclock.wear.host"
+
+    # Projects for YTMusic
+    project: "youtube.android.music"
+
+    # Project for KeepWear
+    project: "keep.android"
+
+    # Project for Google Camera
+    project: "googlecamera"
+
+    # Project for Wear Gboard
+    project: "wear_gboard"
+
+    # Project for Wear Dialer
+    project: "dialer_wear"
+
+    # Projects for Wear Talkback
+    project: "android.accessibility.talkback"
+
+    # Project for Wear Assistant
+    project: "wear_assistant"
+
+    # Project for Wear Weather
+    project: "wear_weather"
+
+    # Project for Wear News
+    project: "wear_news"
+
+    # Projects for Wear Safety
+    project: "safety.wear.tap.arm"
+    project: "safety.wear.tap.x86"
+    project: "safety.wear.tap.host"
+
+    # Project for Wear Fitbit + Fitbit ECG
+    project: "nightlight.ecg"
+    project: "fitbit_night_light"
+    project: "fitbit_wear_retail_demo"
+
+    # Projects for Wear Contacts
+    project: "wear_contacts"
+
+    # Project for Contact Picker
+    project: "wear_contact_picker"
+
+    # Project for Google Home App Wear
+    project: "gha_wear_android"
+
+    # Project for Google Home Core UI
+    project: "home_coreui_android"
+
+    # Project for Fitbit P11 Comms App
+    project: "p11.comms"
+
+    # Project for Fitbit P11 Common Library
+    project: "p11_android_common"
+
+    # Project for Health Connect
+    project: "ahp.all"
+
+    # Project for Gmail Wear App
+    project: "gmail.android.wear"
+
+    # Project for Wear Compose Libraries
+    project: "wear_compose_libraries"
+
+    # Project for TikTok
+    project: "tiktok"
+
+    # Project for Pixel Support (Cavalry)
+    project: "android.wearable.cavalry"
+
+    # Project for HaTS
+    project: "surveys.dev"
+
+    # Project for Recorder Wearable
+    project: "recorder.wear.tap"
+  }
+  check_tests: {
+    # Contains TAP projects for wearmaterial users. This may become out of sync
+    # if clients add new TAP projects, though that will happen very infrequently
+    # GMS: Wearable Module
+    project: "gmscore.integ.modules.wearable.x86"
+    # Project for Google Photos Wear App
+    project: "photos.android_wear"
+
+    # Projects for Wear Maps
+    project: "androidmaps"
+    project: "gmmwearable"
+
+    mixer_test_filters: "ads_vite_filter"
+  }
+  include_presubmit: "//depot/google3/wireless/android/clockwork/apps/blueprint/first_party_core_apps.METADATA"
+  include_presubmit: "//depot/google3/wireless/android/clockwork/apps/blueprint/google_sysui.METADATA"
+  include_presubmit: "//depot/google3/wireless/android/clockwork/apps/metadata/wear3_sysui_relnotes.METADATA"
+  include_presubmit: "//depot/google3/wireless/android/clockwork/sysui/metadata/fixed_color_usage.METADATA"
+  include_presubmit: "//depot/google3/wireless/android/clockwork/sysui/metadata/wear_material_theme_usage.METADATA"
+}
+presubmit: {
+  include_presubmit: "//depot/google3/wireless/android/clockwork/apps/blueprint/google_sysui_sidecar.METADATA"
+}

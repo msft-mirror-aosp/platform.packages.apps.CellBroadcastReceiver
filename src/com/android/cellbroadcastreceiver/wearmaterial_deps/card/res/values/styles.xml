@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="WearCardDefault" parent="android:Widget">
+    <item name="android:background">@drawable/wear_card_background</item>
+    <item name="android:minHeight">@dimen/wear_card_minimum_height</item>
+    <item name="android:padding">@dimen/wear_card_inner_padding</item>
+    <item name="backgroundGradientStart">?attr/colorPrimary</item>
+    <item name="backgroundGradientEnd">?attr/colorPrimaryVariant</item>
+    <item name="cornerRadius">@dimen/wear_button_corner_radius</item>
+  </style>
+
+  <style name="WearCard.Solid" parent="WearCardDefault">
+    <item name="android:background">?attr/colorSurface</item>
+    <item name="backgroundGradientStart">@null</item>
+    <item name="backgroundGradientEnd">@null</item>
+  </style>
+
+  <style name="Widget.GM3.WearCard" parent="WearCardDefault">
+    <item name="android:background">?attr/colorSurfaceVariant</item>
+    <item name="backgroundGradientStart">@null</item>
+    <item name="backgroundGradientEnd">@null</item>
+  </style>
+</resources>

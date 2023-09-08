@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <integer name="wear_radio_button_color_anim_duration_ms">50</integer>
+  <integer name="wear_radio_button_size_anim_duration_ms">333</integer>
+  <integer name="wear_radio_button_size_anim_offset_ms">117</integer>
+  <integer name="wear_selection_default_anim_duration_ms">250</integer>
+  <integer name="wear_toggle_alpha_anim_duration_ms">417</integer>
+  <integer name="wear_toggle_anim_duration_offset_ms">333</integer>
+  <integer name="wear_toggle_color_anim_duration_ms">333</integer>
+  <integer name="wear_toggle_position_anim_duration_ms">167</integer>
+</resources>

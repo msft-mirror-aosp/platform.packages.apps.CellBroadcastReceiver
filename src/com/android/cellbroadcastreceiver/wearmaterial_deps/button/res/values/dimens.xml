@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_button_start_padding">14dp</dimen>
+  <dimen name="wear_button_start_padding_avatar">10dp</dimen>
+  <dimen name="wear_button_end_padding">14dp</dimen>
+  <dimen name="wear_button_top_padding">7dp</dimen>
+  <dimen name="wear_button_bottom_padding">7dp</dimen>
+  <dimen name="wear_multiline_button_start_padding">14dp</dimen>
+  <dimen name="wear_multiline_button_end_padding">14dp</dimen>
+  <dimen name="wear_multiline_button_top_padding">8dp</dimen>
+  <dimen name="wear_multiline_button_bottom_padding">8dp</dimen>
+  <dimen name="wear_button_control_container_size">52dp</dimen>
+  <dimen name="wear_button_padding_between_icon_and_text">8dp</dimen>
+  <dimen name="wear_button_pressed_translation_z">20dp</dimen>
+  <dimen name="wear_chip_button_default_min_height">52dp</dimen>
+  <dimen name="wear_chip_button_default_min_width">172dp</dimen>
+  <dimen name="wear_chip_button_icon_size">24dp</dimen>
+  <dimen name="wear_chip_button_mini_height">32dp</dimen>
+  <dimen name="wear_chip_button_mini_icon_size">20dp</dimen>
+  <dimen name="wear_chip_button_avatar_size">32dp</dimen>
+  <dimen name="wear_chip_button_mini_padding">14dp</dimen>
+  <dimen name="wear_chip_button_mini_width">142dp</dimen>
+  <dimen name="wear_chip_button_text_center_line_margin">16dp</dimen>
+  <dimen name="wear_chip_button_control_horizontal_padding">14dp</dimen>
+  <dimen name="wear_placeholder_chip_button_text_height">14dp</dimen>
+  <dimen name="wear_placeholder_chip_button_vertical_padding">10dp</dimen>
+  <dimen name="wear_placeholder_chip_button_corner_radius">10dp</dimen>
+  <dimen name="wear_circular_button_icon_size_xsmall">24dp</dimen>
+  <dimen name="wear_circular_button_icon_size_small">24dp</dimen>
+  <dimen name="wear_circular_button_icon_size_standard">26dp</dimen>
+  <dimen name="wear_circular_button_icon_size_large">30dp</dimen>
+  <dimen name="wear_circular_button_diameter_xsmall">32dp</dimen>
+  <dimen name="wear_circular_button_diameter_small">48dp</dimen>
+  <dimen name="wear_circular_button_diameter_standard">52dp</dimen>
+  <dimen name="wear_circular_button_diameter_large">60dp</dimen>
+  <dimen name="wear_circular_button_stroke_width">2dp</dimen>
+
+  <dimen name="wear_chip_button_selection_control_start_margin">4dp</dimen>
+  <!--
+    Deprecated since it's no longer used by WearChipButtons.
+    It is not removed because there are external apps depending on it.
+  -->
+  <dimen name="wear_chip_button_text_fading_edge_length">12dp</dimen>
+
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Header of the Hour Column in TimePicker Controller. [CHAR_LIMIT=8] -->
+  <string name="wear_picker_hour_column_header_text">Hour</string>
+
+  <!-- Header of the Minutes Column in TimePicker Controller. [CHAR_LIMIT=8] -->
+  <string name="wear_picker_minute_column_header_text">Minute</string>
+
+  <!--Header of the Seconds Column in TimePicker Controller. [CHAR_LIMIT=8] -->
+  <string name="wear_picker_second_column_header_text">Second</string>
+
+  <!-- Content Description of the Hour Column in TimePicker Controller. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_hour_column_desc_text">Hour</string>
+
+  <!-- Content Description of the Minutes Column in TimePicker Controller. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_minute_column_desc_text">Minute</string>
+
+  <!-- Content Description of the Seconds Column in TimePicker Controller. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_second_column_desc_text">Second</string>
+
+  <!-- Separator String in TimePicker Controller. [CHAR_LIMIT=1] -->
+  <string name="wear_picker_separator_string">:</string>
+
+  <!-- Content Description of the Action Button when moving to next list. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_a11y_action_button_accept">Next</string>
+
+  <!-- Content Description of the Action Button when finished selecting all values. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_a11y_action_button_done">Finish</string>
+
+  <!--
+  The Actions announced by Talkback are part of its "Double tap to {Action}" or
+  "Double-tap and hold to {Action}" utterances. An example would be:
+  "Double-tap to accept and move to next list"
+  -->
+  <!-- Action announced by TalkBack for the changing Toggle Text value. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_a11y_action_toggle">change</string>
+
+  <!-- Action announced by TalkBack for the Action Button. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_a11y_action_done">finish</string>
+
+  <!-- Action announced by TalkBack for the Force Progress Button for moving forward. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_a11y_action_next_column">move to next list</string>
+
+  <!-- Action announced by TalkBack for selecting an item in a list/column. [CHAR_LIMIT=100] -->
+  <string name="wear_picker_a11y_action_select_item">select</string>
+
+  <!-- Format string for item view description for items in picker column. Example: "15 Minutes" (for Locale.US)[CHAR_LIMIT=NONE] -->
+  <string name = "wear_picker_picker_column_item_description">
+    <xliff:g id="time_string" example="12">%1$s</xliff:g>\u00A0<xliff:g id="column_description" example="Minutes">%2$s</xliff:g>
+  </string>
+</resources>
