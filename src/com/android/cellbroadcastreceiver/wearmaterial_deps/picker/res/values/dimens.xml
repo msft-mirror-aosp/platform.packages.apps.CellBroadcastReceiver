@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_picker_row_toggle_height">24dp</dimen>
+  <dimen name="wear_picker_row_center_label_height">21dp</dimen>
+  <dimen name="wear_picker_row_separator_padding_horizontal">8dp</dimen>
+  <dimen name="wear_picker_toggle_view_radius">12dp</dimen>
+  <dimen name="wear_picker_toggle_view_padding_horizontal">16dp</dimen>
+  <dimen name="wear_picker_toggle_view_padding_vertical">0dp</dimen>
+</resources>

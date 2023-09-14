@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <item name="fullscreen_slider_start_guideline_percent" type="dimen" format="float">0.063</item>
+  <item name="fullscreen_slider_end_guideline_percent" type="dimen" format="float">0.937</item>
+  <item name="fullscreen_slider_top_guideline_percent" type="dimen" format="float">0.04</item>
+  <item name="fullscreen_slider_bottom_guideline_percent" type="dimen" format="float">0.96</item>
+
+  <dimen name="inline_slider_button_width">40dp</dimen>
+  <dimen name="inline_slider_button_padding">4dp</dimen>
+  <dimen name="inline_slider_height">48dp</dimen>
+  <dimen name="inline_slider_increment_separator_width">1dp</dimen>
+  <dimen name="inline_slider_progress_height">6dp</dimen>
+  <dimen name="inline_slider_progress_corner_radius">3dp</dimen>
+  <dimen name="inline_slider_progress_margin">7dp</dimen>
+  <dimen name="inline_slider_progress_min_width">88dp</dimen>
+</resources>

@@ -1,0 +1,45 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+  <ImageView
+      android:id="@+id/inline_slider_decrement"
+      android:layout_width="@dimen/inline_slider_button_width"
+      android:layout_height="@dimen/inline_slider_height"
+      android:paddingStart="@dimen/inline_slider_button_padding"
+      android:paddingEnd="0dp"
+      android:scaleType="center"
+      android:background="?android:attr/selectableItemBackground"
+      tools:ignore="ContentDescription"/>
+
+  <View
+      android:layout_width="@dimen/inline_slider_increment_separator_width"
+      android:layout_height="match_parent"
+      android:background="?attr/colorBackground" />
+
+  <ImageView
+      android:id="@+id/inline_slider_progress"
+      android:layout_width="0dp"
+      android:layout_height="@dimen/inline_slider_progress_height"
+      android:layout_weight="1"
+      android:layout_marginStart="@dimen/inline_slider_progress_margin"
+      android:layout_marginEnd="@dimen/inline_slider_progress_margin"
+      android:layout_gravity="center_vertical"
+      android:minWidth="@dimen/inline_slider_progress_min_width"
+      tools:ignore="ContentDescription"/>
+
+  <View
+      android:layout_width="@dimen/inline_slider_increment_separator_width"
+      android:layout_height="match_parent"
+      android:background="?attr/colorBackground" />
+
+  <ImageView
+      android:id="@+id/inline_slider_increment"
+      android:layout_width="@dimen/inline_slider_button_width"
+      android:layout_height="@dimen/inline_slider_height"
+      android:paddingStart="0dp"
+      android:paddingEnd="@dimen/inline_slider_button_padding"
+      android:scaleType="center"
+      android:background="?android:attr/selectableItemBackground"
+      tools:ignore="ContentDescription"/>
+
+</merge>

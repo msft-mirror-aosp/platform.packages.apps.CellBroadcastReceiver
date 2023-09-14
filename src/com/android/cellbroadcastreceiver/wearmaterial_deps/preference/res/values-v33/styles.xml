@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="Base.V33.PreferenceThemeOverlay.WearMaterial"
+      parent="Base.PreferenceThemeOverlay.WearMaterial">
+    <item name="preferenceTitleTextColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="PreferenceThemeOverlay.WearMaterial"
+      parent="Base.V33.PreferenceThemeOverlay.WearMaterial" />
+</resources>

@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="TextAppearance.WearMaterial" parent="android:TextAppearance.DeviceDefault">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display1">
+    <item name="android:fontFamily">?attr/fontFamilyWearDisplay1</item>
+    <item name="android:textSize">?attr/textSizeWearDisplay1</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearDisplay1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display1.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearDisplay1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display2">
+    <item name="android:fontFamily">?attr/fontFamilyWearDisplay2</item>
+    <item name="android:textSize">?attr/textSizeWearDisplay2</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearDisplay2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display2.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearDisplay2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display3">
+    <item name="android:fontFamily">?attr/fontFamilyWearDisplay3</item>
+    <item name="android:textSize">?attr/textSizeWearDisplay3</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearDisplay3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display3.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearDisplay3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display4">
+    <item name="android:fontFamily">?attr/fontFamilyWearDisplay4</item>
+    <item name="android:textSize">?attr/textSizeWearDisplay4</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearDisplay4</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Display4.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearDisplay4</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Title1">
+    <item name="android:fontFamily">?attr/fontFamilyWearTitle1</item>
+    <item name="android:textSize">?attr/textSizeWearTitle1</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearTitle1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Title1.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearTitle1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Title2">
+    <item name="android:fontFamily">?attr/fontFamilyWearTitle2</item>
+    <item name="android:textSize">?attr/textSizeWearTitle2</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearTitle2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Title2.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearTitle2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Title3">
+    <item name="android:fontFamily">?attr/fontFamilyWearTitle3</item>
+    <item name="android:textSize">?attr/textSizeWearTitle3</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearTitle3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Title3.NonScalable">
+    <item name="android:textSize">?attr/textSizeNonScalableWearTitle3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Body1">
+    <item name="android:fontFamily">?attr/fontFamilyWearBody1</item>
+    <item name="android:textSize">?attr/textSizeWearBody1</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearBody1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Body2">
+    <item name="android:fontFamily">?attr/fontFamilyWearBody2</item>
+    <item name="android:textSize">?attr/textSizeWearBody2</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearBody2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Body3">
+    <item name="android:textSize">?attr/textSizeWearBody3</item>
+    <item name="android:fontFamily">?attr/fontFamilyWearBody3</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearBody3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Body4">
+    <item name="android:fontFamily">?attr/fontFamilyWearBody4</item>
+    <item name="android:textSize">?attr/textSizeWearBody4</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearBody4</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Button" parent="TextAppearance.WearMaterial.Button2" />
+
+  <style name="TextAppearance.WearMaterial.Button1">
+    <item name="android:fontFamily">?attr/fontFamilyWearButton1</item>
+    <item name="android:textSize">?attr/textSizeWearButton1</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearButton1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Button2">
+    <item name="android:fontFamily">?attr/fontFamilyWearButton2</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">?attr/textSizeWearButton2</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearButton2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Caption1">
+    <item name="android:fontFamily">?attr/fontFamilyWearCaption1</item>
+    <item name="android:textSize">?attr/textSizeWearCaption1</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearCaption1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Caption2">
+    <item name="android:fontFamily">?attr/fontFamilyWearCaption2</item>
+    <item name="android:textSize">?attr/textSizeWearCaption2</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearCaption2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Caption3">
+    <item name="android:fontFamily">?attr/fontFamilyWearCaption3</item>
+    <item name="android:textSize">?attr/textSizeWearCaption3</item>
+    <item name="android:letterSpacing">?attr/letterSpacingWearCaption3</item>
+  </style>
+
+  <!-- TextView styles for use with specific text appearances -->
+  <style name="Widget.TextView.WearMaterial" parent="android:Widget.TextView"/>
+
+  <style name="Widget.TextView.WearMaterial.Display1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display1</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearDisplay1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display2</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearDisplay2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display3</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearDisplay3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Display4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Display4</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearDisplay4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title1</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearTitle1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title2</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearTitle2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Title3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Title3</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearTitle3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body1</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearBody1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body2</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearBody2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body3</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearBody3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Body4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Body4</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearBody4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Button" parent="Widget.TextView.WearMaterial.Button2" />
+
+  <style name="Widget.TextView.WearMaterial.Button1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Button1</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearButton1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Button2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Button2</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearButton2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Caption1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Caption1</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearCaption1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Caption2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Caption2</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearCaption2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Caption3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Caption3</item>
+    <item name="android:lineSpacingMultiplier">?attr/lineSpacingMultiplierWearCaption3</item>
+  </style>
+
+  <!-- "Static" styles do not use attributes from the current theme, and exist for compatibility reasons. -->
+  <style name="TextAppearance.WearMaterial.Static" parent="android:TextAppearance.DeviceDefault">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display1">
+    <item name="android:fontFamily">@string/wear_material_font_family_display1</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_display1</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_display1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display1.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_display1_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display2">
+    <item name="android:fontFamily">@string/wear_material_font_family_display2</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_display2</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_display2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display2.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_display2_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display3">
+    <item name="android:fontFamily">@string/wear_material_font_family_display3</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_display3</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_display3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display3.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_display3_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display4">
+    <item name="android:fontFamily">@string/wear_material_font_family_display4</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_display4</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_display4</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Display4.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_display4_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Title1">
+    <item name="android:fontFamily">@string/wear_material_font_family_title1</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_title1</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_title1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Title1.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_title1_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Title2">
+    <item name="android:fontFamily">@string/wear_material_font_family_title2</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_title2</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_title2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Title2.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_title2_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Title3">
+    <item name="android:fontFamily">@string/wear_material_font_family_title3</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_title3</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_title3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Title3.NonScalable">
+    <item name="android:textSize">@dimen/wear_material_text_size_title3_dp</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Body1">
+    <item name="android:fontFamily">@string/wear_material_font_family_body1</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_body1</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_body1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Body2">
+    <item name="android:fontFamily">@string/wear_material_font_family_body2</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_body2</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_body2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Body3">
+    <item name="android:textSize">@dimen/wear_material_text_size_body3</item>
+    <item name="android:fontFamily">@string/wear_material_font_family_body3</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_body3</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Body4">
+    <item name="android:fontFamily">@string/wear_material_font_family_body4</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_body4</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_body4</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Button" parent="TextAppearance.WearMaterial.Static.Button2" />
+
+  <style name="TextAppearance.WearMaterial.Static.Button1">
+    <item name="android:fontFamily">@string/wear_material_font_family_button1</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_button1</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_button1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Button2">
+    <item name="android:fontFamily">@string/wear_material_font_family_button2</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_button2</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_button2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Caption1">
+    <item name="android:fontFamily">@string/wear_material_font_family_caption1</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_caption1</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_caption1</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Caption2">
+    <item name="android:fontFamily">@string/wear_material_font_family_caption2</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_caption2</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_caption2</item>
+  </style>
+
+  <style name="TextAppearance.WearMaterial.Static.Caption3">
+    <item name="android:fontFamily">@string/wear_material_font_family_caption3</item>
+    <item name="android:textSize">@dimen/wear_material_text_size_caption3</item>
+    <item name="android:letterSpacing">@fraction/wear_material_tracking_caption3</item>
+  </style>
+
+  <!-- TextView styles for use with specific text appearances -->
+  <style name="Widget.TextView.WearMaterial.Static" parent="android:Widget.TextView"/>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display1</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_display1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display2</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_display2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display3</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_display3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Display4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Display4</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_display4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title1</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_title1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title2</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_title2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Title3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Title3</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_title3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body1</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_body1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body2</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_body2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body3</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_body3</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Body4">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Body4</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_body4</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Button" parent="Widget.TextView.WearMaterial.Static.Button2" />
+
+  <style name="Widget.TextView.WearMaterial.Static.Button1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Button1</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_button1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Button2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Button2</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_button2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Caption1">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Caption1</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_caption1</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Caption2">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Caption2</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_caption2</item>
+  </style>
+
+  <style name="Widget.TextView.WearMaterial.Static.Caption3">
+    <item name="android:textAppearance">@style/TextAppearance.WearMaterial.Static.Caption3</item>
+    <item name="android:lineSpacingMultiplier">@fraction/wear_material_line_height_caption3</item>
+  </style>
+</resources>

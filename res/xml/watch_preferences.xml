@@ -25,9 +25,13 @@
         <SwitchPreference
                           android:defaultValue="@bool/master_toggle_enabled_default"
                           android:key="enable_alerts_master_toggle"
-                          android:summary="@string/enable_alerts_master_toggle_summary"
                           android:title="@string/enable_alerts_master_toggle_title" />
 
+        <com.google.android.clockwork.common.wearable.wearmaterial.preference.WearTextBoxPreference
+                          android:key="enable_alerts_master_toggle_summary"
+                          android:title="@string/enable_alerts_master_toggle_summary"
+                          android:selectable="false"
+                          android:persistent="false" />
 
         <SwitchPreference android:defaultValue="@bool/emergency_alerts_enabled_default"
                           android:key="enable_emergency_alerts"
@@ -57,8 +61,13 @@
         <!-- Enable public safety messages -->
         <SwitchPreference android:defaultValue="@bool/public_safety_messages_enabled_default"
             android:key="enable_public_safety_messages"
-            android:summary="@string/enable_public_safety_messages_summary"
             android:title="@string/enable_public_safety_messages_title" />
+
+        <com.google.android.clockwork.common.wearable.wearmaterial.preference.WearTextBoxPreference
+                          android:key="enable_public_safety_messages_summary"
+                          android:title="@string/enable_public_safety_messages_summary"
+                          android:selectable="false"
+                          android:persistent="false" />
 
         <!-- Enable public safety full screen messages -->
         <SwitchPreference android:defaultValue="@bool/public_safety_messages_full_screen_enabled_default"
@@ -126,6 +135,11 @@
 
         <SwitchPreference android:defaultValue="true"
                             android:key="show_cmas_opt_out_dialog"
-                            android:summary="@string/show_cmas_opt_out_summary"
                             android:title="@string/show_cmas_opt_out_title" />
+
+        <com.google.android.clockwork.common.wearable.wearmaterial.preference.WearTextBoxPreference
+                          android:key="show_cmas_opt_out_summary"
+                          android:title="@string/show_cmas_opt_out_summary"
+                          android:selectable="false"
+                          android:persistent="false" />
  </PreferenceScreen>

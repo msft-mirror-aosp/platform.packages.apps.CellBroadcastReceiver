@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- For api 23 only, does not scale to smaller side of container.
+     For actual impl see xml in drawable-v24. -->
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/wear_blurred_background_glow_gradient"
+    android:scaleGravity="center"/>

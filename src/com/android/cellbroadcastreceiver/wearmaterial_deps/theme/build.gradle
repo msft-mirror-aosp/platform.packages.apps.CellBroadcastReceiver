@@ -1,0 +1,38 @@
+apply plugin: "com.android.library"
+
+dependencies {
+    implementation project(":common:wearable:wearmaterial:alertdialog")
+    implementation project(":common:wearable:wearmaterial:button")
+    implementation project(":common:wearable:wearmaterial:card")
+    implementation project(":common:wearable:wearmaterial:drawable")
+    implementation project(":common:wearable:wearmaterial:pageindicator")
+    implementation project(":common:wearable:wearmaterial:picker")
+    implementation project(":common:wearable:wearmaterial:rsbcontrol")
+    implementation project(":common:wearable:wearmaterial:selectioncontrol")
+    implementation project(":common:wearable:wearmaterial:slider")
+}
+
+android {
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            res.srcDirs = ["res"]
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+idea.module.settings {
+    for (String path: rootProject.ext.default_packagePrefix_dirs) {
+        packagePrefix[path] = "${rootProject.ext.commonPackage}.wearable.wearmaterial.${file(".").name}"
+    }
+}

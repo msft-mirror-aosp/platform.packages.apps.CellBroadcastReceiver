@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--Defines the style of a negative Button in WearAlertDialog. -->
+  <attr name="wearAlertDialogButtonNegativeStyle" format="reference"/>
+
+  <!--Defines the style of a positive Button in WearAlertDialog. -->
+  <attr name="wearAlertDialogButtonPositiveStyle" format="reference"/>
+
+  <!--Defines the style of a chip Button in WearAlertDialog. -->
+  <attr name="wearAlertDialogChipStyle" format="reference"/>
+
+  <!--Defines the style of a selectable chip Button in WearAlertDialog. -->
+  <attr name="wearAlertDialogCheckableChipStyle" format="reference"/>
+</resources>

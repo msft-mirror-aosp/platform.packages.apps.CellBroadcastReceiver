@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="ThemeOverlay.WearPickerDefault" parent="">
+    <item name="wearColumnLabelStyle">@style/WearPickerColumnLabel</item>
+    <item name="wearActionButtonStyle">@style/WearPickerActionButton</item>
+    <item name="wearToggleTextStyle">@style/WearPickerToggleText</item>
+    <item name="wearToggleTextWidth">wrap_content</item>
+    <item name="wearSeparatorTextStyle">@style/WearPickerDefault.SeparatorText</item>
+    <item name="wearListItemTextAppearance">@style/TextAppearance.WearMaterial.Picker.ListItemText</item>
+    <item name="contentDescriptionForActionButton">@string/wear_picker_a11y_action_button_done</item>
+    <item name="contentDescriptionForNextColumnButton">@string/wear_picker_a11y_action_button_accept</item>
+    <item name="accessibilityActionForActionButton">@string/wear_picker_a11y_action_done</item>
+    <item name="accessibilityActionForNextColumnButton">@string/wear_picker_a11y_action_next_column</item>
+    <item name="accessibilityActionForToggleChange">@string/wear_picker_a11y_action_toggle</item>
+    <item name="accessibilityActionForItemSelection">@string/wear_picker_a11y_action_select_item</item>
+  </style>
+</resources>

@@ -1,0 +1,27 @@
+apply plugin: "com.android.library"
+
+android {
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["."]
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+
+idea.module.settings {
+    for (String path: rootProject.ext.default_packagePrefix_dirs) {
+        packagePrefix[path] = "${rootProject.ext.commonPackage}.wearable.wearmaterial.${file(".").name}"
+    }
+}

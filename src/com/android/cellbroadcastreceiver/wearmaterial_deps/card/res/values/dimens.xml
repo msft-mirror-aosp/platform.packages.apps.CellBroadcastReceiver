@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_card_inner_padding">6dp</dimen>
+  <dimen name="wear_card_minimum_height">80dp</dimen>
+  <item name="wear_card_gradient_start_alpha" type="fraction">20%</item>
+  <item name="wear_card_gradient_end_alpha" type="fraction">13%</item>
+</resources>

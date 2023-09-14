@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- GM2 color attributes. -->
+  <attr name="colorPrimary" format="color"/>
+  <attr name="colorOnPrimary" format="color"/>
+  <attr name="colorPrimaryVariant" format="color"/>
+  <attr name="colorSecondary" format="color"/>
+  <attr name="colorOnSecondary" format="color"/>
+  <attr name="colorSecondaryVariant" format="color"/>
+  <attr name="colorSurface" format="color"/>
+  <attr name="colorOnSurface" format="color"/>
+  <!-- Does not exist in GM2 Wear Compose library. -->
+  <attr name="colorSurfaceVariant" format="color"/>
+  <attr name="colorBackground" format="color"/>
+  <attr name="colorOnBackgroundWear" format="color"/>
+  <attr name="colorWearError" format="color"/>
+  <attr name="colorOnWearError" format="color"/>
+
+  <!-- GM2 to GM3 compatibility attributes -->
+  <!-- Due to the migration in semantics of the "accent" color going from
+       secondary to tertiary, these compat attributes provides appropriate
+       aliases to secondary and tertiary colors in GM2 and GM3 respectively. -->
+  <attr name="colorSecondaryCompat" format="color"/>
+  <attr name="colorOnSecondaryCompat" format="color"/>
+  <attr name="colorSecondaryVariantCompat" format="color"/>
+
+  <!-- GM3 color attributes. -->
+  <attr name="colorTertiary" format="color"/>
+  <attr name="colorOnTertiary" format="color"/>
+  <attr name="colorTertiaryVariant" format="color"/>
+  <attr name="colorOutline" format="color"/>
+  <attr name="colorWearSurfaceHighlight" format="color"/>
+  <attr name="colorWearSurfaceVariantHighlight" format="color"/>
+  <attr name="colorWearOnSurfaceSecondary" format="color"/>
+  <attr name="colorWearOnSurfaceVariantSecondary" format="color"/>
+  <!-- Part of GM2, but not defined in Wear GM2-based color scheme. -->
+  <attr name="colorOnSurfaceVariant" format="color"/>
+  <!-- Theme overlay for applying dynamic colors to the theme. This is applied
+       programmatically. -->
+  <attr name="dynamicColorThemeOverlay" format="reference"/>
+
+  <!-- Determines whether the overall appearance of a view is light or dark. -->
+  <attr name="state_light" format="boolean" />
+
+  <!-- Deprecated. Aliases to colorSecondary in GM2 and colorTertiary in GM3. -->
+  <attr name="colorAccent" format="color"/>
+</resources>

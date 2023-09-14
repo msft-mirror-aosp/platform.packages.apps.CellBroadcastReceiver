@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Color constants, roughly corresponding to GM2 color tokens.  -->
+    <color name="wear_material_colorPrimary">@color/wear_material_blue</color>
+    <color name="wear_material_colorOnPrimary">@color/wear_material_blue_dark</color>
+    <color name="wear_material_colorPrimaryVariant">@color/wear_material_blue_mid</color>
+    <color name="wear_material_colorSecondary">@color/wear_material_yellow_pop</color>
+    <color name="wear_material_colorOnSecondary">@color/wear_material_blue_dark</color>
+    <color name="wear_material_colorSecondaryVariant">@color/wear_material_yellow_pop_mid</color>
+    <color name="wear_material_colorSurface">@color/wear_material_blue_dark</color>
+    <color name="wear_material_colorOnSurface">@color/wear_material_white</color>
+    <color name="wear_material_colorSurfaceVariant">@color/wear_material_gray_300</color>
+    <color name="wear_material_colorOnSurfaceVariant">@color/wear_material_gray_300</color>
+    <color name="wear_material_colorBackground">@color/wear_material_black</color>
+    <color name="wear_material_colorOnBackgroundWear">@color/wear_material_white</color>
+    <color name="wear_material_colorWearError">@color/wear_material_system_red</color>
+    <color name="wear_material_colorOnWearError">@color/wear_material_black</color>
+    <color name="wear_material_colorPrimaryVariant_disabled">@color/wear_material_gray_600</color>
+
+    <!-- GM2 colors tokens for Material You
+         This re-uses the "Material 3" colors since the colors are same, but
+         still in a different color space than in Material 2. -->
+    <color name="wear_material_dynamic_colorPrimary">@color/wear_material3_dynamic_accent1_100</color>
+    <color name="wear_material_dynamic_colorOnPrimary">@color/wear_material3_dynamic_accent1_900</color>
+    <color name="wear_material_dynamic_colorPrimaryVariant">@color/wear_material3_dynamic_accent1_400</color>
+    <color name="wear_material_dynamic_colorSecondary">@color/wear_material3_dynamic_accent3_100</color>
+    <color name="wear_material_dynamic_colorOnSecondary">@color/wear_material3_dynamic_accent3_900</color>
+    <color name="wear_material_dynamic_colorSecondaryVariant">@color/wear_material3_dynamic_accent3_400</color>
+    <color name="wear_material_dynamic_colorSurface">@color/wear_material3_dynamic_neutral1_800</color>
+    <color name="wear_material_dynamic_colorOnSurface">@color/wear_material3_dynamic_neutral1_50</color>
+    <color name="wear_material_dynamic_colorSurfaceVariant">@color/wear_material3_dynamic_neutral2_800</color>
+    <color name="wear_material_dynamic_colorOnSurfaceVariant">@color/wear_material3_dynamic_neutral2_200</color>
+    <color name="wear_material_dynamic_colorBackground">#000000</color>
+    <color name="wear_material_dynamic_colorOnBackgroundWear">#FFFFFF</color>
+    <color name="wear_material_dynamic_colorWearError">@color/wear_material3_system_red</color>
+    <color name="wear_material_dynamic_colorOnWearError">@color/wear_material3_system_red_dark</color>
+</resources>

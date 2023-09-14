@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_time_margin">4dp</dimen>
+  <dimen name="wear_time_padding_between_text">4dp</dimen>
+  <dimen name="wear_time_text_size">15sp</dimen>
+  <dimen name="wear_time_max_fade_out_scroll">36dp</dimen>
+</resources>

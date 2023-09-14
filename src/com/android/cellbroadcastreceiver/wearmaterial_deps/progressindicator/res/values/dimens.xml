@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_progress_indicator_spinner_size">24dp</dimen>
+  <dimen name="wear_progress_indicator_text_view_vertical_margin">4dp</dimen>
+  <dimen name="wear_progress_indicator_text_view_horizontal_margin">8dp</dimen>
+  <dimen name="wear_progress_indicator_vertical_padding">6dp</dimen>
+  <dimen name="wear_progress_indicator_horizontal_padding">12dp</dimen>
+  <dimen name="wear_progress_indicator_spinner_track_width">3dp</dimen>
+  <dimen name="wear_progress_indicator_text_size">12sp</dimen>
+</resources>

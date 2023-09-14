@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr name="progressIndicatorSpinnerLabelStyle" format="reference" />
+
+  <attr name="progressIndicatorSpinnerStyle" format="reference" />
+
+  <declare-styleable name="ProgressSpinnerDrawable">
+    <!-- The color of the circular progress-bar. -->
+    <attr name="spinnerProgressColor" format="reference|color" />
+
+    <!-- The color of the circular track. -->
+    <attr name="spinnerTrackColor" format="reference|color" />
+
+    <!-- The width of the progress-bar and track. -->
+    <attr name="spinnerTrackWidth" format="dimension" />
+
+    <!-- The direction of the start-angle and the sweep-angle. -->
+    <attr name="spinnerDirection" format="enum">
+      <enum name="clockwise" value="0" />
+      <enum name="counter_clockwise" value="1" />
+    </attr>
+
+    <!-- Determines whether a 0-sized/empty sweep-angle should be shown or not. -->
+    <attr name="showEmptySweepAngle" format="boolean" />
+
+    <!-- The angle that determines the start of the progress-bar. -->
+    <attr name="spinnerStartAngle" format="float" />
+
+    <!-- The angle that determines the end of the progress-bar. -->
+    <attr name="spinnerSweepAngle" format="float" />
+
+    <!-- The angle that determines the start of the progress-track. -->
+    <attr name="spinnerTrackStartAngle" format="float" />
+
+    <!-- The angle that determines the end of the progress-track. -->
+    <attr name="spinnerTrackEndAngle" format="float" />
+
+    <!--
+    Can be used instead of the 'sweepAngle':
+    sweepAngle = level / 10,000 * 360
+    -->
+    <attr name="android:level" />
+
+    <!-- The overall rotation of the progress-bar. -->
+    <attr name="spinnerRotation" format="float" />
+
+    <!--
+    The gravity of the track and progress-bar. All values are valid, but
+    only a combination of left, start, right, end, top, bottom and center
+    are effective.
+    -->
+    <attr name="android:gravity" />
+  </declare-styleable>
+
+  <declare-styleable name="WearProgressSpinnerIndicator">
+
+    <!-- Drawable of the Progress Spinner -->
+    <attr name="spinner" format="reference" />
+
+    <!-- Value clamped between 0 and 1 that is used to determine the sweep angle of the Progress Spinner-->
+    <attr name="progress" format="float" />
+
+    <!--
+    The gravity of the spinner in relation to the label. All values are valid,
+    but only start, end, top, and bottom are effective.
+    -->
+    <attr name="android:gravity" />
+
+    <attr name="android:text" />
+
+    <!--  Determines whether a spinner should show progress or animate indefinitely, the default is false  -->
+    <attr name="android:indeterminate" />
+  </declare-styleable>
+</resources>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedIds"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+  <com.google.android.clockwork.common.wearable.wearmaterial.picker.CenteredRecyclerView
+      android:id="@+id/wear_picker_column_list"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:importantForAccessibility="no"
+      android:layoutDirection="ltr"
+      android:orientation="horizontal"
+      app:isFlingEnabled="false"
+      app:layout_constraintBottom_toTopOf="@+id/wear_picker_action_button"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/top_label_barrier" />
+
+  <androidx.constraintlayout.widget.Barrier
+      android:id="@+id/top_label_barrier"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:barrierDirection="bottom">
+    <tag android:id="@+id/wear_picker_toggle" />
+    <tag android:id="@+id/picker_center_column_label" />
+  </androidx.constraintlayout.widget.Barrier>
+
+  <TextView
+      android:id="@+id/wear_picker_toggle"
+      style="?attr/wearToggleTextStyle"
+      android:layout_width="?attr/wearToggleTextWidth"
+      android:layout_height="@dimen/wear_picker_row_toggle_height"
+      android:gravity="center"
+      android:lines="1"
+      android:visibility="gone"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Toggle"
+      tools:visibility="visible" />
+
+  <TextView
+      android:id="@+id/picker_center_column_label"
+      style="?attr/wearToggleTextStyle"
+      android:background="@android:color/transparent"
+      android:layout_width="0dp"
+      android:layout_height="@dimen/wear_picker_row_center_label_height"
+      android:duplicateParentState="false"
+      android:lines="1"
+      android:visibility="visible"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:ignore="UnusedAttribute"
+      tools:text="Label" />
+
+  <com.google.android.clockwork.common.wearable.wearmaterial.button.WearCircularButton
+      android:id="@+id/wear_picker_action_button"
+      style="?attr/wearActionButtonStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:checkable="true"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:toggleOnClick="false"
+      tools:icon="@drawable/ic_cc_checkmark"
+      tools:ignore="ContentDescription"
+      tools:visibility="visible" />
+
+  <TextView
+      android:id="@+id/wear_separator_text"
+      style="?attr/wearSeparatorTextStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:importantForAccessibility="no"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      android:visibility="invisible" />
+
+</merge>

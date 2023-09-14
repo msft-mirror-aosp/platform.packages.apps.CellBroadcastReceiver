@@ -19,7 +19,6 @@ package com.android.cellbroadcastreceiver;
 import android.annotation.NonNull;
 import android.app.ActionBar;
 import android.app.ActivityManager;
-import android.app.Fragment;
 import android.app.backup.BackupManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,17 +33,16 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.telephony.SubscriptionManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
 
+import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
-import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
@@ -54,6 +52,8 @@ import com.android.modules.utils.build.SdkLevel;
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 import com.android.settingslib.widget.MainSwitchPreference;
 import com.android.settingslib.widget.OnMainSwitchChangeListener;
+
+import com.google.android.clockwork.common.wearable.wearmaterial.preference.WearPreferenceFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -206,11 +206,11 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         }
 
         // We only add new CellBroadcastSettingsFragment if no fragment is restored.
-        Fragment fragment = getFragmentManager().findFragmentById(
+        Fragment fragment = getSupportFragmentManager().findFragmentById(
                 com.android.settingslib.widget.R.id.content_frame);
         if (fragment == null) {
             fragment = new CellBroadcastSettingsFragment();
-            getFragmentManager()
+            getSupportFragmentManager()
                     .beginTransaction()
                     .add(com.android.settingslib.widget.R.id.content_frame, fragment)
                     .commit();
@@ -295,7 +295,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     /**
      * New fragment-style implementation of preferences.
      */
-    public static class CellBroadcastSettingsFragment extends PreferenceFragment {
+    public static class CellBroadcastSettingsFragment extends WearPreferenceFragment {
 
         private TwoStatePreference mExtremeCheckBox;
         private TwoStatePreference mSevereCheckBox;
@@ -390,27 +390,8 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View root = super.onCreateView(inflater, container, savedInstanceState);
-            PackageManager pm = getActivity().getPackageManager();
-            if (pm != null
-                    && pm.hasSystemFeature(
-                    PackageManager.FEATURE_WATCH)) {
-                ViewGroup.LayoutParams layoutParams = getListView().getLayoutParams();
-                if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
-                    int watchMarginInPixel = (int) getResources().getDimension(
-                            R.dimen.pref_top_margin);
-                    ((ViewGroup.MarginLayoutParams) layoutParams).topMargin = watchMarginInPixel;
-                    ((ViewGroup.MarginLayoutParams) layoutParams).bottomMargin = watchMarginInPixel;
-                    getListView().setLayoutParams(layoutParams);
-                }
-            }
-            return root;
-        }
-
-        @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setUseWearMaterialPreferences(true);
 
             LocalBroadcastManager.getInstance(getContext())
                     .registerReceiver(mTestingModeChangedReceiver, new IntentFilter(

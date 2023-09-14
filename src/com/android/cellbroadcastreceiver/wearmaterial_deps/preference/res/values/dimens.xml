@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Minimum padding between every preference item. -->
+  <dimen name="wear_preference_padding_vertical">4dp</dimen>
+  <!-- Additional padding for preference categories -->
+  <dimen name="wear_preference_category_padding_top">12dp</dimen>
+  <dimen name="wear_preference_category_padding_bottom">4dp</dimen>
+
+  <item name="wear_preference_fragment_horizontal_padding_percent" format="float" type="dimen">.052</item>
+  <item name="wear_preference_fragment_top_padding_percent" format="float" type="dimen">.168</item>
+  <item name="wear_preference_fragment_bottom_padding_percent" format="float" type="dimen">.3556</item>
+  <!-- The category padding is added in addition to wear_preference_fragment_horizontal_padding_percent. -->
+  <item name="wear_preference_category_horizontal_padding_percent" format="float" type="dimen">.075</item>
+  <!-- The text box padding is added in addition to wear_preference_fragment_horizontal_padding_percent. -->
+  <item name="wear_preference_text_box_horizontal_padding_percent" format="float" type="dimen">.075</item>
+  <!-- The title padding is added in addition to wear_preference_fragment_horizontal_padding_percent. -->
+  <item name="wear_preference_title_horizontal_padding_percent" format="float" type="dimen">.075</item>
+</resources>

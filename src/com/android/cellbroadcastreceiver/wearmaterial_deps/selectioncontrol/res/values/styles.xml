@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="WearCheckBoxDefault" parent="android:Widget.CompoundButton.CheckBox">
+    <item name="android:button">@drawable/wear_check_box</item>
+  </style>
+  <style name="WearRadioButtonDefault" parent="android:Widget.CompoundButton.RadioButton">
+    <item name="android:button">@drawable/wear_radio_button</item>
+  </style>
+  <style name="WearToggleDefault" parent="android:Widget.CompoundButton.CheckBox">
+    <item name="android:button">@drawable/wear_toggle</item>
+  </style>
+</resources>

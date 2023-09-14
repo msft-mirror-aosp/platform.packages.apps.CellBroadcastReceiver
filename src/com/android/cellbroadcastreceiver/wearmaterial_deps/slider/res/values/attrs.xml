@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr name="fullscreenSliderStyle" format="reference" />
+  <attr name="inlineSliderStyle" format="reference" />
+  <attr name="allowLongPress" format="boolean" />
+  <attr name="buttonIconTint" format="reference|color" />
+  <attr name="decrementDrawable" format="reference" />
+  <attr name="incrementDrawable" format="reference" />
+  <attr name="decrementContentDescription" format="string" />
+  <attr name="incrementContentDescription" format="string" />
+
+  <declare-styleable name="WearInlineSlider">
+    <attr name="android:backgroundTint"/>
+    <attr name="android:stepSize"/>
+    <attr name="android:value" />
+    <attr name="android:valueFrom" />
+    <attr name="android:valueTo" />
+    <attr name="allowLongPress" />
+    <attr name="decrementDrawable" />
+    <attr name="incrementDrawable" />
+    <attr name="baseBarColor" format="reference|color" />
+    <attr name="filledBarColor" format="reference|color" />
+    <attr name="separatorColor" format="reference|color" />
+    <attr name="showIncrementSeparators" format="boolean" />
+    <attr name="showMinimumIncrement" format="boolean" />
+    <attr name="decrementContentDescription" />
+    <attr name="incrementContentDescription" />
+    <attr name="progressContentDescription" format="string" />
+  </declare-styleable>
+
+  <declare-styleable name="WearFullscreenSlider">
+    <attr name="allowLongPress" />
+    <attr name="decrementDrawable" />
+    <attr name="incrementDrawable" />
+    <attr name="buttonIconTint" />
+    <attr name="decrementContentDescription" />
+    <attr name="incrementContentDescription" />
+  </declare-styleable>
+</resources>

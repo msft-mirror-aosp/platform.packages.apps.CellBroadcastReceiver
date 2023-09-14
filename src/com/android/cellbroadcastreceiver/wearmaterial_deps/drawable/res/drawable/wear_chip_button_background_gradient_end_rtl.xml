@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+  <corners android:radius="@dimen/wear_button_corner_radius"/>
+  <!-- Apply a gradient starting with alpha at 20% to ending at 40%
+    The default color of this drawable is white. Apply tint to colorize as needed -->
+  <gradient
+      android:startColor="@color/wear_material_button_start_gradient"
+      android:endColor="@color/wear_material_button_end_gradient"
+      android:angle="@integer/wear_button_gradient_angle_rtl"
+      android:type="linear">
+  </gradient>
+</shape>

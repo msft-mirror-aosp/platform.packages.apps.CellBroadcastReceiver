@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="wear_material_button_start_gradient">#53FFFFFF</color>
+  <color name="wear_material_button_end_gradient">#00FFFFFF</color>
+</resources>

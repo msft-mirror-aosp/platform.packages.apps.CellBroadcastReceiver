@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+  <corners android:radius="@dimen/wear_placeholder_chip_button_corner_radius"/>
+  <solid android:color="@color/wear_chip_button_placeholder_skeleton"/>
+</shape>

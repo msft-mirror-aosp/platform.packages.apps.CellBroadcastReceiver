@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+  <androidx.constraintlayout.widget.Guideline
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/wear_fullscreen_slider_guideline_top"
+      app:layout_constraintGuide_percent="@dimen/fullscreen_slider_top_guideline_percent"
+      android:orientation="horizontal"/>
+
+  <androidx.constraintlayout.widget.Guideline
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/wear_fullscreen_slider_guideline_bottom"
+      app:layout_constraintGuide_percent="@dimen/fullscreen_slider_bottom_guideline_percent"
+      android:orientation="horizontal"/>
+
+  <androidx.constraintlayout.widget.Guideline
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/wear_fullscreen_slider_guideline_start"
+      app:layout_constraintGuide_percent="@dimen/fullscreen_slider_start_guideline_percent"
+      android:orientation="vertical"/>
+
+  <androidx.constraintlayout.widget.Guideline
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/wear_fullscreen_slider_guideline_end"
+      app:layout_constraintGuide_percent="@dimen/fullscreen_slider_end_guideline_percent"
+      android:orientation="vertical"/>
+
+  <com.google.android.clockwork.common.wearable.wearmaterial.button.WearCircularButton
+      style="@style/WearCircularButtonSecondary"
+      android:id="@+id/wear_fullscreen_slider_increment"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintTop_toTopOf="@id/wear_fullscreen_slider_guideline_top"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:size="standard"
+      android:drawable="@drawable/ic_wear_material_add"
+      tools:ignore="ContentDescription"/>
+
+  <TextView
+      style="@style/FullscreenSliderStyle"
+      android:id="@+id/wear_fullscreen_slider_text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"/>
+
+  <com.google.android.clockwork.common.wearable.wearmaterial.button.WearCircularButton
+      style="@style/WearCircularButtonSecondary"
+      android:id="@+id/wear_fullscreen_slider_decrement"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintBottom_toBottomOf="@id/wear_fullscreen_slider_guideline_bottom"
+      app:layout_constraintStart_toStartOf="@id/wear_fullscreen_slider_guideline_start"
+      app:layout_constraintEnd_toEndOf="@id/wear_fullscreen_slider_guideline_end"
+      app:size="standard"
+      android:drawable="@drawable/ic_wear_material_subtract"
+      tools:ignore="ContentDescription"/>
+</merge>

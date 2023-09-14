@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedIds">
+  <item
+      android:id="@+id/open_phone_phone_selected"
+      android:drawable="@drawable/wear_open_on_phone_background"
+      android:state_selected="true" android:state_pressed="false" />
+  <item
+      android:id="@+id/open_phone_phone_pressed"
+      android:drawable="@drawable/wear_open_on_phone_background"
+      android:state_pressed="true" />
+  <item
+      android:id="@+id/open_phone_phone_unselected"
+      android:drawable="@drawable/wear_open_on_phone_background"
+       />
+  <transition
+      android:drawable="@drawable/wear_open_on_phone_background_animated"
+      android:fromId="@id/open_phone_phone_unselected"
+      android:toId="@id/open_phone_phone_selected" />
+  <transition
+      android:drawable="@drawable/wear_open_on_phone_background_animated"
+      android:fromId="@id/open_phone_phone_unselected"
+      android:toId="@id/open_phone_phone_pressed" />
+  <transition
+      android:drawable="@drawable/wear_open_on_phone_background_reverse_animated"
+      android:fromId="@id/open_phone_phone_pressed"
+      android:toId="@id/open_phone_phone_unselected" />
+</animated-selector>

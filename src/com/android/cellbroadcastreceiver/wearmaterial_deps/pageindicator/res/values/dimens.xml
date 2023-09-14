@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_page_indicator_radius">3dp</dimen>
+  <dimen name="wear_page_indicator_padding">6dp</dimen>
+  <dimen name="wear_page_indicator_rectangular_dot_distance">10dp</dimen>
+</resources>

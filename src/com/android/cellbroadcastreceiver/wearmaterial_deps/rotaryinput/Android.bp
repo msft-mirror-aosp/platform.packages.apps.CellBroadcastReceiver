@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["wear_os_application_license"],
+}
+
+android_library {
+    java_version: "1.8",
+    name: "wearmaterial-rotaryinput",
+    manifest: "AndroidManifest.xml",
+    srcs: ["*.java"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    static_libs: [
+        "error_prone_annotations",
+        "androidx.core_core",
+        "androidx.recyclerview_recyclerview",
+        "checker-qual",
+        "guava",
+    ],
+}

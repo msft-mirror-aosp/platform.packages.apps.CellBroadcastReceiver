@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="Widget.GM3.WearButton" parent="WearButtonDefault">
+    <item name="buttonBackgroundColor">?attr/colorSurfaceVariant</item>
+  </style>
+
+  <!-- This is the same as Widget.GM3.WearChipButton.NeutralVariant, as it is the
+       closest to WearChipButtonDefault in terms of background color. -->
+  <style name="Widget.GM3.WearChipButton" parent="WearChipButtonDefault">
+    <item name="buttonBackgroundColor">?attr/colorSurfaceVariant</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.Neutral">
+    <item name="buttonBackgroundColor">?attr/colorSurface</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.NeutralVariant" />
+
+  <style name="Widget.GM3.WearChipButton.Stroked">
+    <item name="android:background">@drawable/wear_chip_button_stroked_background</item>
+    <item name="buttonBackgroundColor">?attr/colorOutline</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.Transparent">
+    <item name="android:background">@drawable/wear_chip_button_transparent</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.Accent">
+    <item name="android:background">@drawable/wear_chip_button_background_solid</item>
+    <item name="buttonBackgroundColor">?attr/colorPrimary</item>
+    <item name="primaryTextColor">?attr/colorOnPrimary</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.Avatar">
+    <item name="wear_icon_size">@dimen/wear_chip_button_avatar_size</item>
+    <item name="iconOnlyPadding">@dimen/wear_button_start_padding_avatar</item>
+    <item name="iconAndTextPadding">@dimen/wear_button_start_padding_avatar</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.Checkable">
+    <item name="android:background">@drawable/wear_chip_button_background_solid</item>
+    <item name="buttonBackgroundColor">@color/wear_chip_button_checkable_background_gm3</item>
+    <item name="android:checkable">true</item>
+  </style>
+
+  <style name="Widget.GM3.WearChipButton.Small" parent="WearChipButtonSmall">
+    <item name="buttonBackgroundColor">?attr/colorSurfaceVariant</item>
+  </style>
+
+  <!-- This is the same as Widget.GM3.WearCircularButton.NeutralVariant, as it is the
+       closest to WearCircularButtonDefault in terms of background color. -->
+  <style name="Widget.GM3.WearCircularButton" parent="WearCircularButtonDefault">
+    <item name="buttonBackgroundColor">@color/wear_circular_button_background_neutral_variant_gm3</item>
+    <item name="buttonIconTint">@color/wear_circular_button_icon_neutral_variant_gm3</item>
+  </style>
+
+  <style name="Widget.GM3.WearCircularButton.Neutral">
+    <item name="buttonBackgroundColor">@color/wear_circular_button_background_neutral_gm3</item>
+    <item name="buttonIconTint">@color/wear_circular_button_icon_neutral_gm3</item>
+  </style>
+
+  <style name="Widget.GM3.WearCircularButton.NeutralVariant" />
+
+  <style name="Widget.GM3.WearCircularButton.Transparent">
+    <item name="android:background">@drawable/wear_image_button_transparent</item>
+  </style>
+
+  <style name="Widget.GM3.WearCircularButton.Stroked">
+    <item name="android:background">@drawable/wear_image_button_stroked_background</item>
+    <item name="buttonBackgroundColor">?attr/colorOutline</item>
+    <item name="buttonIconTint">?attr/colorOnSurfaceVariant</item>
+  </style>
+
+</resources>

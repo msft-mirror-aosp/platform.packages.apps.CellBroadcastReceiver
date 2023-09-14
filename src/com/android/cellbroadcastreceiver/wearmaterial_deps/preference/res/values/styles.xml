@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="WearPreferenceFragment" parent="PreferenceFragment.Material">
+    <item name="android:layout">@layout/wear_preference_list_fragment</item>
+  </style>
+
+  <style name="WearPreference" parent="Preference.Material">
+    <item name="android:layout">@layout/wear_preference</item>
+  </style>
+
+  <style name="WearSwitchPreference" parent="Preference.SwitchPreference.Material">
+    <item name="android:layout">@layout/wear_switch_preference</item>
+  </style>
+
+  <style name="WearCheckBoxPreference" parent="Preference.CheckBoxPreference.Material">
+    <item name="android:layout">@layout/wear_check_box_preference</item>
+  </style>
+
+  <style name="WearDialogPreference" parent="Preference.DialogPreference.Material">
+    <item name="android:layout">@layout/wear_preference</item>
+    <item name="android:positiveButtonText" />
+    <item name="android:negativeButtonText" />
+    <item name="positiveIcon">@drawable/ic_wear_material_check</item>
+    <item name="negativeIcon">@drawable/ic_wear_material_clear</item>
+  </style>
+
+  <style name="WearPreferenceCategory" parent="Preference.Category.Material">
+    <item name="singleLineTitle">false</item>
+    <item name="android:layout">@layout/wear_preference_category</item>
+    <item name="allowDividerAbove">false</item>
+    <item name="allowDividerBelow">false</item>
+  </style>
+
+  <style name="WearInlineSliderPreference" parent="Preference.Material">
+    <item name="android:layout">@layout/wear_inline_slider_preference</item>
+    <item name="preferenceSliderIncrementSeparators">false</item>
+  </style>
+
+  <style name="Base.PreferenceThemeOverlay.WearMaterial" parent="PreferenceThemeOverlay">
+    <item name="preferenceTitleTextColor">@color/wear_material_gray_400</item>
+    <item name="preferenceStyle">@style/WearPreference</item>
+    <item name="checkBoxPreferenceStyle">@style/WearCheckBoxPreference</item>
+    <item name="switchPreferenceStyle">@style/WearSwitchPreference</item>
+    <item name="dialogPreferenceStyle">@style/WearDialogPreference</item>
+    <item name="preferenceCategoryStyle">@style/WearPreferenceCategory</item>
+    <item name="inlineSliderPreferenceStyle">@style/WearInlineSliderPreference</item>
+    <item name="preferenceFragmentCompatStyle">@style/WearPreferenceFragment</item>
+  </style>
+
+  <style name="PreferenceThemeOverlay.WearMaterial" parent="Base.PreferenceThemeOverlay.WearMaterial" />
+</resources>

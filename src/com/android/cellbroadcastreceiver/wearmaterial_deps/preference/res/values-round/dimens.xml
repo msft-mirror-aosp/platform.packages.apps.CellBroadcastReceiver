@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- The title padding is added in addition to wear_preference_fragment_horizontal_padding_percent. -->
+  <item name="wear_preference_title_horizontal_padding_percent" format="float" type="dimen">.1664</item>
+  <!-- Assuming 5% horizontal padding, this is the minimum safe percent to ensure the settings can scroll fully into view. -->
+  <item name="wear_preference_fragment_bottom_padding_percent" format="float" type="dimen">.3645</item>
+</resources>

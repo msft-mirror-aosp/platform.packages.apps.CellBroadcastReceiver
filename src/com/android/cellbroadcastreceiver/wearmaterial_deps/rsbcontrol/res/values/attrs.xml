@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr name="rsbControlStyle" type="reference"/>
+
+  <declare-styleable name="RSBControl">
+    <attr name="color" format="color"/>
+    <attr name="maxValue" format="integer"/>
+    <attr name="sweepDegrees" format="float"/>
+
+    <attr name="rsbControlType" format="enum">
+      <enum name="slider" value="0" />
+      <enum name="selector" value="1" />
+    </attr>
+  </declare-styleable>
+</resources>

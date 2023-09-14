@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- dovetail 1.0 default theme colors -->
+  <color name="wear_material_almond">#FFFCF7EB</color>
+  <color name="wear_material_almond_mid">#FFCAC5BC</color>
+  <color name="wear_material_almond_dark">#FF32312F</color>
+  <color name="wear_material_pop">#FFE6FF7B</color>
+  <color name="wear_material_pop_mid">#FFB2CC4A</color>
+
+  <color name="wear_material_blue">#FFAECBFA</color>
+  <color name="wear_material_blue_mid">#FF8AB4F8</color>
+  <color name="wear_material_blue_dark">#FF303133</color>
+  <color name="wear_material_yellow_pop">#FFFDE293</color>
+  <color name="wear_material_yellow_pop_mid">#FFFDD663</color>
+
+  <!-- Colors that won't change based on theme -->
+  <color name="wear_material_accent_red_bright">#FFE24444</color>
+  <color name="wear_material_accent_green_bright">#FF43E09C</color>
+  <color name="wear_material_accent_yellow_bright">#FFE2DB44</color>
+  <color name="wear_material_gray_900">#FF202124</color>
+  <color name="wear_material_gray_800">#FF3C4043</color>
+  <color name="wear_material_gray_700">#FF5F6368</color>
+  <color name="wear_material_gray_600">#FF80868B</color>
+  <color name="wear_material_gray_500">#FF9AA0A6</color>
+  <color name="wear_material_gray_400">#FFBDC1C6</color>
+  <color name="wear_material_gray_300">#FFDADCE0</color>
+  <color name="wear_material_gray_200">#FFE8EAED</color>
+  <color name="wear_material_gray_100">#FFF1F3F4</color>
+  <color name="wear_material_black">#FF000000</color>
+  <color name="wear_material_white">#FFFFFFFF</color>
+
+  <!-- System colors -->
+  <color name="wear_material_system_white">#FFFFFFFF</color>
+  <color name="wear_material_system_white_mid">#FFCCCCCC</color>
+  <color name="wear_material_system_white_dark">#FF262626</color>
+
+  <color name="wear_material_system_red">#FFFF746E</color>
+  <color name="wear_material_system_red_mid">#FFCC5D58</color>
+  <color name="wear_material_system_red_dark">#FF261110</color>
+
+  <color name="wear_material_system_green">#FF72E5BA</color>
+  <color name="wear_material_system_green_mid">#FF5BB795</color>
+  <color name="wear_material_system_green_dark">#FF11221C</color>
+
+  <color name="wear_material_system_blue">#FF75ACFF</color>
+  <color name="wear_material_system_blue_mid">#FF5E89CC</color>
+  <color name="wear_material_system_blue_dark">#FF121A26</color>
+
+  <color name="wear_material_system_purple">#FFA388FA</color>
+  <color name="wear_material_system_purple_mid">#FF826DC8</color>
+  <color name="wear_material_system_purple_dark">#FF181425</color>
+
+  <color name="wear_material_system_orange">#FFFFA082</color>
+  <color name="wear_material_system_orange_mid">#FFCC8068</color>
+  <color name="wear_material_system_orange_dark">#FF261813</color>
+
+  <color name="wear_material_system_pink">#FFFF8BCB</color>
+  <color name="wear_material_system_pink_mid">#FFCC6FA2</color>
+  <color name="wear_material_system_pink_dark">#FF26151E</color>
+
+  <color name="wear_material_system_yellow">#FFFFF965</color>
+  <color name="wear_material_system_yellow_mid">#FFCCC751</color>
+  <color name="wear_material_system_yellow_dark">#FFA6A50F</color>
+
+  <color name="wear_material_system_cyan">#FF78D9EC</color>
+  <color name="wear_material_system_cyan_mid">#FF60AEBD</color>
+  <color name="wear_material_system_cyan_dark">#FF122123</color>
+
+  <color name="wear_material3_system_red">#FFFD7267</color>
+  <color name="wear_material3_system_red_dark">#FF410002</color>
+
+  <!-- GM3 Default colors -->
+  <color name="wear_material3_default_accent1_0">#FFFFFFFF</color>
+  <color name="wear_material3_default_accent1_20">#FFF5FAFF</color>
+  <color name="wear_material3_default_accent1_50">#FFE3F3FF</color>
+  <color name="wear_material3_default_accent1_100">#FFC4E7FF</color>
+  <color name="wear_material3_default_accent1_200">#FFA8CBE2</color>
+  <color name="wear_material3_default_accent1_300">#FF8DB0C6</color>
+  <color name="wear_material3_default_accent1_400">#FF7395AA</color>
+  <color name="wear_material3_default_accent1_500">#FF597B90</color>
+  <color name="wear_material3_default_accent1_600">#FF406376</color>
+  <color name="wear_material3_default_accent1_700">#FF284B5D</color>
+  <color name="wear_material3_default_accent1_800">#FF0D3446</color>
+  <color name="wear_material3_default_accent1_900">#FF001E2C</color>
+  <color name="wear_material3_default_accent1_1000">#FF000000</color>
+
+  <color name="wear_material3_default_accent2_0">#FFFFFFFF</color>
+  <color name="wear_material3_default_accent2_20">#FFF5FAFF</color>
+  <color name="wear_material3_default_accent2_50">#FFE3F3FF</color>
+  <color name="wear_material3_default_accent2_100">#FFD4E5F1</color>
+  <color name="wear_material3_default_accent2_200">#FFB8C9D5</color>
+  <color name="wear_material3_default_accent2_300">#FF9DAEB9</color>
+  <color name="wear_material3_default_accent2_400">#FF83939E</color>
+  <color name="wear_material3_default_accent2_500">#FF697984</color>
+  <color name="wear_material3_default_accent2_600">#FF51616B</color>
+  <color name="wear_material3_default_accent2_700">#FF394953</color>
+  <color name="wear_material3_default_accent2_800">#FF23323C</color>
+  <color name="wear_material3_default_accent2_900">#FF0D1D26</color>
+  <color name="wear_material3_default_accent2_1000">#FF000000</color>
+
+  <color name="wear_material3_default_accent3_0">#FFFFFFFF</color>
+  <color name="wear_material3_default_accent3_20">#FFFFF8F5</color>
+  <color name="wear_material3_default_accent3_50">#FFFFEDE3</color>
+  <color name="wear_material3_default_accent3_100">#FFFFDCC3</color>
+  <color name="wear_material3_default_accent3_200">#FFF0BC95</color>
+  <color name="wear_material3_default_accent3_300">#FFD2A17C</color>
+  <color name="wear_material3_default_accent3_400">#FFB58763</color>
+  <color name="wear_material3_default_accent3_500">#FF996E4C</color>
+  <color name="wear_material3_default_accent3_600">#FF7D5636</color>
+  <color name="wear_material3_default_accent3_700">#FF623F21</color>
+  <color name="wear_material3_default_accent3_800">#FF48290D</color>
+  <color name="wear_material3_default_accent3_900">#FF2F1500</color>
+  <color name="wear_material3_default_accent3_1000">#FF000000</color>
+
+  <color name="wear_material3_default_neutral1_0">#FFFFFFFF</color>
+  <color name="wear_material3_default_neutral1_20">#FFF8F9FC</color>
+  <color name="wear_material3_default_neutral1_50">#FFF0F1F3</color>
+  <color name="wear_material3_default_neutral1_100">#FFE1E2E5</color>
+  <color name="wear_material3_default_neutral1_200">#FFC5C6C9</color>
+  <color name="wear_material3_default_neutral1_300">#FFAAABAE</color>
+  <color name="wear_material3_default_neutral1_400">#FF8F9193</color>
+  <color name="wear_material3_default_neutral1_500">#FF757779</color>
+  <color name="wear_material3_default_neutral1_600">#FF5C5F61</color>
+  <color name="wear_material3_default_neutral1_700">#FF454749</color>
+  <color name="wear_material3_default_neutral1_800">#FF2E3133</color>
+  <color name="wear_material3_default_neutral1_900">#FF191C1E</color>
+  <color name="wear_material3_default_neutral1_1000">#FF000000</color>
+
+  <color name="wear_material3_default_neutral2_0">#FFFFFFFF</color>
+  <color name="wear_material3_default_neutral2_20">#FFF5FAFF</color>
+  <color name="wear_material3_default_neutral2_50">#FFEBF2F8</color>
+  <color name="wear_material3_default_neutral2_100">#FFDCE3E9</color>
+  <color name="wear_material3_default_neutral2_200">#FFC0C7CD</color>
+  <color name="wear_material3_default_neutral2_300">#FFA5ACB2</color>
+  <color name="wear_material3_default_neutral2_400">#FF8A9297</color>
+  <color name="wear_material3_default_neutral2_500">#FF71787D</color>
+  <color name="wear_material3_default_neutral2_600">#FF585F65</color>
+  <color name="wear_material3_default_neutral2_700">#FF41484D</color>
+  <color name="wear_material3_default_neutral2_800">#FF2A3136</color>
+  <color name="wear_material3_default_neutral2_900">#FF161C21</color>
+  <color name="wear_material3_default_neutral2_1000">#FF000000</color>
+
+  <!-- GM3 Dynamic Colors. -->
+  <color name="wear_material3_dynamic_accent1_0">@color/wear_material3_default_accent1_0</color>
+  <color name="wear_material3_dynamic_accent1_20">@color/wear_material3_default_accent1_20</color>
+  <color name="wear_material3_dynamic_accent1_50">@color/wear_material3_default_accent1_50</color>
+  <color name="wear_material3_dynamic_accent1_100">@color/wear_material3_default_accent1_100</color>
+  <color name="wear_material3_dynamic_accent1_200">@color/wear_material3_default_accent1_200</color>
+  <color name="wear_material3_dynamic_accent1_300">@color/wear_material3_default_accent1_300</color>
+  <color name="wear_material3_dynamic_accent1_400">@color/wear_material3_default_accent1_400</color>
+  <color name="wear_material3_dynamic_accent1_500">@color/wear_material3_default_accent1_500</color>
+  <color name="wear_material3_dynamic_accent1_600">@color/wear_material3_default_accent1_600</color>
+  <color name="wear_material3_dynamic_accent1_700">@color/wear_material3_default_accent1_700</color>
+  <color name="wear_material3_dynamic_accent1_800">@color/wear_material3_default_accent1_800</color>
+  <color name="wear_material3_dynamic_accent1_900">@color/wear_material3_default_accent1_900</color>
+  <color name="wear_material3_dynamic_accent1_1000">@color/wear_material3_default_accent1_1000</color>
+
+  <color name="wear_material3_dynamic_accent2_0">@color/wear_material3_default_accent2_0</color>
+  <color name="wear_material3_dynamic_accent2_20">@color/wear_material3_default_accent2_20</color>
+  <color name="wear_material3_dynamic_accent2_50">@color/wear_material3_default_accent2_50</color>
+  <color name="wear_material3_dynamic_accent2_100">@color/wear_material3_default_accent2_100</color>
+  <color name="wear_material3_dynamic_accent2_200">@color/wear_material3_default_accent2_200</color>
+  <color name="wear_material3_dynamic_accent2_300">@color/wear_material3_default_accent2_300</color>
+  <color name="wear_material3_dynamic_accent2_400">@color/wear_material3_default_accent2_400</color>
+  <color name="wear_material3_dynamic_accent2_500">@color/wear_material3_default_accent2_500</color>
+  <color name="wear_material3_dynamic_accent2_600">@color/wear_material3_default_accent2_600</color>
+  <color name="wear_material3_dynamic_accent2_700">@color/wear_material3_default_accent2_700</color>
+  <color name="wear_material3_dynamic_accent2_800">@color/wear_material3_default_accent2_800</color>
+  <color name="wear_material3_dynamic_accent2_900">@color/wear_material3_default_accent2_900</color>
+  <color name="wear_material3_dynamic_accent2_1000">@color/wear_material3_default_accent2_1000</color>
+
+  <color name="wear_material3_dynamic_accent3_0">@color/wear_material3_default_accent3_0</color>
+  <color name="wear_material3_dynamic_accent3_20">@color/wear_material3_default_accent3_20</color>
+  <color name="wear_material3_dynamic_accent3_50">@color/wear_material3_default_accent3_50</color>
+  <color name="wear_material3_dynamic_accent3_100">@color/wear_material3_default_accent3_100</color>
+  <color name="wear_material3_dynamic_accent3_200">@color/wear_material3_default_accent3_200</color>
+  <color name="wear_material3_dynamic_accent3_300">@color/wear_material3_default_accent3_300</color>
+  <color name="wear_material3_dynamic_accent3_400">@color/wear_material3_default_accent3_400</color>
+  <color name="wear_material3_dynamic_accent3_500">@color/wear_material3_default_accent3_500</color>
+  <color name="wear_material3_dynamic_accent3_600">@color/wear_material3_default_accent3_600</color>
+  <color name="wear_material3_dynamic_accent3_700">@color/wear_material3_default_accent3_700</color>
+  <color name="wear_material3_dynamic_accent3_800">@color/wear_material3_default_accent3_800</color>
+  <color name="wear_material3_dynamic_accent3_900">@color/wear_material3_default_accent3_900</color>
+  <color name="wear_material3_dynamic_accent3_1000">@color/wear_material3_default_accent3_1000</color>
+
+  <color name="wear_material3_dynamic_neutral1_0">@color/wear_material3_default_neutral1_0</color>
+  <color name="wear_material3_dynamic_neutral1_20">@color/wear_material3_default_neutral1_20</color>
+  <color name="wear_material3_dynamic_neutral1_50">@color/wear_material3_default_neutral1_50</color>
+  <color name="wear_material3_dynamic_neutral1_100">@color/wear_material3_default_neutral1_100</color>
+  <color name="wear_material3_dynamic_neutral1_200">@color/wear_material3_default_neutral1_200</color>
+  <color name="wear_material3_dynamic_neutral1_300">@color/wear_material3_default_neutral1_300</color>
+  <color name="wear_material3_dynamic_neutral1_400">@color/wear_material3_default_neutral1_400</color>
+  <color name="wear_material3_dynamic_neutral1_500">@color/wear_material3_default_neutral1_500</color>
+  <color name="wear_material3_dynamic_neutral1_600">@color/wear_material3_default_neutral1_600</color>
+  <color name="wear_material3_dynamic_neutral1_700">@color/wear_material3_default_neutral1_700</color>
+  <color name="wear_material3_dynamic_neutral1_800">@color/wear_material3_default_neutral1_800</color>
+  <color name="wear_material3_dynamic_neutral1_900">@color/wear_material3_default_neutral1_900</color>
+  <color name="wear_material3_dynamic_neutral1_1000">@color/wear_material3_default_neutral1_1000</color>
+
+  <color name="wear_material3_dynamic_neutral2_0">@color/wear_material3_default_neutral2_0</color>
+  <color name="wear_material3_dynamic_neutral2_20">@color/wear_material3_default_neutral2_20</color>
+  <color name="wear_material3_dynamic_neutral2_50">@color/wear_material3_default_neutral2_50</color>
+  <color name="wear_material3_dynamic_neutral2_100">@color/wear_material3_default_neutral2_100</color>
+  <color name="wear_material3_dynamic_neutral2_200">@color/wear_material3_default_neutral2_200</color>
+  <color name="wear_material3_dynamic_neutral2_300">@color/wear_material3_default_neutral2_300</color>
+  <color name="wear_material3_dynamic_neutral2_400">@color/wear_material3_default_neutral2_400</color>
+  <color name="wear_material3_dynamic_neutral2_500">@color/wear_material3_default_neutral2_500</color>
+  <color name="wear_material3_dynamic_neutral2_600">@color/wear_material3_default_neutral2_600</color>
+  <color name="wear_material3_dynamic_neutral2_700">@color/wear_material3_default_neutral2_700</color>
+  <color name="wear_material3_dynamic_neutral2_800">@color/wear_material3_default_neutral2_800</color>
+  <color name="wear_material3_dynamic_neutral2_900">@color/wear_material3_default_neutral2_900</color>
+  <color name="wear_material3_dynamic_neutral2_1000">@color/wear_material3_default_neutral2_1000</color>
+</resources>

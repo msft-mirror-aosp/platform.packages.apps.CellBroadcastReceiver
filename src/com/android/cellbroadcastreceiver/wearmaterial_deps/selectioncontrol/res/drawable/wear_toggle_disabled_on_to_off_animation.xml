@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_wear_toggle_on">
+  <target android:name="thumb_selected">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@integer/wear_selection_default_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_incoming_80"
+            android:propertyName="fillColor"
+            android:valueFrom="?attr/wearSelectionDisabledColorSelected"
+            android:valueTo="?attr/wearSelectionDisabledColorUnselected"
+            android:valueType="colorType" />
+        <objectAnimator
+            android:duration="@integer/wear_selection_default_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_incoming_80"
+            android:propertyName="fillAlpha"
+            android:valueFrom="1.0"
+            android:valueTo="0.6"
+            android:valueType="floatType" />
+      </set>
+    </aapt:attr>
+  </target>
+  <target android:name="thumb_selected_group">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@integer/wear_toggle_position_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_incoming_80"
+            android:propertyName="translateX"
+            android:valueFrom="0.0"
+            android:valueTo="-10.0"
+            android:valueType="floatType" />
+      </set>
+    </aapt:attr>
+  </target>
+  <target android:name="toggle_bar">
+    <aapt:attr name="android:animation">
+      <set>
+        <objectAnimator
+            android:duration="@integer/wear_toggle_color_anim_duration_ms"
+            android:interpolator="@anim/wear_selection_easing_outgoing_40_incoming_80"
+            android:propertyName="fillColor"
+            android:valueFrom="?attr/wearSelectionDisabledColorSelected"
+            android:valueTo="?attr/wearSelectionDisabledColorUnselected"
+            android:valueType="colorType" />
+      </set>
+    </aapt:attr>
+  </target>
+</animated-vector>

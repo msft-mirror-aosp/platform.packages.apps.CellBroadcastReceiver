@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["wear_os_application_license"],
+}
+
+android_library {
+    java_version: "1.8",
+    name: "wearmaterial-util",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    srcs: ["*.java"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.core_core",
+        "androidx.wear_wear",
+        "checker-qual",
+    ],
+}

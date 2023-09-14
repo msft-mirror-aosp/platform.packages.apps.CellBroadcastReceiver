@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr name="wearCardStyle" format="reference" />
+
+  <declare-styleable name="WearCard">
+    <attr name="backgroundGradientStart" format="color"/>
+    <attr name="backgroundGradientEnd" format="color"/>
+    <attr name="cornerRadius" format="dimension"/>
+  </declare-styleable>
+</resources>

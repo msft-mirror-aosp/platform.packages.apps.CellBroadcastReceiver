@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Theme attribute setting the style of a WearPicker -->
+  <attr name="wearPickerStyle" type="reference" />
+
+  <!-- TextView style for the top labels of the PickerColumns inside a WearPicker -->
+  <attr name="wearColumnLabelStyle" format="reference" />
+
+  <!-- Style of the TextView of that acts as the PickerRow's toggle-button -->
+  <attr name="wearToggleTextStyle" format="reference" />
+
+  <!--
+  Width of the TextView of that acts as the PickerRow's toggle-button;
+  defaults to 'wrap_content'.
+  -->
+  <attr name="wearToggleTextWidth" format="dimension" >
+    <enum name="wrap_content" value="-2" />
+  </attr>
+
+  <!--
+  Style of the TextView of that renders the PickerRow's separators. Ideally, the
+  style should be the same style as the text in the PickerColumn items.
+  -->
+  <attr name="wearSeparatorTextStyle" format="reference" />
+
+  <!-- Style of the Image Button that acts as the PickerRow's action-button -->
+  <attr name="wearActionButtonStyle" format="reference" />
+
+  <!--
+  Text appearance of the default list and separator texts.
+  This text appearance is used by the WearPickerDefault.ListItemText and the
+  WearPickerDefault.SeparatorText styles.
+  -->
+  <attr name="wearListItemTextAppearance" format="reference" />
+
+  <!-- If set to false, haptic feedback will be disabled for the WearPicker and WearPickerColumns. -->
+  <attr name="isPickerHapticsEnabled" format="boolean"/>
+
+  <!-- Announcement for click action to select the current value of a PickerColumn (click action). -->
+  <attr name="accessibilityActionForItemSelection" format="string"/>
+
+  <!-- Content description for the action-button. -->
+  <attr name="contentDescriptionForActionButton" format="string"/>
+
+  <!-- Content description for the action-button moving the user to the next list/column. -->
+  <attr name="contentDescriptionForNextColumnButton" format="string"/>
+
+  <!-- Announcement for click action to activate the action-button (click action). -->
+  <attr name="accessibilityActionForActionButton" format="string"/>
+
+  <!-- Announcement for click action to move to the next list/column (click action). -->
+  <attr name="accessibilityActionForNextColumnButton" format="string"/>
+
+  <!-- Announcement for click action to change the value of the Toggle View (click action). -->
+  <attr name="accessibilityActionForToggleChange" format="string"/>
+
+  <declare-styleable name="CenteredRecyclerView">
+    <!-- Increases or decreases the scrolling speed of the Recycler View -->
+    <attr name="scrollSpeedFactor" format="float|reference"/>
+
+    <!-- A value between 0 and 1 determining the strength of the scrolling deceleration. -->
+    <attr name="scrollDecelerationFactor" format="float|reference"/>
+
+    <!-- If set to false, the CenteredRecycleView cannot be flung. -->
+    <attr name="isFlingEnabled" format="boolean"/>
+
+    <!-- Drawable used for the vignette effect. -->
+    <attr name="vignette" format="reference"/>
+  </declare-styleable>
+
+  <declare-styleable name="WearPickerColumn">
+    <!-- Text for the top label. -->
+    <attr name="android:label" />
+
+    <attr name="isPickerHapticsEnabled"/>
+  </declare-styleable>
+
+  <declare-styleable name="WearPicker">
+    <!-- Drawable of the Image Button that acts as the PickerRow's action-button -->
+    <attr name="wearActionButton" format="reference" />
+
+    <!-- Drawable of the Image Button that acts as the PickerRow's forced-progress-button -->
+    <attr name="wearForcedProgressButton" format="reference"/>
+
+    <!-- The separator text that will be rendered between the PickerColumns -->
+    <attr name="wearSeparatorString" format="string|reference"/>
+
+    <!--
+    The size of the space occupied by the 'separatorString'.
+    The default size is 'wrap_content'.
+    -->
+    <attr name="wearSeparatorSize" format="dimension">
+      <enum name="wrap_content" value="-2" />
+    </attr>
+
+    <attr name="isPickerHapticsEnabled"/>
+
+    <!-- Deprecated attribute, always behaves as none after removal of scrollbar. -->
+    <attr name="wearScrollbar">
+      <!-- No scrollbar is displayed -->
+      <enum name="none" value="0" />
+      <!-- Displays vertical scrollbar -->
+      <enum name="vertical" value="1" />
+    </attr>
+  </declare-styleable>
+
+  <declare-styleable name="VignetteDrawable">
+    <!-- The color/hue of the vignette effect. It defaults to black. -->
+    <attr name="vignetteColor" format="color|reference" />
+
+    <attr name="android:orientation" />
+  </declare-styleable>
+</resources>

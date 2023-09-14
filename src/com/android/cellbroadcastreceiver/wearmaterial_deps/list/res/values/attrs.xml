@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="FadingWearableRecyclerView">
+    <attr name="showStartUpAnimation" format="boolean" />
+    <attr name="centerEdgeItems" format="boolean" />
+    <attr name="skipFirstItemWhenCentering" format="boolean" />
+    <attr name="startPaddingPercent" format="float" />
+    <attr name="endPaddingPercent" format="float" />
+    <attr name="topPaddingPercent" format="float" />
+    <attr name="bottomPaddingPercent" format="float" />
+    <attr name="snappingEnabled" format="boolean" />
+    <attr name="lowResEncoderSmoothScrollingEnabled" format="boolean" />
+    <attr name="rotaryInputHapticStrategy" format="enum">
+      <enum name="off" value="0" />
+      <enum name="on_fixed_interval" value="1" />
+    </attr>
+    <attr name="rotaryScrollFlingEnabled" format="boolean" />
+  </declare-styleable>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="wear_alertdialog_padding_top">27dp</dimen>
+  <dimen name="wear_alertdialog_padding_bottom">13dp</dimen>
+</resources>

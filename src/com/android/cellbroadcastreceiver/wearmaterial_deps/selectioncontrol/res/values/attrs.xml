@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Defines the style of a WearToggle view -->
+  <attr name="wearToggleStyle" format="reference"/>
+
+  <!-- Defines the color for a selected/checked selection control -->
+  <attr name="wearSelectionColorSelected" format="color"/>
+
+  <!-- Defines the color for a disabled selected/checked selection control -->
+  <attr name="wearSelectionDisabledColorSelected" format="color"/>
+
+  <!-- Defines the color for a unselected/unchecked selection control -->
+  <attr name="wearSelectionColorUnselected" format="color"/>
+
+  <!-- Defines the color for a disabled unselected/unchecked selection control -->
+  <attr name="wearSelectionDisabledColorUnselected" format="color"/>
+
+  <!-- Defines the color for the background of a disabled unselected/unchecked selection control -->
+  <attr name="wearSelectionDisabledBackgroundColorUnselected" format="color"/>
+</resources>

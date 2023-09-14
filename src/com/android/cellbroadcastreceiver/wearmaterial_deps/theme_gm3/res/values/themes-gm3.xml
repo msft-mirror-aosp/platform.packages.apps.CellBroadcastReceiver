@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- LINT.IfChange(wear_material_theme) -->
+  <style name="WearMaterialTheme.GM3">
+    <!-- Colors -->
+    <item name="colorPrimary">@color/wear_material3_default_colorPrimary</item>
+    <item name="colorOnPrimary">@color/wear_material3_default_colorOnPrimary</item>
+    <item name="colorPrimaryVariant">@color/wear_material3_default_colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/wear_material3_default_colorSecondary</item>
+    <item name="colorOnSecondary">@color/wear_material3_default_colorOnSecondary</item>
+    <item name="colorSecondaryVariant">@color/wear_material3_default_colorSecondaryVariant</item>
+    <item name="colorTertiary">@color/wear_material3_default_colorTertiary</item>
+    <item name="colorOnTertiary">@color/wear_material3_default_colorOnTertiary</item>
+    <item name="colorTertiaryVariant">@color/wear_material3_default_colorTertiaryVariant</item>
+    <item name="colorSurface">@color/wear_material3_default_colorSurface</item>
+    <item name="colorOnSurface">@color/wear_material3_default_colorOnSurface</item>
+    <item name="colorWearSurfaceHighlight">@color/wear_material3_default_colorWearSurfaceHighlight</item>
+    <item name="colorWearOnSurfaceSecondary">@color/wear_material3_default_colorWearOnSurfaceSecondary</item>
+    <item name="colorSurfaceVariant">@color/wear_material3_default_colorSurfaceVariant</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material3_default_colorOnSurfaceVariant</item>
+    <item name="colorWearSurfaceVariantHighlight">@color/wear_material3_default_colorWearSurfaceVariantHighlight</item>
+    <item name="colorWearOnSurfaceVariantSecondary">@color/wear_material3_default_colorWearOnSurfaceVariantSecondary</item>
+    <item name="colorBackground">@color/wear_material3_default_colorBackground</item>
+    <item name="colorOnBackgroundWear">@color/wear_material3_default_colorOnBackgroundWear</item>
+    <item name="colorWearError">@color/wear_material3_default_colorWearError</item>
+    <item name="colorOnWearError">@color/wear_material3_default_colorOnWearError</item>
+    <item name="colorOutline">@color/wear_material3_default_colorOutline</item>
+
+    <!-- Chip Button Styles. -->
+    <item name="wearChipButtonStyle">@style/Widget.GM3.WearChipButton</item>
+    <item name="wearChipButtonAccentStyle">@style/Widget.GM3.WearChipButton.Accent</item>
+    <item name="wearChipButtonAvatarStyle">@style/Widget.GM3.WearChipButton.Avatar</item>
+    <item name="wearChipButtonCheckableStyle">@style/Widget.GM3.WearChipButton.Checkable</item>
+    <item name="wearChipButtonNeutralStyle">@style/Widget.GM3.WearChipButton.Neutral</item>
+    <item name="wearChipButtonNeutralVariantStyle">@style/Widget.GM3.WearChipButton.NeutralVariant</item>
+    <item name="wearChipButtonSmallStyle">@style/Widget.GM3.WearChipButton.Small</item>
+    <item name="wearChipButtonStrokedStyle">@style/Widget.GM3.WearChipButton.Stroked</item>
+    <item name="wearChipButtonTransparentStyle">@style/Widget.GM3.WearChipButton.Transparent</item>
+
+    <!-- Circular Button Styles. -->
+    <item name="wearCircularButtonStyle">@style/Widget.GM3.WearCircularButton</item>
+    <item name="wearCircularButtonStrokedStyle">@style/Widget.GM3.WearCircularButton.Stroked</item>
+    <item name="wearCircularButtonTransparentStyle">@style/Widget.GM3.WearCircularButton.Transparent</item>
+
+    <!-- Card Style. -->
+    <item name="wearCardStyle">@style/Widget.GM3.WearCard</item>
+
+    <!-- Slider styles. -->
+    <item name="inlineSliderStyle">@style/Widget.GM3.InlineSlider</item>
+
+    <item name="dynamicColorThemeOverlay">@style/WearMaterialDynamicColorOverlay</item>
+  </style>
+
+  <style name="WearMaterialThemeDefault.GM3">
+    <!-- Colors -->
+    <item name="colorPrimary">@color/wear_material3_default_colorPrimary</item>
+    <item name="colorOnPrimary">@color/wear_material3_default_colorOnPrimary</item>
+    <item name="colorPrimaryVariant">@color/wear_material3_default_colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/wear_material3_default_colorSecondary</item>
+    <item name="colorOnSecondary">@color/wear_material3_default_colorOnSecondary</item>
+    <item name="colorSecondaryVariant">@color/wear_material3_default_colorSecondaryVariant</item>
+    <item name="colorTertiary">@color/wear_material3_default_colorTertiary</item>
+    <item name="colorOnTertiary">@color/wear_material3_default_colorOnTertiary</item>
+    <item name="colorTertiaryVariant">@color/wear_material3_default_colorTertiaryVariant</item>
+    <item name="colorSurface">@color/wear_material3_default_colorSurface</item>
+    <item name="colorOnSurface">@color/wear_material3_default_colorOnSurface</item>
+    <item name="colorWearSurfaceHighlight">@color/wear_material3_default_colorWearSurfaceHighlight</item>
+    <item name="colorWearOnSurfaceSecondary">@color/wear_material3_default_colorWearOnSurfaceSecondary</item>
+    <item name="colorSurfaceVariant">@color/wear_material3_default_colorSurfaceVariant</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material3_default_colorOnSurfaceVariant</item>
+    <item name="colorWearSurfaceVariantHighlight">@color/wear_material3_default_colorWearSurfaceVariantHighlight</item>
+    <item name="colorWearOnSurfaceVariantSecondary">@color/wear_material3_default_colorWearOnSurfaceVariantSecondary</item>
+    <item name="colorBackground">@color/wear_material3_default_colorBackground</item>
+    <item name="colorOnBackgroundWear">@color/wear_material3_default_colorOnBackgroundWear</item>
+    <item name="colorWearError">@color/wear_material3_default_colorWearError</item>
+    <item name="colorOnWearError">@color/wear_material3_default_colorOnWearError</item>
+    <item name="colorOutline">@color/wear_material3_default_colorOutline</item>
+
+    <!-- Color aliases -->
+    <item name="colorSecondaryCompat">?attr/colorTertiary</item>
+    <item name="colorOnSecondaryCompat">?attr/colorOnTertiary</item>
+    <item name="colorSecondaryVariantCompat">?attr/colorTertiaryVariant</item>
+    <item name="colorAccent">?attr/colorTertiary</item>
+
+    <!-- Chip Button Styles. -->
+    <item name="wearChipButtonStyle">@style/Widget.GM3.WearChipButton</item>
+    <item name="wearChipButtonAccentStyle">@style/Widget.GM3.WearChipButton.Accent</item>
+    <item name="wearChipButtonAvatarStyle">@style/Widget.GM3.WearChipButton.Avatar</item>
+    <item name="wearChipButtonCheckableStyle">@style/Widget.GM3.WearChipButton.Checkable</item>
+    <item name="wearChipButtonNeutralStyle">@style/Widget.GM3.WearChipButton.Neutral</item>
+    <item name="wearChipButtonNeutralVariantStyle">@style/Widget.GM3.WearChipButton.NeutralVariant</item>
+    <item name="wearChipButtonSmallStyle">@style/Widget.GM3.WearChipButton.Small</item>
+    <item name="wearChipButtonStrokedStyle">@style/Widget.GM3.WearChipButton.Stroked</item>
+    <item name="wearChipButtonTransparentStyle">@style/Widget.GM3.WearChipButton.Transparent</item>
+
+    <!-- Circular Button Styles. -->
+    <item name="wearCircularButtonStyle">@style/Widget.GM3.WearCircularButton</item>
+    <item name="wearCircularButtonStrokedStyle">@style/Widget.GM3.WearCircularButton.Stroked</item>
+    <item name="wearCircularButtonTransparentStyle">@style/Widget.GM3.WearCircularButton.Transparent</item>
+
+    <!-- Card Style. -->
+    <item name="wearCardStyle">@style/Widget.GM3.WearCard</item>
+
+    <!-- Slider styles. -->
+    <item name="inlineSliderStyle">@style/Widget.GM3.InlineSlider</item>
+
+    <item name="dynamicColorThemeOverlay">@style/WearMaterialDynamicColorOverlay</item>
+  </style>
+
+  <style name="WearMaterialDynamicColorOverlay.GM3">
+    <!-- Colors -->
+    <item name="colorTertiary">@color/wear_material3_dynamic_colorTertiary</item>
+    <item name="colorOnTertiary">@color/wear_material3_dynamic_colorOnTertiary</item>
+    <item name="colorTertiaryVariant">@color/wear_material3_dynamic_colorTertiaryVariant</item>
+    <item name="colorWearSurfaceHighlight">@color/wear_material3_dynamic_colorWearSurfaceHighlight</item>
+    <item name="colorWearOnSurfaceSecondary">@color/wear_material3_dynamic_colorWearOnSurfaceSecondary</item>
+    <item name="colorOnSurfaceVariant">@color/wear_material3_dynamic_colorOnSurfaceVariant</item>
+    <item name="colorWearSurfaceVariantHighlight">@color/wear_material3_dynamic_colorWearSurfaceVariantHighlight</item>
+    <item name="colorWearOnSurfaceVariantSecondary">@color/wear_material3_dynamic_colorWearOnSurfaceVariantSecondary</item>
+    <item name="colorOutline">@color/wear_material3_dynamic_colorOutline</item>
+  </style>
+  <!-- LINT.ThenChange(//depot/google3/java/com/google/android/clockwork/common/wearable/wearmaterial/themeappcompat_gm3/res/values/themes-gm3-appcompat.xml:app_compat_wear_material_theme) -->
+</resources>
