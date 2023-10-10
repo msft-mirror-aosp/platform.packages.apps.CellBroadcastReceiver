@@ -812,63 +812,73 @@
       "toggle_avail": "true"
     }
   },
-  "uk": {
+  "denmark": {
     "4370": {
-      "title": "Government Alert",
+      "title": "Public warning",  // 'Beredskabsmeddelelse' == 'Public warning'
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4383": {
-      "title": "Government Alert",
+      "title": "Public warning",  // 'Beredskabsmeddelelse' == 'Public warning'
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4371": {
-      "title": "Extreme Alert",
+      "title": "Extreme",         // 'Farlig hændelse' == 'Extreme'
       "default_value": "true",
       "toggle_avail": "true",
-      "end_channel": "4372"
+      "end_channel": "4374"
     },
     "4384": {
-      "title": "Extreme Alert",
+      "title": "Extreme",         // 'Farlig hændelse' == 'Extreme'
       "default_value": "true",
       "toggle_avail": "true",
-      "end_channel": "4385"
+      "end_channel": "4387"
     },
-    "4373": {
-      "title": "Severe Alert",
-      "default_value": "true",
+    "4375": {
+      "title": "Severe",          // 'Alvorlig hændelse' == 'Severe'
+      "default_value": "false",
       "toggle_avail": "true",
       "end_channel": "4378"
     },
-    "4386": {
-      "title": "Severe Alert",
-      "default_value": "true",
+    "4388": {
+      "title": "Severe",          // 'Alvorlig hændelse' == 'Severe'
+      "default_value": "false",
       "toggle_avail": "true",
       "end_channel": "4391"
     },
     "4380": {
-      "title": "Required Monthly Test",
+      "title": "Test",            // 'Test' == 'Test'
       "default_value": "false",
-      "toggle_avail": "false"
+      "toggle_avail": "true"
+    },
+    "4382": {
+      "title": "Test",            // 'Test' == 'Test'
+      "default_value": "false",
+      "toggle_avail": "true"
     },
     "4393": {
-      "title": "Required Monthly Test",
+      "title": "Test",            // 'Test' == 'Test'
       "default_value": "false",
-      "toggle_avail": "false"
+      "toggle_avail": "true"
+    },
+    "4395": {
+      "title": "Test",            // 'Test' == 'Test'
+      "default_value": "false",
+      "toggle_avail": "true"
     },
     "4381": {
-      "title": "Emergency alert (Exercise)",
+      "title": "Exercise",        // 'Øvelse' == 'Exercise'
       "default_value": "false",
-      "toggle_avail": "false"
+      "toggle_avail": "true"
     },
     "4394": {
-      "title": "Emergency alert (Exercise)",
+      "title": "Exercise",        // 'Øvelse' == 'Exercise'
       "default_value": "false",
-      "toggle_avail": "false"
+      "toggle_avail": "true"
     }
   },
-  "uk_ee": {
+  "uk": {
     "4370": {
       "title": "Government Alert",
       "default_value": "true",
@@ -1730,17 +1740,17 @@
       "toggle_avail": "false"
     },
     "4370": {
-      "title": "Presidential alert",
+      "title": "Presidential Alert",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4383": {
-      "title": "Presidential alert",
+      "title": "Presidential Alert",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "911": {
-      "title": "Alert message",
+      "title": "Alert Message",
       "default_value": "true",
       "toggle_avail": "true",
       "vibration_time": 1,
@@ -1748,7 +1758,7 @@
       "alert_time": 10
     },
     "919": {
-      "title": "Alert message",
+      "title": "Alert Message",
       "default_value": "true",
       "toggle_avail": "true",
       "vibration_time": 1,
@@ -1756,13 +1766,13 @@
       "alert_time": 10
     },
     "4371": {
-      "title": "Emergency alert",
+      "title": "Emergency Alert",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4379"
     },
     "4384": {
-      "title": "Emergency alert",
+      "title": "Emergency Alert",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4392"
@@ -1784,98 +1794,47 @@
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "4352": {
-      "title": "",
+    "4371": {
+      "title": "Extreme Alert",
       "default_value": "true",
       "toggle_avail": "false",
-      "end_channel": "4354"
-    },
-    "4356": {
-      "title": "",
-      "default_value": "true",
-      "toggle_avail": "false"
-    },
-    "4370": {
-      "title": "Presidential alert",
-      "default_value": "true",
-      "toggle_avail": "false"
-    },
-    "4383": {
-      "title": "Presidential alert",
-      "default_value": "true",
-      "toggle_avail": "false"
-    },
-    "4371": {
-      "title": "Emergency alert: Extreme",
-      "default_value": "true",
-      "toggle_avail": "true",
       "end_channel": "4372"
     },
     "4384": {
-      "title": "Emergency alert: Extreme",
+      "title": "Extreme Alert",
       "default_value": "true",
-      "toggle_avail": "true",
+      "toggle_avail": "false",
       "end_channel": "4385"
     },
     "4373": {
-      "title": "Emergency alert: Severe",
+      "title": "Severe Alert",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4378"
     },
     "4386": {
-      "title": "Emergency alert: Severe",
+      "title": "Severe Alert",
       "default_value": "true",
       "toggle_avail": "true",
       "end_channel": "4391"
     },
-    "4380": {
-      "title": "Required Monthly Test",
-      "default_value": "false",
-      "toggle_avail": "true"
-    },
     "4381": {
-      "title": "Emergency alert (exercise)",
-      "default_value": "false",
-      "toggle_avail": "true"
-    },
-    "4393": {
-      "title": "Required Monthly Test",
+      "title": "Exercise Alert",
       "default_value": "false",
       "toggle_avail": "true"
     },
     "4394": {
-      "title": "Emergency alert (exercise)",
-      "default_value": "false",
-      "toggle_avail": "true"
-    },
-    "4379": {
-      "title": "Child abduction (Amber alert)",
-      "default_value": "true",
-      "toggle_avail": "false"
-    },
-    "4392": {
-      "title": "Child abduction (Amber alert)",
-      "default_value": "true",
-      "toggle_avail": "false"
-    },
-    "4398": {
-      "title": "State/Local test",
-      "default_value": "false",
-      "toggle_avail": "true"
-    },
-    "4399": {
-      "title": "State/Local test",
+      "title": "Exercise Alert",
       "default_value": "false",
       "toggle_avail": "true"
     },
     "4382": {
-      "title": "Emergency alert (operator)",
+      "title": "Technical Test Alerts",
       "default_value": "false",
       "toggle_avail": "false"
     },
     "4395": {
-      "title": "Emergency alert (operator)",
+      "title": "Technical Test Alerts",
       "default_value": "false",
       "toggle_avail": "false"
     }
@@ -4475,23 +4434,23 @@
       "toggle_avail": "false"
     },
     "4370": {
-      "title": "Presidential alert",
+      "title": "Extremely Severe Alert",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4383": {
-      "title": "Presidential alert",
+      "title": "Extremely Severe Alert",
       "default_value": "true",
       "toggle_avail": "false"
     },
     "4371": {
-      "title": "Emergency alert: Extreme",
+      "title": "Severe Alert",
       "default_value": "true",
       "toggle_avail": "false",
       "end_channel": "4372"
     },
     "4384": {
-      "title": "Emergency alert: Extreme",
+      "title": "Severe Alert",
       "default_value": "true",
       "toggle_avail": "false",
       "end_channel": "4385"
@@ -4519,12 +4478,12 @@
       "toggle_avail": "true"
     },
     "4380": {
-      "title": "Required Monthly Test",
+      "title": "Test Message",
       "default_value": "false",
       "toggle_avail": "true"
     },
     "4393": {
-      "title": "Required Monthly Test",
+      "title": "Test Message",
       "default_value": "false",
       "toggle_avail": "true"
     },
