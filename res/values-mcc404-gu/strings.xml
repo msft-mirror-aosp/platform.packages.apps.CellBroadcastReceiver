@@ -13,6 +13,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="cmas_presidential_level_alert" msgid="844042784381168350">"રાષ્ટ્રીય અલર્ટ"</string>
-    <string name="cmas_extreme_alert" msgid="4008956916942254884">"ઇમર્જન્સી અલર્ટ"</string>
+    <string name="cmas_presidential_level_alert" msgid="1792032344095168538">"અત્યંત ગંભીર અલર્ટ"</string>
+    <string name="cmas_extreme_alert" msgid="3131679659546331921">"ગંભીર અલર્ટ"</string>
+    <string name="cmas_required_monthly_test" msgid="4474361767637803948">"પરીક્ષણ માટેનો મેસેજ"</string>
 </resources>
