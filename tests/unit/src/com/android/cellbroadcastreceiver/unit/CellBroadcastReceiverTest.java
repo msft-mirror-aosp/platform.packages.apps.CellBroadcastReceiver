@@ -18,6 +18,9 @@ package com.android.cellbroadcastreceiver.unit;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -25,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -38,12 +42,14 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.media.AudioDeviceInfo;
 import android.os.RemoteException;
 import android.os.UserManager;
 import android.provider.Telephony;
 import android.telephony.CarrierConfigManager;
 import android.telephony.ServiceState;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaSmsCbProgramData;
@@ -62,9 +68,14 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CellBroadcastReceiverTest extends CellBroadcastTest {
     private static final long MAX_INIT_WAIT_MS = 5000;
+
+    private static final String[] MCC_TABLE = {
+        "gr:202", "nL:204", "Be:206", "US:310"
+    };
 
     CellBroadcastReceiver mCellBroadcastReceiver;
     String mPackageName = "testPackageName";
@@ -118,6 +129,7 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
     public void setUp() throws Exception {
         super.setUp(this.getClass().getSimpleName());
         doReturn(mConfiguration).when(mResources).getConfiguration();
+        doReturn(MCC_TABLE).when(mResources).getStringArray(R.array.iso_country_code_mcc_table);
         mCellBroadcastReceiver = spy(new CellBroadcastReceiver());
         doReturn(mResources).when(mCellBroadcastReceiver).getResourcesMethod();
         doNothing().when(mCellBroadcastReceiver).startConfigServiceToEnableChannels();
@@ -643,6 +655,124 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         verify(mCellBroadcastReceiver, times(6)).startConfigServiceToEnableChannels();
         assertThat(mFakeSharedPreferences.getString(
                 "roaming_operator_supported", "321")).isEqualTo("");
+
+        // roaming to network operator with different mcc and configured as any mcc match,
+        // verify to update the network operator, and call enable channel
+        doReturn("310240").when(mMockTelephonyManager).getNetworkOperator();
+        doReturn("310260").when(mMockTelephonyManager).getSimOperator();
+        doReturn(new String[] {"XXX"}).when(mResources).getStringArray(anyInt());
+
+        mCellBroadcastReceiver.onReceive(mContext, mIntent);
+
+        verify(mCellBroadcastReceiver, times(6)).startConfigServiceToEnableChannels();
+        assertThat(mFakeSharedPreferences.getString(
+                "roaming_operator_supported", "")).isEqualTo("");
+    }
+
+    @Test
+    public void testOnSimlessChange() {
+        mFakeSharedPreferences.putInt("service_state", ServiceState.STATE_IN_SERVICE);
+        mFakeSharedPreferences.putString("roaming_operator_supported", "");
+        doReturn("Us").when(mMockTelephonyManager).getNetworkCountryIso();
+        mockTelephonyManager();
+        doReturn("android.intent.action.SERVICE_STATE").when(mIntent).getAction();
+        doReturn(ServiceState.STATE_OUT_OF_SERVICE).when(mIntent)
+                .getIntExtra(anyString(), anyInt());
+        doReturn("").when(mMockTelephonyManager).getSimOperator();
+        doReturn("").when(mMockTelephonyManager).getNetworkOperator();
+        doReturn(false).when(mMockTelephonyManager).isNetworkRoaming();
+        doReturn(new String[] {"XXX"}).when(mResources).getStringArray(anyInt());
+
+        mCellBroadcastReceiver.onReceive(mContext, mIntent);
+
+        // verify the roaming operator is set correctly for simless case
+        verify(mCellBroadcastReceiver, times(1)).startConfigServiceToEnableChannels();
+        assertThat(mFakeSharedPreferences.getString(
+                "roaming_operator_supported", "")).isEqualTo("310");
+
+        doReturn(ServiceState.STATE_OUT_OF_SERVICE).when(mIntent)
+                .getIntExtra(anyString(), anyInt());
+        doReturn("123456").when(mMockTelephonyManager).getSimOperator();
+        doReturn("123456").when(mMockTelephonyManager).getNetworkOperator();
+
+        mCellBroadcastReceiver.onReceive(mContext, mIntent);
+
+        // verify the roaming operator is reset when sim loaded
+        verify(mCellBroadcastReceiver, times(2)).startConfigServiceToEnableChannels();
+        assertThat(mFakeSharedPreferences.getString(
+                "roaming_operator_supported", "")).isEqualTo("");
+    }
+
+    @Test
+    public void testResourceOnRoamingState() throws RemoteException {
+        int subId = SubscriptionManager.DEFAULT_SUBSCRIPTION_ID;
+
+        doReturn(subId).when(mSubService).getDefaultSubId();
+        doReturn(subId).when(mSubService).getDefaultSmsSubId();
+
+        SubscriptionInfo mockSubInfo = mock(SubscriptionInfo.class);
+        doReturn(mockSubInfo).when(mSubscriptionManager).getActiveSubscriptionInfo(anyInt());
+        Context newContext = mock(Context.class);
+        Resources roamingResource = mock(Resources.class);
+        doReturn(newContext).when(mContext).createConfigurationContext(any());
+        doReturn(roamingResource).when(newContext).getResources();
+
+        doReturn(false).when(mResources).getBoolean(R.bool.enable_led_flash);
+        doReturn(true).when(roamingResource).getBoolean(R.bool.enable_led_flash);
+
+        Resources res = CellBroadcastSettings.getResourcesByOperator(mContext, subId, "");
+        assertFalse(res.getBoolean(R.bool.enable_led_flash));
+        res = CellBroadcastSettings.getResourcesByOperator(mContext, subId, "530");
+        assertTrue(res.getBoolean(R.bool.enable_led_flash));
+
+        int[] mexico_vib_pattern = {0, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
+                500, 500, 500, 500, 500};
+        int[] normal_vib_pattern = {0, 2000, 500, 1000, 500, 1000, 500, 2000, 500, 1000, 500, 1000};
+
+        doReturn(normal_vib_pattern).when(mResources)
+                .getIntArray(R.array.default_vibration_pattern);
+        doReturn(mexico_vib_pattern).when(roamingResource)
+                .getIntArray(R.array.default_vibration_pattern);
+
+        res = CellBroadcastSettings.getResourcesByOperator(mContext, subId, "");
+        assertArrayEquals(res.getIntArray(R.array.default_vibration_pattern), normal_vib_pattern);
+        mFakeSharedPreferences.putString("roaming_operator_supported", "334");
+        res = CellBroadcastSettings.getResourcesByOperator(mContext, subId, "334");
+        assertArrayEquals(res.getIntArray(R.array.default_vibration_pattern), mexico_vib_pattern);
+
+        doReturn(false).when(mResources)
+                .getBoolean(R.bool.mute_by_physical_button);
+        doReturn(true).when(roamingResource)
+                .getBoolean(R.bool.mute_by_physical_button);
+
+        res = CellBroadcastSettings.getResourcesByOperator(mContext, subId, "");
+        assertFalse(res.getBoolean(R.bool.mute_by_physical_button));
+        res = CellBroadcastSettings.getResourcesByOperator(mContext, subId, "730");
+        assertTrue(res.getBoolean(R.bool.mute_by_physical_button));
+    }
+
+    @Test
+    public void testGetMccMap() {
+        final String[] mccArray = new String[] {
+            //valid values
+            "gr:202", "nL:204", "Be:206", "US:310",
+            //invalid values
+            "aaa", "123", "aaa123", "aaa 123"
+        };
+        int validNum = 4;
+        doReturn(mccArray).when(mResources).getStringArray(anyInt());
+
+        Map<String, String> map = CellBroadcastReceiver.getMccMap(mResources);
+
+        assertThat(map.size()).isEqualTo(validNum);
+        // 2 times expected as it has been called in setup
+        verify(mResources, times(2)).getStringArray(eq(R.array.iso_country_code_mcc_table));
+
+        for (int i = 0; i < validNum; i++) {
+            String[] values = mccArray[i].split(":");
+            assertThat(map.get(values[0].toLowerCase())).isEqualTo(values[1]);
+            assertThat(map.get(values[0].toUpperCase())).isEqualTo(null);
+        }
     }
 
     @After
