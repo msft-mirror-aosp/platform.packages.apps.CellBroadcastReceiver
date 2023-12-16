@@ -16,13 +16,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="cmas_presidential_level_alert" msgid="5786487196661686996">"ਰਾਸ਼ਟਰੀ ਐਮਰਜੈਂਸੀ ਸੁਚੇਤਨਾ"</string>
+    <string name="cmas_presidential_level_alert" msgid="5786487196661686996">"ਰਾਸ਼ਟਰੀ ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
     <string name="show_cmas_opt_out_summary" msgid="1317444474007208209">"ਪਹਿਲੀ ਸੁਚੇਤਨਾ ਦਿਖਾਉਣ ਤੋਂ ਬਾਅਦ ਹਟਣ ਦੀ ਚੋਣ ਸੰਬੰਧੀ ਇੱਕ ਵਿੰਡੋ ਦਿਖਾਓ (ਰਾਸ਼ਟਰੀ ਸੁਚੇਤਨਾ ਤੋਂ ਇਲਾਵਾ)।"</string>
     <string name="enable_cmas_presidential_alerts_title" msgid="789927829034029104">"ਰਾਸ਼ਟਰੀ ਐਮਰਜੈਂਸੀ ਸੁਚੇਤਨਾਵਾਂ"</string>
-    <string name="cmas_extreme_alert" msgid="3470880837863412562">"ਐਮਰਜੈਂਸੀ ਸੁਚੇਤਨਾ"</string>
-    <string name="cmas_extreme_immediate_observed_alert" msgid="2411683921516746239">"ਐਮਰਜੈਂਸੀ ਸੁਚੇਤਨਾ"</string>
-    <string name="cmas_extreme_immediate_likely_alert" msgid="416361807347386568">"ਐਮਰਜੈਂਸੀ ਸੁਚੇਤਨਾ"</string>
-    <string name="cmas_severe_alert" msgid="2385773141068859901">"ਐਮਰਜੈਂਸੀ ਸੁਚੇਤਨਾ"</string>
+    <string name="cmas_extreme_alert" msgid="3470880837863412562">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
+    <string name="cmas_extreme_immediate_observed_alert" msgid="2411683921516746239">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
+    <string name="cmas_extreme_immediate_likely_alert" msgid="416361807347386568">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
+    <string name="cmas_severe_alert" msgid="2385773141068859901">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
     <string name="cmas_amber_alert" msgid="3770006220211300306">"ਚਿਤਾਵਨੀ ਸੁਚੇਤਨਾ"</string>
     <string name="cmas_required_monthly_test" msgid="1750249540956474421">"ਜਾਂਚ ਸੁਚੇਤਨਾ"</string>
     <string name="cmas_exercise_alert" msgid="879674481325039732">"ਕਸਰਤ"</string>
