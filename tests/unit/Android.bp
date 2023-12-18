@@ -43,7 +43,11 @@ java_defaults {
 android_test {
     name: "CellBroadcastReceiverOemUnitTests",
     defaults: ["CellBroadcastTestCommon"],
-    srcs: [":cellbroadcastreceiver-sources"],
+    srcs: [
+        ":cellbroadcastreceiver-sources",
+        ":cellbroadcastreceiver-sources-kt",
+        ":cellbroadcastreceiver-kotlin-srcs-test",
+    ],
     test_suites: ["device-tests", "mts-cellbroadcast"],
     manifest: "AndroidManifest_OemTesting.xml",
     test_config: "AndroidTest_Oem.xml",
@@ -66,6 +70,23 @@ android_test {
         "SettingsLibTopIntroPreference",
         "modules-utils-build_system",
         "cellbroadcast-java-proto-lite",
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+        "androidx.annotation_annotation",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.runtime_runtime-livedata",
+        "androidx.compose.ui_ui",
+        "androidx.activity_activity-compose",
+        "androidx.compose.foundation_foundation-layout",
+        "androidx.core_core-ktx",
+        "androidx.wear.compose_compose-material",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+
+        //Kotlin/compose tests
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui-test-junit4",
+        "androidx.compose.ui_ui-test-manifest",
     ],
     min_sdk_version: "30",
 }
@@ -108,5 +129,13 @@ filegroup {
     name: "cellbroadcastreceiver-shared-srcs-test",
     srcs: [
         "src/**/*.java",
+    ],
+}
+
+// Kotlin tests are only unit tests
+filegroup {
+    name: "cellbroadcastreceiver-kotlin-srcs-test",
+    srcs: [
+        "src/**/*.kt",
     ],
 }

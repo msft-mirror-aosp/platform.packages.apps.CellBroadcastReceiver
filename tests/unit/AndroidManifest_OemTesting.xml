@@ -34,6 +34,10 @@
 
     <application>
         <uses-library android:name="android.test.runner" />
+        <activity android:name="com.android.cellbroadcastreceiver.SettingsComposeActivity"
+                  android:theme="@style/CellBroadcastSettingsTheme"
+                  android:label="@string/sms_cb_settings"
+                  android:exported="true" />
     </application>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
@@ -41,6 +45,7 @@
         android:label="CellBroadcastReceiver OEM Unit Test Cases">
     </instrumentation>
     <uses-sdk android:minSdkVersion="30" android:targetSdkVersion="33" />
+
 
 </manifest>
 
