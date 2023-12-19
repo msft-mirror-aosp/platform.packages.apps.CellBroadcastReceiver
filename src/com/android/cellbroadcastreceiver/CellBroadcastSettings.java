@@ -154,7 +154,8 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     public static final String KEY_EMERGENCY_ALERT_HISTORY = "emergency_alert_history";
 
     // For top introduction info
-    private static final String KEY_PREFS_TOP_INTRO = "alert_prefs_top_intro";
+    @VisibleForTesting
+    public static final String KEY_PREFS_TOP_INTRO = "alert_prefs_top_intro";
 
     // Whether to receive alert in second language code
     public static final String KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE =
@@ -167,7 +168,8 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     public static final String ANY_PREFERENCE_CHANGED_BY_USER = "any_preference_changed_by_user";
 
     // Resource cache per operator
-    private static final Map<String, Resources> sResourcesCacheByOperator = new HashMap<>();
+    @VisibleForTesting
+    public static final Map<String, Resources> sResourcesCacheByOperator = new HashMap<>();
     private static final Object sCacheLock = new Object();
 
     // Intent sent from cellbroadcastreceiver to notify cellbroadcastservice that area info update
