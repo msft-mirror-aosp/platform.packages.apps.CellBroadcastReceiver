@@ -26,7 +26,7 @@
     <skip />
     <!-- no translation found for cmas_extreme_immediate_likely_alert (1667218798350595295) -->
     <skip />
-    <string name="cmas_severe_alert" msgid="6989950459525380066">"ਗੰਭੀਰ ਹਾਲਾਤ ਸੰਬੰਧੀ ਸੁਚੇਤਨਾ"</string>
+    <string name="cmas_severe_alert" msgid="6989950459525380066">"ਗੰਭੀਰ ਹਾਲਾਤ ਸੰਬੰਧੀ ਅਲਰਟ"</string>
     <string name="cmas_required_monthly_test" msgid="1226904101913162471">"ਜਾਂਚ ਸੁਚੇਤਨਾ"</string>
     <string name="cmas_exercise_alert" msgid="4540370572086918020">"ਕਸਰਤ ਸੁਚੇਤਨਾ"</string>
     <string name="app_label" msgid="3863159788297913185">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ"</string>
