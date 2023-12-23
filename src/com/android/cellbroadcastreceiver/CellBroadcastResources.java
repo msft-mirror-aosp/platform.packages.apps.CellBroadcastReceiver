@@ -19,6 +19,7 @@ package com.android.cellbroadcastreceiver;
 import android.annotation.NonNull;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.telephony.SmsCbCmasInfo;
 import android.telephony.SmsCbEtwsInfo;
@@ -445,5 +446,30 @@ public class CellBroadcastResources {
             return -1;
         }
         return -1;
+    }
+
+    /**
+     * If the carrier or country is configured to show the alert dialog title text
+     * and the alert notification title in the language matching the message, this method returns
+     * the string in that language.
+     * Otherwise this method returns the string in the device's current language
+     *
+     * @param resId resource Id
+     * @param res Resources for the subId
+     * @param languageCode the ISO-639-1 language code for this message, or null if unspecified
+     */
+    public static String overrideTranslation(Context context, int resId, Resources res,
+                                             String languageCode) {
+        if (!TextUtils.isEmpty(languageCode)
+                && res.getBoolean(R.bool.override_alert_title_language_to_match_message_locale)) {
+            // TODO change resources to locale from message
+            Configuration conf = res.getConfiguration();
+            conf = new Configuration(conf);
+            conf.setLocale(new Locale(languageCode));
+            Context localizedContext = context.createConfigurationContext(conf);
+            return localizedContext.getResources().getText(resId).toString();
+        } else {
+            return res.getText(resId).toString();
+        }
     }
 }
