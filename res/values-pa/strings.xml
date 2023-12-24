@@ -43,8 +43,8 @@
     <string name="etws_other_emergency_type" msgid="5233080551309721499">"ਸੰਕਟਕਾਲੀਨ ਚਿਤਾਵਨੀ"</string>
     <string name="cmas_presidential_level_alert" msgid="1209234030582361001">"ਪ੍ਰੈਜੀਡੈਂਸ਼ੀਅਲ ਚਿਤਾਵਨੀ"</string>
     <string name="cmas_extreme_alert" msgid="2588720613319969289">"ਸੰਕਟਕਾਲੀਨ ਚਿਤਾਵਨੀ: ਬੇਹੱਦ"</string>
-    <string name="cmas_extreme_immediate_observed_alert" msgid="2328845915287460780">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾ: ਬਹੁਤ ਗੰਭੀਰ"</string>
-    <string name="cmas_extreme_immediate_likely_alert" msgid="1859702950323471778">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾ: ਬਹੁਤ ਗੰਭੀਰ"</string>
+    <string name="cmas_extreme_immediate_observed_alert" msgid="2328845915287460780">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ: ਬਹੁਤ ਗੰਭੀਰ"</string>
+    <string name="cmas_extreme_immediate_likely_alert" msgid="1859702950323471778">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ: ਬਹੁਤ ਗੰਭੀਰ"</string>
     <string name="cmas_severe_alert" msgid="4135809475315826913">"ਸੰਕਟਕਾਲੀਨ ਚਿਤਾਵਨੀ: ਗੰਭੀਰ"</string>
     <string name="cmas_amber_alert" msgid="6154867710264778887">"ਬਾਲ ਅਗਵਾ (ਐਂਬਰ ਚਿਤਾਵਨੀ)"</string>
     <string name="cmas_required_monthly_test" msgid="1890205712251132193">"ਮਹੀਨਾਵਾਰ ਜਾਂਚ ਦੀ ਲੋੜ ਹੈ"</string>
@@ -87,7 +87,7 @@
     <string name="enable_emergency_alerts_message_title" msgid="661894007489847468">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ"</string>
     <string name="enable_emergency_alerts_message_summary" msgid="7574617515441602546">"ਜਾਨ ਦੇ ਖਤਰੇ ਸੰਬੰਧੀ ਇਵੈਂਟਾਂ ਬਾਰੇ ਚਿਤਾਵਨੀ ਦਿਓ"</string>
     <string name="enable_cmas_test_alerts_title" msgid="7194966927004755266">"ਜਾਂਚ ਸੁਚੇਤਨਾਵਾਂ"</string>
-    <string name="enable_cmas_test_alerts_summary" msgid="2083089933271720217">"ਸੁਰੱਖਿਆ ਸੁਚੇਤਨਾ ਸਿਸਟਮ ਤੋਂ ਕੈਰੀਅਰ ਜਾਂਚਾਂ ਅਤੇ ਮਹੀਨਾਵਾਰ ਜਾਂਚਾਂ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="2083089933271720217">"ਸੁਰੱਖਿਆ ਅਲਰਟ ਸਿਸਟਮ ਤੋਂ ਕੈਰੀਅਰ ਜਾਂਚਾਂ ਅਤੇ ਮਹੀਨਾਵਾਰ ਜਾਂਚਾਂ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
     <!-- no translation found for enable_exercise_test_alerts_title (6030780598569873865) -->
     <skip />
     <string name="enable_exercise_test_alerts_summary" msgid="4276766794979567304">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾ ਪ੍ਰਾਪਤ ਕਰੋ: ਅਭਿਆਸੀ/ਡਰਿੱਲ ਸੁਨੇਹਾ"</string>
