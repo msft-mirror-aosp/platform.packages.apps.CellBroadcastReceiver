@@ -22,7 +22,7 @@
     <string name="cmas_extreme_immediate_likely_alert" msgid="6858545279275537101">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾ"</string>
     <string name="cmas_severe_alert" msgid="6255792641522355328">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾ"</string>
     <string name="pws_other_message_identifiers" msgid="2219849459734958071">"ਚਿਤਾਵਨੀ ਸੁਚੇਤਨਾ"</string>
-    <string name="public_safety_message" msgid="6430821308078207535">"ਜਨਤਕ ਸੁਰੱਖਿਆ ਸੁਚੇਤਨਾ"</string>
+    <string name="public_safety_message" msgid="6430821308078207535">"ਜਨਤਕ ਸੁਰੱਖਿਆ ਅਲਰਟ"</string>
     <string name="cmas_exercise_alert" msgid="5775307523978007483">"ਕਸਰਤ"</string>
     <string name="cmas_required_monthly_test" msgid="638043663020315444">"ਜਾਂਚ ਸੁਚੇਤਨਾ"</string>
     <string name="state_local_test_alert" msgid="5347253401221487116">"ਜਾਂਚ ਸੁਚੇਤਨਾ"</string>
