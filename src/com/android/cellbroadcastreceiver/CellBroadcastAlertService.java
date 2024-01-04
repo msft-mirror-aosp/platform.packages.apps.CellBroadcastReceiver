@@ -251,8 +251,10 @@ public class CellBroadcastAlertService extends Service {
         TelephonyManager tm = ((TelephonyManager) mContext.getSystemService(
                 Context.TELEPHONY_SERVICE)).createForSubscriptionId(message.getSubscriptionId());
 
-        if (tm.getEmergencyCallbackMode() && CellBroadcastSettings.getResources(
-                mContext, message.getSubscriptionId()).getBoolean(R.bool.ignore_messages_in_ecbm)) {
+        if (tm.getEmergencyCallbackMode() && CellBroadcastSettings.getResourcesByOperator(
+                mContext, message.getSubscriptionId(),
+                        CellBroadcastReceiver.getRoamingOperatorSupported(mContext))
+                .getBoolean(R.bool.ignore_messages_in_ecbm)) {
             // Ignore the message in ECBM.
             // It is for LTE only mode. For 1xRTT, incoming pages should be ignored in the modem.
             Log.d(TAG, "ignoring alert of type " + message.getServiceCategory() + " in ECBM");
@@ -456,7 +458,8 @@ public class CellBroadcastAlertService extends Service {
         }
 
         if (mTelephonyManager.getCallState() != TelephonyManager.CALL_STATE_IDLE
-                && CellBroadcastSettings.getResources(mContext, cbm.getSubscriptionId())
+                && CellBroadcastSettings.getResourcesByOperator(mContext, cbm.getSubscriptionId(),
+                        CellBroadcastReceiver.getRoamingOperatorSupported(mContext))
                 .getBoolean(R.bool.enable_alert_handling_during_call)) {
             Log.d(TAG, "CMAS received in dialing/during voicecall.");
             sRemindAfterCallFinish = true;
@@ -520,7 +523,8 @@ public class CellBroadcastAlertService extends Service {
 
         // Check if all emergency alerts are disabled.
         boolean emergencyAlertEnabled = checkAlertConfigEnabled(
-                subId, CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, true);
+                subId, CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE,
+                res.getBoolean(R.bool.master_toggle_enabled_default));
         int channel = message.getServiceCategory();
         int resourcesKey = channelManager.getCellBroadcastChannelResourcesKey(channel);
         CellBroadcastChannelRange range = channelManager.getCellBroadcastChannelRange(channel);
@@ -531,8 +535,8 @@ public class CellBroadcastAlertService extends Service {
                 || resourcesKey == R.array.etws_test_alerts_range_strings) {
             return emergencyAlertEnabled
                     && CellBroadcastSettings.isTestAlertsToggleVisible(getApplicationContext())
-                    && checkAlertConfigEnabled(subId,
-                            CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, false);
+                    && checkAlertConfigEnabled(subId, CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS,
+                    res.getBoolean(R.bool.test_alerts_enabled_default));
         }
 
         if (message.isEtwsMessage() || resourcesKey == R.array.etws_alerts_range_strings) {
@@ -556,11 +560,13 @@ public class CellBroadcastAlertService extends Service {
                 return emergencyAlertEnabled
                         && CellBroadcastSettings.isTestAlertsToggleVisible(getApplicationContext())
                         && checkAlertConfigEnabled(subId,
-                                CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, false);
+                        CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS,
+                        res.getBoolean(R.bool.test_alerts_enabled_default));
             }
             if (range.mAlertType == AlertType.AREA) {
                 return emergencyAlertEnabled && checkAlertConfigEnabled(subId,
-                        CellBroadcastSettings.KEY_ENABLE_AREA_UPDATE_INFO_ALERTS, false);
+                        CellBroadcastSettings.KEY_ENABLE_AREA_UPDATE_INFO_ALERTS,
+                        res.getBoolean(R.bool.area_update_info_alerts_enabled_default));
             }
 
             return emergencyAlertEnabled;
@@ -568,7 +574,8 @@ public class CellBroadcastAlertService extends Service {
 
         if (resourcesKey == R.array.emergency_alerts_channels_range_strings) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_EMERGENCY_ALERTS, true);
+                    subId, CellBroadcastSettings.KEY_ENABLE_EMERGENCY_ALERTS,
+                    res.getBoolean(R.bool.emergency_alerts_enabled_default));
         }
         // CMAS warning types
         if (resourcesKey == R.array.cmas_presidential_alerts_channels_range_strings) {
@@ -577,27 +584,32 @@ public class CellBroadcastAlertService extends Service {
         }
         if (resourcesKey == R.array.cmas_alert_extreme_channels_range_strings) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS, true);
+                    subId, CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS,
+                    res.getBoolean(R.bool.extreme_threat_alerts_enabled_default));
         }
         if (resourcesKey == R.array.cmas_alerts_severe_range_strings) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS, true);
+                    subId, CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS,
+                    res.getBoolean(R.bool.severe_threat_alerts_enabled_default));
         }
         if (resourcesKey == R.array.cmas_amber_alerts_channels_range_strings) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS, true);
+                    subId, CellBroadcastSettings.KEY_ENABLE_CMAS_AMBER_ALERTS,
+                    res.getBoolean(R.bool.amber_alerts_enabled_default));
         }
 
         if (resourcesKey == R.array.exercise_alert_range_strings
                 && res.getBoolean(R.bool.show_separate_exercise_settings)) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS, false);
+                    subId, CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS,
+                    res.getBoolean(R.bool.test_exercise_alerts_enabled_default));
         }
 
         if (resourcesKey == R.array.operator_defined_alert_range_strings
                 && res.getBoolean(R.bool.show_separate_operator_defined_settings)) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_OPERATOR_DEFINED_ALERTS, false);
+                    subId, CellBroadcastSettings.KEY_OPERATOR_DEFINED_ALERTS,
+                    res.getBoolean(R.bool.test_operator_defined_alerts_enabled_default));
         }
 
         if (resourcesKey == R.array.required_monthly_test_range_strings
@@ -606,17 +618,20 @@ public class CellBroadcastAlertService extends Service {
             return emergencyAlertEnabled
                     && CellBroadcastSettings.isTestAlertsToggleVisible(getApplicationContext())
                     && checkAlertConfigEnabled(
-                            subId, CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS, false);
+                            subId, CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS,
+                    res.getBoolean(R.bool.test_alerts_enabled_default));
         }
 
         if (resourcesKey == R.array.public_safety_messages_channels_range_strings) {
             return emergencyAlertEnabled && checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES, true);
+                    subId, CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES,
+                    res.getBoolean(R.bool.public_safety_messages_enabled_default));
         }
 
         if (resourcesKey == R.array.state_local_test_alert_range_strings) {
             return emergencyAlertEnabled && (checkAlertConfigEnabled(
-                    subId, CellBroadcastSettings.KEY_ENABLE_STATE_LOCAL_TEST_ALERTS, false)
+                    subId, CellBroadcastSettings.KEY_ENABLE_STATE_LOCAL_TEST_ALERTS,
+                    res.getBoolean(R.bool.state_local_test_alerts_enabled_default))
                     || (!res.getBoolean(R.bool.show_state_local_test_settings)
                     && res.getBoolean(R.bool.state_local_test_alerts_enabled_default)));
         }
@@ -688,7 +703,9 @@ public class CellBroadcastAlertService extends Service {
                 CellBroadcastAlertAudio.ALERT_AUDIO_VIBRATION_PATTERN_EXTRA,
                 (range != null)
                         ? range.mVibrationPattern
-                        : CellBroadcastSettings.getResources(mContext, message.getSubscriptionId())
+                        : CellBroadcastSettings.getResourcesByOperator(mContext,
+                                message.getSubscriptionId(),
+                                CellBroadcastReceiver.getRoamingOperatorSupported(mContext))
                         .getIntArray(R.array.default_vibration_pattern));
         // read key_override_dnd only when the toggle is visible.
         // range.mOverrideDnd is per channel configuration. override_dnd is the main config
@@ -779,9 +796,14 @@ public class CellBroadcastAlertService extends Service {
     static void addToNotificationBar(SmsCbMessage message,
             ArrayList<SmsCbMessage> messageList, Context context,
             boolean fromSaveState, boolean shouldAlert, boolean fromDialog) {
-        Resources res = CellBroadcastSettings.getResources(context, message.getSubscriptionId());
+
+        Resources res = CellBroadcastSettings.getResourcesByOperator(context,
+                message.getSubscriptionId(),
+                CellBroadcastReceiver.getRoamingOperatorSupported(context));
+
         int channelTitleId = CellBroadcastResources.getDialogTitleResource(context, message);
-        CharSequence channelName = context.getText(channelTitleId);
+        CharSequence channelName = CellBroadcastResources.overrideTranslation(context,
+                channelTitleId, res, message.getLanguageCode());
         String messageBody = message.getMessageBody();
         final NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
