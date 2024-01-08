@@ -145,6 +145,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
 
     private Vibrator mVibrator;
     private MediaPlayer mMediaPlayer;
+    @VisibleForTesting
+    public MediaPlayer mMediaPlayerInjected;
     private AudioManager mAudioManager;
     private TelephonyManager mTelephonyManager;
     private int mInitialCallState;
@@ -156,7 +158,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
     private static final int ALERT_PAUSE_FINISHED = 1001;
     private static final int ALERT_LED_FLASH_TOGGLE = 1002;
 
-    private Handler mHandler;
+    @VisibleForTesting
+    public Handler mHandler;
 
     private PhoneStateListener mPhoneStateListener;
 
@@ -360,6 +363,16 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
         }
 
         mStartId = startId;
+        return handleStartIntent(intent);
+    }
+
+    /**
+     * Handle the start intent
+     *
+     * @param intent    the intent to start the service
+     */
+    @VisibleForTesting
+    public int handleStartIntent(Intent intent) {
         // Get text to speak (if enabled by user)
         mMessageBody = intent.getStringExtra(ALERT_AUDIO_MESSAGE_BODY);
         mMessageLanguage = intent.getStringExtra(ALERT_AUDIO_MESSAGE_LANGUAGE);
@@ -376,7 +389,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
         // retrieve the vibration patterns.
         mVibrationPattern = intent.getIntArrayExtra(ALERT_AUDIO_VIBRATION_PATTERN_EXTRA);
 
-        Resources res = CellBroadcastSettings.getResources(getApplicationContext(), mSubId);
+        Resources res = CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                mSubId, CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()));
         mEnableLedFlash = res.getBoolean(R.bool.enable_led_flash);
 
         // retrieve the customized alert duration. -1 means play the alert with the tone's duration.
@@ -450,7 +464,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
         log("playAlertTone: alertType=" + alertType + ", mEnableVibrate=" + mEnableVibrate
                 + ", mEnableAudio=" + mEnableAudio + ", mOverrideDnd=" + mOverrideDnd
                 + ", mSubId=" + mSubId);
-        Resources res = CellBroadcastSettings.getResources(getApplicationContext(), mSubId);
+        Resources res = CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                mSubId, CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()));
 
         // Vibration duration in milliseconds
         long vibrateDuration = 0;
@@ -499,7 +514,7 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
 
         if (mEnableAudio) {
             // future optimization: reuse media player object
-            mMediaPlayer = new MediaPlayer();
+            mMediaPlayer = mMediaPlayerInjected != null ? mMediaPlayerInjected : new MediaPlayer();
             mMediaPlayer.setOnErrorListener(new OnErrorListener() {
                 public boolean onError(MediaPlayer mp, int what, int extra) {
                     loge("Error occurred while playing audio.");
@@ -508,12 +523,9 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
                 }
             });
 
-            // If the duration is specified by the config, use the specified duration. Otherwise,
-            // just play the alert tone with the tone's duration.
-            if (customAlertDuration >= 0) {
-                mHandler.sendMessageDelayed(mHandler.obtainMessage(ALERT_SOUND_FINISHED),
-                        customAlertDuration);
-            } else {
+            // If the duration is not specified by the config, just play the alert tone
+            // with the tone's duration.
+            if (customAlertDuration < 0) {
                 mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
                         if (DBG) log("Audio playback complete.");
@@ -575,6 +587,12 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
                 // Otherwise we just play the alert tone once.
                 mMediaPlayer.setLooping(customAlertDuration >= 0);
                 mMediaPlayer.prepare();
+                // If the duration is specified by the config, stop playing the alert after
+                // the specified duration.
+                if (customAlertDuration >= 0) {
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(ALERT_SOUND_FINISHED),
+                            customAlertDuration);
+                }
                 mMediaPlayer.start();
                 mIsMediaPlayerStarted = true;
 
@@ -826,7 +844,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
      * Get AlertAudioService status
      * @return service status
      */
-    private synchronized int getState() {
+    @VisibleForTesting
+    public synchronized int getState() {
         return mState;
     }
 

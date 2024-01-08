@@ -78,7 +78,6 @@ import org.mockito.MockitoAnnotations;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class CellBroadcastAlertDialogTest extends
         CellBroadcastActivityTestCase<CellBroadcastAlertDialog> {
@@ -371,16 +370,21 @@ public class CellBroadcastAlertDialogTest extends
         CellBroadcastAlertDialog activity = startActivity(intent, null, null);
         waitForMs(100);
 
+        ImageView image = activity.findViewById(R.id.pictogramImage);
+        image.setVisibility(View.VISIBLE);
+        assertEquals(View.VISIBLE, image.getVisibility());
+
         // add more messages to list
         mMessageList.add(CellBroadcastAlertServiceTest.createMessageForCmasMessageClass(12413,
-                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
-                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY));
+                SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_WARNING,
+                SmsCbConstants.MESSAGE_ID_ETWS_EARTHQUAKE_WARNING));
         intent.putParcelableArrayListExtra(CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA,
                 new ArrayList<>(mMessageList));
         activity.onNewIntent(intent);
 
         verify(mMockedNotificationManager, atLeastOnce()).cancel(
                 eq(CellBroadcastAlertService.NOTIFICATION_ID));
+        assertNotNull(image.getLayoutParams());
     }
 
     public void testAnimationHandler() throws Throwable {
@@ -725,11 +729,9 @@ public class CellBroadcastAlertDialogTest extends
         mContext.injectSharedPreferences(mockSharedPreferences);
         Resources mockResources2 = mock(Resources.class);
         doReturn(false).when(mockResources2).getBoolean(R.bool.show_alert_title);
+        doReturn("none").when(mockResources2).getString(R.string.link_method);
 
-        Field field = CellBroadcastSettings.class.getDeclaredField("sResourcesCacheByOperator");
-        field.setAccessible(true);
-        Map<String, Resources> roamingMap = (Map<String, Resources>) field.get(null);
-        roamingMap.put("334090", mockResources2);
+        CellBroadcastSettings.sResourcesCacheByOperator.put("334090", mockResources2);
 
         mMessageList.add(CellBroadcastAlertServiceTest.createMessageForCmasMessageClass(12413,
                 SmsCbConstants.MESSAGE_ID_CMAS_ALERT_CHILD_ABDUCTION_EMERGENCY,
