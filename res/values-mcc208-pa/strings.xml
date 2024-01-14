@@ -23,9 +23,9 @@
     <string name="cmas_amber_alert" msgid="6428083238223852662">"ਫ਼ਰਾਂਸੀਸੀ-ਅਲਰਟ : ਅਪਹਰਨ ਹੋ ਜਾਣ ਸੰਬੰਧੀ ਅਲਰਟ"</string>
     <string name="cmas_required_monthly_test" msgid="3216225136685938963">"ਫ਼ਰਾਂਸੀਸੀ-ਅਲਰਟ ਜਾਂਚ"</string>
     <string name="cmas_exercise_alert" msgid="6540820517122545556">"ਫ਼ਰਾਂਸੀਸੀ-ਅਲਰਟ ਅਭਿਆਸ"</string>
-    <string name="enable_cmas_extreme_threat_alerts_title" msgid="1268433786689479357">"ਗੰਭੀਰ ਸੁਚੇਤਨਾਵਾਂ (ਪੱਧਰ 2)"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="1268433786689479357">"ਗੰਭੀਰ ਅਲਰਟ (ਪੱਧਰ 2)"</string>
     <string name="enable_cmas_extreme_threat_alerts_summary" msgid="6125474083043183037">"ਗੰਭੀਰ ਖਤਰਿਆਂ ਲਈ ਅਲਰਟ ਸੁਨੇਹੇ ਦਿਖਾਓ"</string>
-    <string name="enable_cmas_severe_threat_alerts_title" msgid="6185770513604614548">"ਬਹੁਤ ਗੰਭੀਰ ਸੁਚੇਤਨਾਵਾਂ (ਪੱਧਰ 3)"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="6185770513604614548">"ਬਹੁਤ ਗੰਭੀਰ ਅਲਰਟ (ਪੱਧਰ 3)"</string>
     <string name="enable_cmas_severe_threat_alerts_summary" msgid="3073259381449390054">"ਬਹੁਤ ਗੰਭੀਰ ਖਤਰਿਆਂ ਲਈ ਚਿਤਾਵਨੀ ਸੁਨੇਹੇ ਦਿਖਾਓ"</string>
     <string name="enable_public_safety_messages_title" msgid="4231398452970069457">"ਚਿਤਾਵਨੀ (ਪੱਧਰ 4)"</string>
     <string name="enable_public_safety_messages_summary" msgid="1691623841627340948">"ਚਿਤਾਵਨੀ ਸੁਨੇਹੇ ਦਿਖਾਓ"</string>
