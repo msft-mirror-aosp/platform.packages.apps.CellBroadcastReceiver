@@ -94,7 +94,7 @@
     <!-- no translation found for enable_operator_defined_test_alerts_title (7459219458579095832) -->
     <skip />
     <string name="enable_operator_defined_test_alerts_summary" msgid="7856514354348843433">"জরুরি সতর্কতা পান: অপারেটর সংক্রান্ত সতর্কতা"</string>
-    <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"ভাইব্রেশন"</string>
+    <string name="enable_alert_vibrate_title" msgid="5421032189422312508">"কম্পন"</string>
     <string name="enable_alert_vibrate_summary" msgid="4733669825477146614"></string>
     <string name="override_dnd_title" msgid="5120805993144214421">"যেকোনও সময়ে বিজ্ঞপ্তি পেতে সম্পূর্ণ ভলিউম দিন"</string>
     <string name="override_dnd_summary" msgid="9026675822792800258">"বিরক্ত করবে না &amp; অন্য ভলিউম সেটিংস এড়িয়ে যান"</string>
@@ -170,7 +170,7 @@
     <string name="seconds" msgid="141450721520515025">"সেকেন্ড"</string>
     <string name="message_copied" msgid="6922953753733166675">"মেসেজ কপি করা হয়েছে"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
-    <string name="top_intro_roaming_text" msgid="186872150397081032">"রোমিংয়ে থাকলে, আপনাকে হয়ত এমন কিছু সতর্কতা মূলক বিজ্ঞপ্তি পাঠানো হবে যা এই সেটিংসের অন্তর্ভুক্ত নয়"</string>
+    <string name="top_intro_roaming_text" msgid="5250650823028195358">"আপনি রোমিংয়ে থাকাকালীন বা আপনার কাছে কোনও অ্যাক্টিভ সিম কার্ড না থাকলে, এইসব সেটিংসে অন্তর্ভুক্ত করা নেই এমন কিছু সতর্কতা পেতে পারেন"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"পরিষেবা প্রদানকারীর দ্বারা সেটিংস পরিবর্তন করা হয়েছে"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"ওয়্যারলেস জরুরী সতর্কতা সেটিংস দেখার জন্য ট্যাপ করুন"</string>
 </resources>

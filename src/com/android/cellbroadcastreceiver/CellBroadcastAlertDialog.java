@@ -86,7 +86,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -269,8 +268,11 @@ public class CellBroadcastAlertDialog extends Activity {
         private boolean initDrawableAndImageView(int subId) {
             if (mWarningIcon == null) {
                 try {
-                    mWarningIcon = CellBroadcastSettings.getResources(getApplicationContext(),
-                            subId).getDrawable(R.drawable.ic_warning_googred);
+                    mWarningIcon = CellBroadcastSettings.getResourcesByOperator(
+                            getApplicationContext(), subId,
+                            CellBroadcastReceiver
+                                    .getRoamingOperatorSupported(getApplicationContext()))
+                            .getDrawable(R.drawable.ic_warning_googred);
                 } catch (Resources.NotFoundException e) {
                     CellBroadcastReceiverMetrics.getInstance().logModuleError(
                             ERRSRC_CBR, ERRTYPE_ICONRESOURCE);
@@ -578,8 +580,9 @@ public class CellBroadcastAlertDialog extends Activity {
 
             updateAlertText(message);
 
-            Resources res = CellBroadcastSettings.getResources(getApplicationContext(),
-                    message.getSubscriptionId());
+            Resources res = CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                    message.getSubscriptionId(),
+                    CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()));
             if (res.getBoolean(R.bool.enable_text_copy)) {
                 TextView textView = findViewById(R.id.message);
                 if (textView != null) {
@@ -732,7 +735,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * @return The link method
      */
     private @LinkMethod int getLinkMethod(int subId) {
-        Resources res = CellBroadcastSettings.getResources(getApplicationContext(), subId);
+        Resources res = CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                subId, CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()));
         switch (res.getString(R.string.link_method)) {
             case LINK_METHOD_NONE_STRING: return LINK_METHOD_NONE;
             case LINK_METHOD_LEGACY_LINKIFY_STRING: return LINK_METHOD_LEGACY_LINKIFY;
@@ -834,29 +838,6 @@ public class CellBroadcastAlertDialog extends Activity {
     }
 
     /**
-     * If the carrier or country is configured to show the alert dialog title text in the
-     * language matching the message, this method returns the string in that language. Otherwise
-     * this method returns the string in the device's current language
-     *
-     * @param resId resource Id
-     * @param res Resources for the subId
-     * @param languageCode the ISO-639-1 language code for this message, or null if unspecified
-     */
-    private String overrideTranslation(int resId, Resources res, String languageCode) {
-        if (!TextUtils.isEmpty(languageCode)
-                && res.getBoolean(R.bool.override_alert_title_language_to_match_message_locale)) {
-            // TODO change resources to locale from message
-            Configuration conf = res.getConfiguration();
-            conf = new Configuration(conf);
-            conf.setLocale(new Locale(languageCode));
-            Context localizedContext = getApplicationContext().createConfigurationContext(conf);
-            return localizedContext.getResources().getText(resId).toString();
-        } else {
-            return res.getText(resId).toString();
-        }
-    }
-
-    /**
      * Update alert text when a new emergency alert arrives.
      * @param message CB message which is used to update alert text.
      */
@@ -882,9 +863,9 @@ public class CellBroadcastAlertDialog extends Activity {
             languageCode = message.getLanguageCode();
         }
 
-        if (CellBroadcastSettings.getResourcesForDefaultSubId(context).getBoolean(
-                R.bool.show_alert_title)) {
-            String title = overrideTranslation(titleId, res, languageCode);
+        if (res.getBoolean(R.bool.show_alert_title)) {
+            String title = CellBroadcastResources.overrideTranslation(context, titleId, res,
+                    languageCode);
             TextView titleTextView = findViewById(R.id.alertTitle);
 
             if (titleTextView != null) {
@@ -897,6 +878,10 @@ public class CellBroadcastAlertDialog extends Activity {
                 setTitle(title);
                 titleTextView.setText(title);
             }
+        } else {
+            TextView titleTextView = findViewById(R.id.alertTitle);
+            setTitle("");
+            titleTextView.setText("");
         }
 
         TextView textView = findViewById(R.id.message);
@@ -919,8 +904,12 @@ public class CellBroadcastAlertDialog extends Activity {
 
         ((TextView) findViewById(R.id.dismissButton)).setText(dismissButtonText);
 
-
         setPictogram(context, message);
+
+        if (this.hasWindowFocus()) {
+            Configuration config = res.getConfiguration();
+            setPictogramAreaLayout(config.orientation);
+        }
     }
 
     /**
@@ -1195,8 +1184,10 @@ public class CellBroadcastAlertDialog extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.d(TAG, "onKeyDown: " + event);
         SmsCbMessage message = getLatestMessage();
-        if (message != null && CellBroadcastSettings.getResources(getApplicationContext(),
-                message.getSubscriptionId()).getBoolean(R.bool.mute_by_physical_button)) {
+        if (message != null && CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                message.getSubscriptionId(),
+                CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()))
+                .getBoolean(R.bool.mute_by_physical_button)) {
             switch (event.getKeyCode()) {
                 // Volume keys and camera keys mute the alert sound/vibration (except ETWS).
                 case KeyEvent.KEYCODE_VOLUME_UP:
@@ -1244,7 +1235,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * @return true if the device is configured to never show the opt out dialog for the mcc/mnc
      */
     private boolean neverShowOptOutDialog(int subId) {
-        return CellBroadcastSettings.getResources(getApplicationContext(), subId)
+        return CellBroadcastSettings.getResourcesByOperator(getApplicationContext(), subId,
+                        CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()))
                 .getBoolean(R.bool.disable_opt_out_dialog);
     }
 
@@ -1262,8 +1254,10 @@ public class CellBroadcastAlertDialog extends Activity {
 
         cm.setPrimaryClip(ClipData.newPlainText("Alert Message", message.getMessageBody()));
 
-        String msg = CellBroadcastSettings.getResources(context,
-                message.getSubscriptionId()).getString(R.string.message_copied);
+        String msg = CellBroadcastSettings.getResourcesByOperator(context,
+                message.getSubscriptionId(),
+                CellBroadcastReceiver.getRoamingOperatorSupported(context))
+                .getString(R.string.message_copied);
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         return true;
     }

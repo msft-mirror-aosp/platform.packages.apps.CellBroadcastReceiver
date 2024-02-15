@@ -22,6 +22,7 @@ import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_CHAN
 import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_ENABLECHANNEL;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -124,12 +125,14 @@ public class CellBroadcastConfigService extends IntentService {
                         enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
                     }
 
-                    String roamingOperator = CellBroadcastReceiver.getRoamingOperatorSupported(
-                            this);
-                    CellBroadcastReceiverMetrics.getInstance().onConfigUpdated(
-                            getApplicationContext(),
-                            roamingOperator.isEmpty() ? "" : roamingOperator,
-                            mChannelRangeForMetric);
+                    if (!mChannelRangeForMetric.isEmpty()) {
+                        String roamingOperator = CellBroadcastReceiver.getRoamingOperatorSupported(
+                                this);
+                        CellBroadcastReceiverMetrics.getInstance().onConfigUpdated(
+                                getApplicationContext(),
+                                roamingOperator.isEmpty() ? "" : roamingOperator,
+                                mChannelRangeForMetric);
+                    }
                 }
             } catch (Exception ex) {
                 CellBroadcastReceiverMetrics.getInstance().logModuleError(
@@ -143,11 +146,16 @@ public class CellBroadcastConfigService extends IntentService {
 
                 CellBroadcastAlertService.createNotificationChannels(c);
                 Intent settingsIntent = new Intent(c, CellBroadcastSettings.class);
+                ActivityOptions options = ActivityOptions.makeBasic();
+                if (SdkLevel.isAtLeastU()) {
+                    options.setPendingIntentCreatorBackgroundActivityStartMode(
+                            ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+                }
                 PendingIntent pi = PendingIntent.getActivity(c,
                         CellBroadcastAlertService.SETTINGS_CHANGED_NOTIFICATION_ID, settingsIntent,
                         PendingIntent.FLAG_ONE_SHOT
                                 | PendingIntent.FLAG_UPDATE_CURRENT
-                                | PendingIntent.FLAG_IMMUTABLE);
+                                | PendingIntent.FLAG_IMMUTABLE, options.toBundle());
 
                 Notification.Builder builder = new Notification.Builder(c,
                         CellBroadcastAlertService.NOTIFICATION_CHANNEL_SETTINGS_UPDATES)
@@ -558,19 +566,21 @@ public class CellBroadcastConfigService extends IntentService {
                                 + range.mEndId + "], type:" + range.mRanType
                                 + ", enable:" + enable);
                     }
-                    if (enable) {
+                    if (enable && (subId == SubscriptionManager.getDefaultSubscriptionId())) {
                         mChannelRangeForMetric.add(new Pair(range.mStartId, range.mEndId));
                     }
                     CellBroadcastIdRange cbRange = new CellBroadcastIdRange(range.mStartId,
                             range.mEndId, range.mRanType, enable);
                     channelIdRanges.add(cbRange);
                 } else {
+                    if (VDBG) {
+                        log("enableCellBroadcastRange[" + range.mStartId + "-"
+                                + range.mEndId + "], type:" + range.mRanType);
+                    }
                     if (enable) {
-                        if (VDBG) {
-                            log("enableCellBroadcastRange[" + range.mStartId + "-"
-                                    + range.mEndId + "], type:" + range.mRanType);
+                        if (subId == SubscriptionManager.getDefaultSubscriptionId()) {
+                            mChannelRangeForMetric.add(new Pair(range.mStartId, range.mEndId));
                         }
-                        mChannelRangeForMetric.add(new Pair(range.mStartId, range.mEndId));
                         manager.enableCellBroadcastRange(range.mStartId, range.mEndId,
                                 range.mRanType);
                     } else {

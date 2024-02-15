@@ -162,7 +162,7 @@
     <string name="message_identifier" msgid="5558338496219327850">"ಗುರುತಿಸುವಿಕೆ:"</string>
     <string name="message_serial_number" msgid="3386553658712978964">"ಕ್ರಮ ಸಂಖ್ಯೆ:"</string>
     <string name="data_coding_scheme" msgid="4628901196730870577">"ಡೇಟಾ ಕೋಡಿಂಗ್ ಸ್ಕೀಮ್:"</string>
-    <string name="message_content" msgid="6204502929879474632">"ಸಂದೇಶದ ವಿಷಯ:"</string>
+    <string name="message_content" msgid="6204502929879474632">"ಸಂದೇಶದ ಕಂಟೆಂಟ್‍:"</string>
     <string name="location_check_time" msgid="4105326161240531207">"ಸ್ಥಳ ಪರಿಶೀಲನೆಯ ಸಮಯ:"</string>
     <string name="message_displayed" msgid="5091678195925617971">"ಸಂದೇಶವನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗಿದೆ:"</string>
     <string name="message_coordinates" msgid="356333576818059052">"ನಿರ್ದೇಶಾಂಕಗಳು:"</string>
@@ -170,7 +170,7 @@
     <string name="seconds" msgid="141450721520515025">"ಸೆಕೆಂಡುಗಳು"</string>
     <string name="message_copied" msgid="6922953753733166675">"ಸಂದೇಶವನ್ನು ನಕಲಿಸಲಾಗಿದೆ"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
-    <string name="top_intro_roaming_text" msgid="186872150397081032">"ನೀವು ರೋಮಿಂಗ್‌ನಲ್ಲಿರುವಾಗ ಈ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಸೇರಿಸದ ಕೆಲವು ಎಚ್ಚರಿಕೆಗಳನ್ನು ನೀವು ಪಡೆಯಬಹುದು"</string>
+    <string name="top_intro_roaming_text" msgid="5250650823028195358">"ನೀವು ರೋಮಿಂಗ್‌ನಲ್ಲಿರುವಾಗ ಅಥವಾ ಸಕ್ರಿಯ SIM ಕಾರ್ಡ್ ಅನ್ನು ಹೊಂದಿಲ್ಲದಿದ್ದರೆ, ಈ ಸೆಟ್ಟಿಂಗ್‌ನಲ್ಲಿ ಸೇರಿಸದ ಕೆಲವು ಅಲರ್ಟ್‌ಗಳನ್ನು ನೀವು ಸ್ವೀಕರಿಸಬಹುದು"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"ವಾಹಕದಿಂದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಾಯಿಸಲಾಗಿದೆ"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಎಚ್ಚರಿಕೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನೋಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
 </resources>
