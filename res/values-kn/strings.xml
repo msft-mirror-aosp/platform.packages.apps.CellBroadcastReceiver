@@ -21,7 +21,7 @@
     <string name="sms_cb_sender_name_default" msgid="972946539768958828">"ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಅಲರ್ಟ್‌ಗಳು"</string>
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಅಲರ್ಟ್‌ಗಳು"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಅಲರ್ಟ್‌ಗಳು"</string>
-    <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"ಮಾಹಿತಿಯ ಅಧಿಸೂಚನೆ"</string>
+    <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"ಮಾಹಿತಿಯ ನೋಟಿಫಿಕೇಶನ್"</string>
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"ಈ ಬಳಕೆದಾರರಿಗೆ ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಅಲರ್ಟ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"ಸರಿ"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"ಹಿಂದಿನ ಯಾವುದೇ ಎಚ್ಚರಿಕೆಗಳಿಲ್ಲ"</string>
@@ -162,7 +162,7 @@
     <string name="message_identifier" msgid="5558338496219327850">"ಗುರುತಿಸುವಿಕೆ:"</string>
     <string name="message_serial_number" msgid="3386553658712978964">"ಕ್ರಮ ಸಂಖ್ಯೆ:"</string>
     <string name="data_coding_scheme" msgid="4628901196730870577">"ಡೇಟಾ ಕೋಡಿಂಗ್ ಸ್ಕೀಮ್:"</string>
-    <string name="message_content" msgid="6204502929879474632">"ಸಂದೇಶದ ವಿಷಯ:"</string>
+    <string name="message_content" msgid="6204502929879474632">"ಸಂದೇಶದ ಕಂಟೆಂಟ್‍:"</string>
     <string name="location_check_time" msgid="4105326161240531207">"ಸ್ಥಳ ಪರಿಶೀಲನೆಯ ಸಮಯ:"</string>
     <string name="message_displayed" msgid="5091678195925617971">"ಸಂದೇಶವನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗಿದೆ:"</string>
     <string name="message_coordinates" msgid="356333576818059052">"ನಿರ್ದೇಶಾಂಕಗಳು:"</string>
