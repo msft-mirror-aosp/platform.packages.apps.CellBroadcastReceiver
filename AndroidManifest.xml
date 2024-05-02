@@ -127,6 +127,12 @@
                   android:label="@string/sms_cb_settings"
                   android:exported="true" />
 
+        <!-- Composable alternative version of Settings activitiy above. -->
+        <activity android:name="com.android.cellbroadcastreceiver.SettingsComposeActivity"
+                  android:theme="@style/CellBroadcastSettingsTheme"
+                  android:label="@string/sms_cb_settings"
+                  android:exported="true" />
+
         <activity android:name="com.android.cellbroadcastreceiver.CellBroadcastAlertDialog"
                   android:theme="@style/CellBroadcastAlertTheme"
                   android:launchMode="singleInstance"
