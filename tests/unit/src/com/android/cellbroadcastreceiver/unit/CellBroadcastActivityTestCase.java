@@ -23,6 +23,8 @@ import android.app.ResourcesManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -33,6 +35,7 @@ import android.view.Display;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityUnitTestCase<T> {
 
@@ -119,6 +122,12 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
 
         private Resources mResources;
 
+        boolean mIsOverrideConfigurationEnabled;
+
+        private PackageManager mPackageManager;
+
+        private SharedPreferences mSharedPreferences;
+
         public TestContext(Context base) {
             super(base);
             mResources = spy(super.getResources());
@@ -127,6 +136,14 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
         public <S> void injectSystemService(Class<S> cls, S service) {
             final String name = getSystemServiceName(cls);
             mInjectedSystemServices.put(name, service);
+        }
+
+        public void injectPackageManager(PackageManager packageManager) {
+            mPackageManager = packageManager;
+        }
+
+        public void injectSharedPreferences(SharedPreferences sp) {
+            mSharedPreferences = sp;
         }
 
         @Override
@@ -156,8 +173,53 @@ public class CellBroadcastActivityTestCase<T extends Activity> extends ActivityU
         }
 
         @Override
-        public Context createConfigurationContext(Configuration overrideConfiguration) {
-            return this;
+        public PackageManager getPackageManager() {
+            if (mPackageManager != null) {
+                return mPackageManager;
+            }
+            return super.getPackageManager();
         }
+
+        @Override
+        public SharedPreferences getSharedPreferences(String name, int mode) {
+            if (mSharedPreferences != null) {
+                return mSharedPreferences;
+            }
+            return super.getSharedPreferences(name, mode);
+        }
+
+        @Override
+        public Context createConfigurationContext(Configuration overrideConfiguration) {
+            if (!mIsOverrideConfigurationEnabled) {
+                return this;
+            }
+
+            TestContext newTestContext = new TestContext(
+                    super.createConfigurationContext(overrideConfiguration));
+            newTestContext.mInjectedSystemServices.putAll(mInjectedSystemServices);
+            return newTestContext;
+        }
+
+        public void enableOverrideConfiguration(boolean enabled) {
+            mIsOverrideConfigurationEnabled = enabled;
+        }
+
+    }
+
+    protected void waitForChange(BooleanSupplier condition, long timeoutMs) {
+        CountDownLatch latch = new CountDownLatch(1);
+        new Thread(() -> {
+            while (latch.getCount() > 0 && !condition.getAsBoolean()) {
+                // do nothing
+            }
+            latch.countDown();
+        }).start();
+
+        try {
+            latch.await(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+        latch.countDown();
     }
 }
