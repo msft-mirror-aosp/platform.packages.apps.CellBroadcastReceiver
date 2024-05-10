@@ -16,6 +16,11 @@
 
 package com.android.cellbroadcastreceiver;
 
+import static com.android.cellbroadcastreceiver.CellBroadcastReceiver.VDBG;
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRSRC_CBR;
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_ICONRESOURCE;
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_STATUSBAR;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.app.Activity;
@@ -34,7 +39,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -149,6 +156,17 @@ public class CellBroadcastAlertDialog extends Activity {
     /** Length of time for the warning icon to be off. */
     private static final int WARNING_ICON_OFF_DURATION_MSEC = 800;
 
+    /** Default interval for the highlight color of the pulsation. */
+    private static final int PULSATION_ON_DURATION_MSEC = 1000;
+    /** Default interval for the normal color of the pulsation. */
+    private static final int PULSATION_OFF_DURATION_MSEC = 1000;
+    /** Max value for the interval of the color change. */
+    private static final int PULSATION_MAX_ON_OFF_DURATION_MSEC = 120000;
+    /** Default time for the pulsation */
+    private static final int PULSATION_DURATION_MSEC = 10000;
+    /** Max time for the pulsation */
+    private static final int PULSATION_MAX_DURATION_MSEC = 86400000;
+
     /** Length of time to keep the screen turned on. */
     private static final int KEEP_SCREEN_ON_DURATION_MSEC = 60000;
 
@@ -158,6 +176,10 @@ public class CellBroadcastAlertDialog extends Activity {
 
     /** Handler to add and remove screen on flags for emergency alerts. */
     private final ScreenOffHandler mScreenOffHandler = new ScreenOffHandler();
+
+    /** Pulsation handler for the alert background color. */
+    @VisibleForTesting
+    public PulsationHandler mPulsationHandler = new PulsationHandler();
 
     // Show the opt-out dialog
     private AlertDialog mOptOutDialog;
@@ -247,9 +269,14 @@ public class CellBroadcastAlertDialog extends Activity {
         private boolean initDrawableAndImageView(int subId) {
             if (mWarningIcon == null) {
                 try {
-                    mWarningIcon = CellBroadcastSettings.getResources(getApplicationContext(),
-                            subId).getDrawable(R.drawable.ic_warning_googred);
+                    mWarningIcon = CellBroadcastSettings.getResourcesByOperator(
+                            getApplicationContext(), subId,
+                            CellBroadcastReceiver
+                                    .getRoamingOperatorSupported(getApplicationContext()))
+                            .getDrawable(R.drawable.ic_warning_googred);
                 } catch (Resources.NotFoundException e) {
+                    CellBroadcastReceiverMetrics.getInstance().logModuleError(
+                            ERRSRC_CBR, ERRTYPE_ICONRESOURCE);
                     Log.e(TAG, "warning icon resource not found", e);
                     return false;
                 }
@@ -329,6 +356,130 @@ public class CellBroadcastAlertDialog extends Activity {
                 Log.d(TAG, "removed FLAG_KEEP_SCREEN_ON with id " + msgWhat);
             } else {
                 Log.e(TAG, "discarding screen off message with id " + msgWhat);
+            }
+        }
+    }
+
+    /**
+     * Pulsation handler for the alert window background color.
+     */
+    @VisibleForTesting
+    public static class PulsationHandler extends Handler {
+        /** Latest {@code message.what} value for detecting old messages. */
+        @VisibleForTesting
+        public final AtomicInteger mCount = new AtomicInteger();
+
+        @VisibleForTesting
+        public int mBackgroundColor = Color.TRANSPARENT;
+        @VisibleForTesting
+        public int mHighlightColor = Color.TRANSPARENT;
+        @VisibleForTesting
+        public int mOnInterval;
+        @VisibleForTesting
+        public int mOffInterval;
+        @VisibleForTesting
+        public int mDuration;
+        @VisibleForTesting
+        public boolean mIsPulsationOn;
+        @VisibleForTesting
+        public View mLayout;
+
+        /** Package local constructor (called from outer class). */
+        PulsationHandler() {
+        }
+
+        /** Start the pulsation. */
+        @VisibleForTesting
+        public void start(View layout, int[] pattern) {
+            if (layout == null || pattern == null || pattern.length == 0) {
+                Log.d(TAG, layout == null ? "layout is null" : "no pulsation pattern");
+                return;
+            }
+
+            post(() -> {
+                mLayout = layout;
+                Drawable bg = mLayout.getBackground();
+                if (bg instanceof ColorDrawable) {
+                    mBackgroundColor = ((ColorDrawable) bg).getColor();
+                }
+
+                mHighlightColor = pattern[0];
+                mDuration = PULSATION_DURATION_MSEC;
+                if (pattern.length > 1) {
+                    if (pattern[1] < 0 || pattern[1] > PULSATION_MAX_DURATION_MSEC) {
+                        Log.wtf(TAG, "Invalid pulsation duration: " + pattern[1]);
+                    } else {
+                        mDuration = pattern[1];
+                    }
+                }
+
+                mOnInterval = PULSATION_ON_DURATION_MSEC;
+                if (pattern.length > 2) {
+                    if (pattern[2] < 0 || pattern[2] > PULSATION_MAX_ON_OFF_DURATION_MSEC) {
+                        Log.wtf(TAG, "Invalid pulsation on interval: " + pattern[2]);
+                    } else {
+                        mOnInterval = pattern[2];
+                    }
+                }
+
+                mOffInterval = PULSATION_OFF_DURATION_MSEC;
+                if (pattern.length > 3) {
+                    if (pattern[3] < 0 || pattern[3] > PULSATION_MAX_ON_OFF_DURATION_MSEC) {
+                        Log.wtf(TAG, "Invalid pulsation off interval: " + pattern[3]);
+                    } else {
+                        mOffInterval = pattern[3];
+                    }
+                }
+
+                if (VDBG) {
+                    Log.d(TAG, "start pulsation, highlight color=" + mHighlightColor
+                            + ", background color=" + mBackgroundColor
+                            + ", duration=" + mDuration
+                            + ", on=" + mOnInterval + ", off=" + mOffInterval);
+                }
+
+                mCount.set(0);
+                queuePulsationMessage();
+                postDelayed(() -> onPulsationStopped(), mDuration);
+            });
+        }
+
+        /** Stop the pulsation. */
+        @VisibleForTesting
+        public void stop() {
+            post(() -> onPulsationStopped());
+        }
+
+        private void onPulsationStopped() {
+            // Increment the counter so the handler will ignore the next message.
+            mCount.incrementAndGet();
+            if (mLayout != null) {
+                mLayout.setBackgroundColor(mBackgroundColor);
+            }
+            mLayout = null;
+            mIsPulsationOn = false;
+            if (VDBG) {
+                Log.d(TAG, "pulsation stopped");
+            }
+        }
+
+        /** Queue a message to pulsate the background color of the alert. */
+        private void queuePulsationMessage() {
+            int msgWhat = mCount.incrementAndGet();
+            sendEmptyMessageDelayed(msgWhat, mIsPulsationOn ? mOnInterval : mOffInterval);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (mLayout == null) {
+                return;
+            }
+
+            if (msg.what == mCount.get()) {
+                mIsPulsationOn = !mIsPulsationOn;
+                mLayout.setBackgroundColor(mIsPulsationOn ? mHighlightColor
+                        : mBackgroundColor);
+                queuePulsationMessage();
             }
         }
     }
@@ -430,8 +581,9 @@ public class CellBroadcastAlertDialog extends Activity {
 
             updateAlertText(message);
 
-            Resources res = CellBroadcastSettings.getResources(getApplicationContext(),
-                    message.getSubscriptionId());
+            Resources res = CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                    message.getSubscriptionId(),
+                    CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()));
             if (res.getBoolean(R.bool.enable_text_copy)) {
                 TextView textView = findViewById(R.id.message);
                 if (textView != null) {
@@ -439,6 +591,12 @@ public class CellBroadcastAlertDialog extends Activity {
                             getApplicationContext()));
                 }
             }
+
+            if (res.getBoolean(R.bool.disable_capture_alert_dialog)) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            }
+            startPulsatingAsNeeded(channelManager
+                    .getCellBroadcastChannelRangeFromMessage(message));
         }
     }
 
@@ -578,7 +736,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * @return The link method
      */
     private @LinkMethod int getLinkMethod(int subId) {
-        Resources res = CellBroadcastSettings.getResources(getApplicationContext(), subId);
+        Resources res = CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                subId, CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()));
         switch (res.getString(R.string.link_method)) {
             case LINK_METHOD_NONE_STRING: return LINK_METHOD_NONE;
             case LINK_METHOD_LEGACY_LINKIFY_STRING: return LINK_METHOD_LEGACY_LINKIFY;
@@ -728,17 +887,24 @@ public class CellBroadcastAlertDialog extends Activity {
             languageCode = message.getLanguageCode();
         }
 
-        String title = overrideTranslation(titleId, res, languageCode);
-        TextView titleTextView = findViewById(R.id.alertTitle);
+        if (res.getBoolean(R.bool.show_alert_title)) {
+            String title = overrideTranslation(titleId, res, languageCode);
+            TextView titleTextView = findViewById(R.id.alertTitle);
 
-        if (titleTextView != null) {
-            String timeFormat = res.getString(R.string.date_time_format);
-            if (!TextUtils.isEmpty(timeFormat)) {
-                titleTextView.setSingleLine(false);
-                title += "\n" + new SimpleDateFormat(timeFormat).format(message.getReceivedTime());
+            if (titleTextView != null) {
+                String timeFormat = res.getString(R.string.date_time_format);
+                if (!TextUtils.isEmpty(timeFormat)) {
+                    titleTextView.setSingleLine(false);
+                    title += "\n" + new SimpleDateFormat(timeFormat).format(
+                            message.getReceivedTime());
+                }
+                setTitle(title);
+                titleTextView.setText(title);
             }
-            setTitle(title);
-            titleTextView.setText(title);
+        } else {
+            TextView titleTextView = findViewById(R.id.alertTitle);
+            setTitle("");
+            titleTextView.setText("");
         }
 
         TextView textView = findViewById(R.id.message);
@@ -761,8 +927,12 @@ public class CellBroadcastAlertDialog extends Activity {
 
         ((TextView) findViewById(R.id.dismissButton)).setText(dismissButtonText);
 
-
         setPictogram(context, message);
+
+        if (this.hasWindowFocus()) {
+            Configuration config = res.getConfiguration();
+            setPictogramAreaLayout(config.orientation);
+        }
     }
 
     /**
@@ -773,6 +943,10 @@ public class CellBroadcastAlertDialog extends Activity {
     private void setPictogram(Context context, SmsCbMessage message) {
         int resId = CellBroadcastResources.getDialogPictogramResource(context, message);
         ImageView image = findViewById(R.id.pictogramImage);
+        // not all layouts may have a pictogram image, e.g. watch
+        if (image == null) {
+            return;
+        }
         if (resId != -1) {
             image.setImageResource(resId);
             image.setVisibility(View.VISIBLE);
@@ -788,6 +962,10 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     private void setPictogramAreaLayout(int orientation) {
         ImageView image = findViewById(R.id.pictogramImage);
+        // not all layouts may have a pictogram image, e.g. watch
+        if (image == null) {
+            return;
+        }
         if (image.getVisibility() == View.VISIBLE) {
             ViewGroup.LayoutParams params = image.getLayoutParams();
 
@@ -815,6 +993,16 @@ public class CellBroadcastAlertDialog extends Activity {
             if (scrollView != null) {
                 scrollView.setMaximumHeight(contentPanelMaxHeight);
             }
+        }
+    }
+
+    private void startPulsatingAsNeeded(CellBroadcastChannelRange range) {
+        mPulsationHandler.stop();
+        if (VDBG) {
+            Log.d(TAG, "start pulsation as needed for range:" + range);
+        }
+        if (range != null) {
+            mPulsationHandler.start(findViewById(R.id.parentPanel), range.mPulsationPattern);
         }
     }
 
@@ -860,6 +1048,8 @@ public class CellBroadcastAlertDialog extends Activity {
                             + message.getSubscriptionId());
                     mScreenOffHandler.startScreenOnTimer(message);
                 }
+                startPulsatingAsNeeded(channelManager
+                        .getCellBroadcastChannelRangeFromMessage(message));
             }
 
             hideOptOutDialog(); // Hide opt-out dialog when new alert coming
@@ -881,7 +1071,12 @@ public class CellBroadcastAlertDialog extends Activity {
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(CellBroadcastAlertService.NOTIFICATION_ID);
-            CellBroadcastReceiverApp.clearNewMessageList();
+
+            // Clear new message list when user swipe the notification
+            // except dialog and notification are visible at the same time.
+            if (intent.getBooleanExtra(CellBroadcastAlertService.DISMISS_DIALOG, false)) {
+                CellBroadcastReceiverApp.clearNewMessageList();
+            }
         }
     }
 
@@ -917,6 +1112,8 @@ public class CellBroadcastAlertDialog extends Activity {
         Log.d(TAG, "dismiss");
         // Stop playing alert sound/vibration/speech (if started)
         stopService(new Intent(this, CellBroadcastAlertAudio.class));
+
+        mPulsationHandler.stop();
 
         // Cancel any pending alert reminder
         CellBroadcastAlertReminder.cancelAlertReminder();
@@ -1010,8 +1207,10 @@ public class CellBroadcastAlertDialog extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.d(TAG, "onKeyDown: " + event);
         SmsCbMessage message = getLatestMessage();
-        if (message != null && CellBroadcastSettings.getResources(getApplicationContext(),
-                message.getSubscriptionId()).getBoolean(R.bool.mute_by_physical_button)) {
+        if (message != null && CellBroadcastSettings.getResourcesByOperator(getApplicationContext(),
+                message.getSubscriptionId(),
+                CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()))
+                .getBoolean(R.bool.mute_by_physical_button)) {
             switch (event.getKeyCode()) {
                 // Volume keys and camera keys mute the alert sound/vibration (except ETWS).
                 case KeyEvent.KEYCODE_VOLUME_UP:
@@ -1059,7 +1258,8 @@ public class CellBroadcastAlertDialog extends Activity {
      * @return true if the device is configured to never show the opt out dialog for the mcc/mnc
      */
     private boolean neverShowOptOutDialog(int subId) {
-        return CellBroadcastSettings.getResources(getApplicationContext(), subId)
+        return CellBroadcastSettings.getResourcesByOperator(getApplicationContext(), subId,
+                        CellBroadcastReceiver.getRoamingOperatorSupported(getApplicationContext()))
                 .getBoolean(R.bool.disable_opt_out_dialog);
     }
 
@@ -1077,8 +1277,10 @@ public class CellBroadcastAlertDialog extends Activity {
 
         cm.setPrimaryClip(ClipData.newPlainText("Alert Message", message.getMessageBody()));
 
-        String msg = CellBroadcastSettings.getResources(context,
-                message.getSubscriptionId()).getString(R.string.message_copied);
+        String msg = CellBroadcastSettings.getResourcesByOperator(context,
+                message.getSubscriptionId(),
+                CellBroadcastReceiver.getRoamingOperatorSupported(context))
+                .getString(R.string.message_copied);
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         return true;
     }
@@ -1141,9 +1343,9 @@ public class CellBroadcastAlertDialog extends Activity {
      */
     @VisibleForTesting
     public ArrayList<SmsCbMessage> getNewMessageListIfNeeded(
-            @NonNull ArrayList<SmsCbMessage> dialogMessageList,
+            ArrayList<SmsCbMessage> dialogMessageList,
             ArrayList<SmsCbMessage> newMessageList) {
-        if (newMessageList == null) {
+        if (newMessageList == null || dialogMessageList == null) {
             return dialogMessageList;
         }
         ArrayList<SmsCbMessage> clonedNewMessageList = new ArrayList<>(newMessageList);
@@ -1211,6 +1413,8 @@ public class CellBroadcastAlertDialog extends Activity {
                 disableMethod2.invoke(statusBarManager, disableNone);
             }
         } catch (Exception e) {
+            CellBroadcastReceiverMetrics.getInstance()
+                    .logModuleError(ERRSRC_CBR, ERRTYPE_STATUSBAR);
             Log.e(TAG, "Failed to disable navigation when showing alert: ", e);
         }
     }

@@ -16,6 +16,12 @@
 
 package com.android.cellbroadcastreceiver;
 
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRSRC_CBR;
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_PREFMIGRATION;
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.RPT_SPC;
+import static com.android.cellbroadcastservice.CellBroadcastMetrics.SRC_CBR;
+
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -28,6 +34,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemProperties;
@@ -40,6 +47,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaSmsCbProgramData;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.EventLog;
 import android.util.Log;
 import android.widget.Toast;
@@ -47,11 +55,12 @@ import android.widget.Toast;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
-import com.android.cellbroadcastservice.CellBroadcastStatsLog;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.Map;
 
 public class CellBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "CellBroadcastReceiver";
@@ -93,6 +102,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             "com.android.cellbroadcastreceiver.intent.action.MARK_AS_READ";
     public static final String EXTRA_DELIVERY_TIME =
             "com.android.cellbroadcastreceiver.intent.extra.ID";
+    public static final String EXTRA_NOTIF_ID =
+            "com.android.cellbroadcastreceiver.intent.extra.NOTIF_ID";
 
     public static final String ACTION_TESTING_MODE_CHANGED =
             "com.android.cellbroadcastreceiver.intent.ACTION_TESTING_MODE_CHANGED";
@@ -102,11 +113,17 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     private static final String ROAMING_PLMN_SUPPORTED_PROPERTY_KEY =
             "persist.cellbroadcast.roaming_plmn_supported";
 
+    private static final String MOCK_MODEM_BASEBAND = "mock-modem-service";
+
     private Context mContext;
+
+    // This is to map the iso country code to the MCC string
+    private Map<String, String> mMccMap;
 
     /**
      * this method is to make this class unit-testable, because CellBroadcastSettings.getResources()
      * is a static method and cannot be stubbed.
+     *
      * @return resources
      */
     @VisibleForTesting
@@ -122,9 +139,13 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         Resources res = getResourcesMethod();
 
+        if (mMccMap == null) {
+            mMccMap = getMccMap(res);
+        }
+
         if (ACTION_MARK_AS_READ.equals(action)) {
-            // The only way this'll be called is if someone tries to maliciously set something as
-            // read. Log an event.
+            // The only way this'll be called is if someone tries to maliciously set something
+            // as read. Log an event.
             EventLog.writeEvent(0x534e4554, "162741784", -1, null);
         } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
             if (!intent.getBooleanExtra(
@@ -135,6 +156,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 initializeSharedPreference(context, subId);
                 enableLauncher();
                 startConfigServiceToEnableChannels();
+
                 // Some OEMs do not have legacyMigrationProvider active during boot-up, thus we
                 // need to retry data migration from another trigger point.
                 boolean hasMigrated = getDefaultSharedPreferences()
@@ -157,7 +179,9 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             int ss = intent.getIntExtra(EXTRA_VOICE_REG_STATE, ServiceState.STATE_IN_SERVICE);
             onServiceStateChanged(context, res, ss);
         } else if (SubscriptionManager.ACTION_DEFAULT_SMS_SUBSCRIPTION_CHANGED.equals(action)) {
-            startConfigServiceToEnableChannels();
+            if (!isMockModemRunning()) {
+                startConfigServiceToEnableChannels();
+            }
         } else if (Telephony.Sms.Intents.ACTION_SMS_EMERGENCY_CB_RECEIVED.equals(action) ||
                 Telephony.Sms.Intents.SMS_CB_RECEIVED_ACTION.equals(action)) {
             intent.setClass(mContext, CellBroadcastAlertService.class);
@@ -166,9 +190,10 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 .equals(action)) {
             ArrayList<CdmaSmsCbProgramData> programDataList =
                     intent.getParcelableArrayListExtra("program_data");
-            CellBroadcastStatsLog.write(CellBroadcastStatsLog.CB_MESSAGE_REPORTED,
-                    CellBroadcastStatsLog.CELL_BROADCAST_MESSAGE_REPORTED__TYPE__CDMA_SPC,
-                    CellBroadcastStatsLog.CELL_BROADCAST_MESSAGE_REPORTED__SOURCE__CB_RECEIVER_APP);
+
+            CellBroadcastReceiverMetrics.getInstance().logMessageReported(mContext,
+                    RPT_SPC, SRC_CBR, 0, 0);
+
             if (programDataList != null) {
                 handleCdmaSmsCbProgramData(programDataList);
             } else {
@@ -183,11 +208,18 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 setTestingMode(!isTestingMode(mContext));
                 int msgId = (isTestingMode(mContext)) ? R.string.testing_mode_enabled
                         : R.string.testing_mode_disabled;
+                CellBroadcastReceiverMetrics.getInstance().getFeatureMetrics(mContext)
+                        .onChangedTestMode(isTestingMode(mContext));
                 String msg = res.getString(msgId);
                 Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
                 LocalBroadcastManager.getInstance(mContext)
                         .sendBroadcast(new Intent(ACTION_TESTING_MODE_CHANGED));
                 log(msg);
+            } else {
+                if (!res.getBoolean(R.bool.allow_testing_mode_on_user_build)) {
+                    CellBroadcastReceiverMetrics.getInstance().getFeatureMetrics(mContext)
+                            .onChangedTestModeOnUserBuild(false);
+                }
             }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             new CellBroadcastContentProvider.AsyncCellBroadcastTask(
@@ -205,17 +237,27 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         logd("onServiceStateChanged, ss: " + ss);
         // check whether to support roaming network
         String roamingOperator = null;
-        if (ss == ServiceState.STATE_IN_SERVICE || ss == ServiceState.STATE_EMERGENCY_ONLY) {
+        if (ss != ServiceState.STATE_POWER_OFF) {
             TelephonyManager tm = context.getSystemService(TelephonyManager.class);
             String networkOperator = tm.getNetworkOperator();
             logd("networkOperator: " + networkOperator);
 
+            // check the mcc on emergency only mode
+            if (TextUtils.isEmpty(networkOperator)) {
+                String countryCode = tm.getNetworkCountryIso();
+                if (mMccMap != null && !TextUtils.isEmpty(countryCode)) {
+                    networkOperator = mMccMap.get(countryCode.toLowerCase(Locale.ROOT).trim());
+                    logd("networkOperator on emergency mode: " + networkOperator
+                            + " for the country code: " + countryCode);
+                }
+            }
+
             // check roaming config only if the network oprator is not empty as the config
             // is based on operator numeric
-            if (!networkOperator.isEmpty()) {
+            if (!TextUtils.isEmpty(networkOperator)) {
                 // No roaming supported by default
                 roamingOperator = "";
-                if ((tm.isNetworkRoaming() || ss == ServiceState.STATE_EMERGENCY_ONLY)
+                if ((tm.isNetworkRoaming() || ss != ServiceState.STATE_IN_SERVICE)
                         && !networkOperator.equals(tm.getSimOperator())) {
                     String propRoamingPlmn = SystemProperties.get(
                             ROAMING_PLMN_SUPPORTED_PROPERTY_KEY, "").trim();
@@ -230,10 +272,16 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                             roamingOperator = networkOperator;
                             break;
                         } else if (r.equals("XXX")) {
-                            //match any roaming network, only store mcc
-                            roamingOperator = networkOperator.substring(0, 3);
+                            if (tm.getSimOperator() != null) {
+                                String networkMcc = networkOperator.substring(0, 3);
+                                // empty sim case or inserted sim but different mcc case
+                                if (!tm.getSimOperator().startsWith(networkMcc)) {
+                                    //match any roaming network, only store mcc
+                                    roamingOperator = networkMcc;
+                                }
+                            }
                             break;
-                        }  else if (networkOperator.startsWith(r)) {
+                        } else if (networkOperator.startsWith(r)) {
                             roamingOperator = r;
                             break;
                         }
@@ -246,7 +294,9 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 && getServiceState(context) == ServiceState.STATE_POWER_OFF)
                 || (roamingOperator != null && !roamingOperator.equals(
                 getRoamingOperatorSupported(context)))) {
-            startConfigServiceToEnableChannels();
+            if (!isMockModemRunning()) {
+                startConfigServiceToEnableChannels();
+            }
         }
         setServiceState(ss);
 
@@ -254,6 +304,27 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             log("update supported roaming operator as " + roamingOperator);
             setRoamingOperatorSupported(roamingOperator);
         }
+        CellBroadcastReceiverMetrics.getInstance().getFeatureMetrics(mContext)
+                .onChangedRoamingSupport(!TextUtils.isEmpty(roamingOperator) ? true : false);
+    }
+
+    /**
+     * Initialize the MCC mapping table
+     */
+    @VisibleForTesting
+    @NonNull
+    public static Map<String, String> getMccMap(@NonNull Resources res) {
+        String[] arr = res.getStringArray(R.array.iso_country_code_mcc_table);
+        Map<String, String> map = new ArrayMap<>(arr.length);
+
+        for (String item : arr) {
+            String[] val = item.split(":");
+            if (val.length > 1) {
+                map.put(val[0].toLowerCase(Locale.ROOT).trim(), val[1].trim());
+            }
+        }
+
+        return map;
     }
 
     /**
@@ -266,12 +337,13 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * be reset.
      *
      * Do nothing in other cases:
-     *   - SIM insertion for the non-default subId
-     *   - SIM insertion/bootup with no new carrier
-     *   - SIM removal
-     *   - Device just received the update which adds this carrier tracking logic
+     * - SIM insertion for the non-default subId
+     * - SIM insertion/bootup with no new carrier
+     * - SIM removal
+     * - Device just received the update which adds this carrier tracking logic
+     *
      * @param context the context
-     * @param subId subId of the carrier config event
+     * @param subId   subId of the carrier config event
      */
     private void resetSettingsAsNeeded(Context context, int subId) {
         final int defaultSubId = SubscriptionManager.getDefaultSubscriptionId();
@@ -330,6 +402,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         if (!res.getBoolean(R.bool.allow_testing_mode_on_user_build)
                 && SystemProperties.getInt("ro.debuggable", 0) == 0
                 && CellBroadcastReceiver.isTestingMode(context)) {
+            CellBroadcastReceiverMetrics.getInstance().getFeatureMetrics(context)
+                    .onChangedTestModeOnUserBuild(false);
             Log.d(TAG, "it can't be testing_mode at all");
             setTestingMode(false);
         }
@@ -339,8 +413,11 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             startConfigService(context,
                     CellBroadcastConfigService.ACTION_UPDATE_SETTINGS_FOR_CARRIER);
         } else {
-            Log.d(TAG, "ignoring carrier config broadcast for subId=" + subId
-                    + " because carrier has not changed. carrierId=" + carrierId);
+            Log.d(TAG, "reset settings as needed for subId=" + subId + ", carrierId=" + carrierId);
+            Intent intent = new Intent(CellBroadcastConfigService.ACTION_RESET_SETTINGS_AS_NEEDED,
+                    null, context, CellBroadcastConfigService.class);
+            intent.putExtra(CellBroadcastConfigService.EXTRA_SUB, subId);
+            context.startService(intent);
         }
     }
 
@@ -439,8 +516,10 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
             if (DBG) Log.d(TAG, "Default interval " + currentIntervalDefault + " did not change.");
         }
     }
+
     /**
      * This method's purpose is to enable unit testing
+     *
      * @return sharedePreferences for mContext
      */
     @VisibleForTesting
@@ -450,6 +529,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
     /**
      * return if there are default values in shared preferences
+     *
      * @return boolean
      */
     @VisibleForTesting
@@ -458,6 +538,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                 Context.MODE_PRIVATE).getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES,
                 false);
     }
+
     /**
      * initialize shared preferences before starting services
      */
@@ -549,6 +630,8 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
                         Log.d(TAG, "migrateSharedPreferenceFromLegacy: unsupported key: " + key);
                     }
                 } catch (RemoteException e) {
+                    CellBroadcastReceiverMetrics.getInstance().logModuleError(
+                            ERRSRC_CBR, ERRTYPE_PREFMIGRATION);
                     Log.e(TAG, "fails to get shared preference " + e);
                 }
             }
@@ -563,8 +646,6 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     /**
      * Handle Service Category Program Data message.
      * TODO: Send Service Category Program Results response message to sender
-     *
-     * @param programDataList
      */
     @VisibleForTesting
     public void handleCdmaSmsCbProgramData(ArrayList<CdmaSmsCbProgramData> programDataList) {
@@ -599,7 +680,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
      * set CDMA category in shared preferences
      * @param context
      * @param category CDMA category
-     * @param enable true for add category, false otherwise
+     * @param enable   true for add category, false otherwise
      */
     @VisibleForTesting
     public void tryCdmaSetCategory(Context context, int category, boolean enable) {
@@ -608,13 +689,13 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         switch (category) {
             case CdmaSmsCbProgramData.CATEGORY_CMAS_EXTREME_THREAT:
                 sharedPrefs.edit().putBoolean(
-                        CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS, enable)
+                                CellBroadcastSettings.KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS, enable)
                         .apply();
                 break;
 
             case CdmaSmsCbProgramData.CATEGORY_CMAS_SEVERE_THREAT:
                 sharedPrefs.edit().putBoolean(
-                        CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS, enable)
+                                CellBroadcastSettings.KEY_ENABLE_CMAS_SEVERE_THREAT_ALERTS, enable)
                         .apply();
                 break;
 
@@ -636,6 +717,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
     /**
      * This method's purpose if to enable unit testing
+     *
      * @return if the mContext user is a system user
      */
     private boolean isSystemUser() {
@@ -662,6 +744,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
 
     /**
      * Tell {@link CellBroadcastConfigService} to enable the CB channels.
+     *
      * @param context the broadcast receiver context
      */
     static void startConfigService(Context context, String action) {
@@ -688,7 +771,7 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         String aliasLauncherActivity = null;
         try {
             PackageInfo p = pm.getPackageInfo(mContext.getPackageName(),
-                PackageManager.GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
+                    PackageManager.GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
             if (p != null) {
                 for (ActivityInfo activityInfo : p.activities) {
                     String targetActivity = activityInfo.targetActivity;
@@ -709,13 +792,13 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
         if (enable) {
             Log.d(TAG, "enable launcher activity: " + aliasLauncherActivity);
             pm.setComponentEnabledSetting(
-                new ComponentName(mContext, aliasLauncherActivity),
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                    new ComponentName(mContext, aliasLauncherActivity),
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
         } else {
             Log.d(TAG, "disable launcher activity: " + aliasLauncherActivity);
             pm.setComponentEnabledSetting(
-                new ComponentName(mContext, aliasLauncherActivity),
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                    new ComponentName(mContext, aliasLauncherActivity),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
     }
 
@@ -727,6 +810,26 @@ public class CellBroadcastReceiver extends BroadcastReceiver {
     @VisibleForTesting
     public void resetCellBroadcastChannelRanges() {
         CellBroadcastChannelManager.clearAllCellBroadcastChannelRanges();
+    }
+
+    /**
+     * Check if mockmodem is running
+     * @return true if mockmodem service is running instead of real modem
+     */
+    @VisibleForTesting
+    public boolean isMockModemRunning() {
+        return isMockModemBinded();
+    }
+
+    /**
+     * Check if mockmodem is running
+     * @return true if mockmodem service is running instead of real modem
+     */
+    public static boolean isMockModemBinded() {
+        String modem = Build.getRadioVersion();
+        boolean isMockModem = modem != null ? modem.contains(MOCK_MODEM_BASEBAND) : false;
+        Log.d(TAG, "mockmodem is running? = " + isMockModem);
+        return isMockModem;
     }
 
     private static void log(String msg) {

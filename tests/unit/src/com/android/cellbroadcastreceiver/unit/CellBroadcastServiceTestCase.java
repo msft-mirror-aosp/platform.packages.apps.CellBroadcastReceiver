@@ -20,16 +20,21 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.media.AudioManager;
+import android.os.Bundle;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.telephony.CarrierConfigManager;
@@ -72,14 +77,21 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
     protected SharedPreferences mMockedSharedPreferences;
     @Mock
     protected Context mMockContextForRoaming;
+    @Mock
+    protected NotificationManager mMockedNotificationManager;
+    protected PowerManager mMockedPowerManager;
 
     protected Configuration mConfiguration;
+
+    private PackageManager mPackageManager;
 
     MockedServiceManager mMockedServiceManager;
 
     Intent mServiceIntentToVerify;
 
     Intent mActivityIntentToVerify;
+
+    Bundle mBundle;
 
     CellBroadcastServiceTestCase(Class<T> serviceClass) {
         super(serviceClass);
@@ -131,6 +143,12 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
         }
 
         @Override
+        public void startActivity(Intent intent, Bundle bundle) {
+            mActivityIntentToVerify = intent;
+            mBundle = bundle;
+        }
+
+        @Override
         public Context getApplicationContext() {
             return this;
         }
@@ -148,8 +166,23 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
                     return mMockedTelephonyManager;
                 case Context.VIBRATOR_SERVICE:
                     return mMockedVibrator;
+                case Context.NOTIFICATION_SERVICE:
+                    return mMockedNotificationManager;
+                case Context.POWER_SERVICE:
+                    if (mMockedPowerManager != null) {
+                        return mMockedPowerManager;
+                    }
+                    break;
             }
             return super.getSystemService(name);
+        }
+
+        @Override
+        public String getSystemServiceName(Class<?> serviceClass) {
+            if (TelephonyManager.class.equals(serviceClass)) {
+                return Context.TELEPHONY_SERVICE;
+            }
+            return super.getSystemServiceName(serviceClass);
         }
 
         @Override
@@ -166,9 +199,29 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
             }
         }
 
+        @Override
+        public PackageManager getPackageManager() {
+            if (mPackageManager != null) {
+                return mPackageManager;
+            }
+            return super.getPackageManager();
+        }
+
+
         public void injectCreateConfigurationContext(Context context) {
             mMockContextForRoaming = context;
         }
+
+    }
+
+    public void injectPackageManager(PackageManager packageManager) {
+        mPackageManager = packageManager;
+    }
+
+    public void setWatchFeatureEnabled(boolean enabled) {
+        PackageManager mockPackageManager = mock(PackageManager.class);
+        doReturn(enabled).when(mockPackageManager).hasSystemFeature(PackageManager.FEATURE_WATCH);
+        injectPackageManager(mockPackageManager);
     }
 
     @Before
@@ -177,10 +230,19 @@ public abstract class CellBroadcastServiceTestCase<T extends Service> extends Se
         // A hack to return mResources from static method
         // CellBroadcastSettings.getResources(context).
         //doReturn(mSubService).when(mSubService).queryLocalInterface(anyString());
-        doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSubId();
-        doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(
-                mSubService).getDefaultSmsSubId();
-
+        try {
+            // Only exist after U-QPR2, so the reflection amounts to a QPR version check.
+            ISub.Stub.class.getMethod("getDefaultSubIdAsUser", int.class);
+            doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                    .when(mSubService).getDefaultSubIdAsUser(anyInt());
+            doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                    .when(mSubService).getDefaultSmsSubIdAsUser(anyInt());
+        } catch (Exception methodNotFound) {
+            doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                    .when(mSubService).getDefaultSubId();
+            doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                    .when(mSubService).getDefaultSmsSubId();
+        }
         doReturn(new String[]{""}).when(mResources).getStringArray(anyInt());
 
         mConfiguration = new Configuration();
