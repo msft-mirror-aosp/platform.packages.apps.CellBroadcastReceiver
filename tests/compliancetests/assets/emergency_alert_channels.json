@@ -983,7 +983,8 @@
     "4383": {
       "title": "Extreme Emergency Alert", //"위급 재난문자",
       "default_value": "true",
-      "toggle_avail": "false"
+      "toggle_avail": "false",
+      "filter_language": "language_setting"
     },
     "4371": {
       "title": "Emergency Alert", //"긴급 재난문자",
@@ -993,7 +994,8 @@
     "4384": {
       "title": "Emergency Alert", //"긴급 재난문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "4372": {
       "title": "Public Safety Alert", //"안전 안내문자",
@@ -1009,7 +1011,8 @@
     "4385": {
       "title": "Public Safety Alert", //"안전 안내문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "4379": {
       "title": "Amber Alert", //"실종 경보문자",
@@ -1019,7 +1022,8 @@
     "4392": {
       "title": "Amber Alert", //"실종 경보문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "40960": {
       "title": "Public Safety Alert", //"안전 안내문자",
@@ -1054,7 +1058,8 @@
     "4383": {
       "title": "Extreme Emergency Alert", //"위급 재난문자",
       "default_value": "true",
-      "toggle_avail": "false"
+      "toggle_avail": "false",
+      "filter_language": "language_setting"
     },
     "4371": {
       "title": "Emergency Alert", //"긴급 재난문자",
@@ -1064,7 +1069,8 @@
     "4384": {
       "title": "Emergency Alert", //"긴급 재난문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "4372": {
       "title": "Public Safety Alert", //"안전 안내문자",
@@ -1075,7 +1081,7 @@
       "title": "Public Safety Alert", //"안전 안내문자",
       "default_value": "true",
       "toggle_avail": "true",
-      "end_channel": "4379"
+      "end_channel": "4378"
     },
     "4379": {
       "title": "Amber Alert", //"실종 경보문자",
@@ -1085,12 +1091,14 @@
     "4392": {
       "title": "Amber Alert", //"실종 경보문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "4385": {
       "title": "Public Safety Alert", //"안전 안내문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "40960": {
       "title": "Public Safety Message", //"안전 안내문자",
@@ -1125,7 +1133,8 @@
     "4383": {
       "title": "Extreme Emergency Alert", //"위급 재난문자",
       "default_value": "true",
-      "toggle_avail": "false"
+      "toggle_avail": "false",
+      "filter_language": "language_setting"
     },
     "4371": {
       "title": "Emergency Alert", //"긴급 재난문자",
@@ -1135,7 +1144,8 @@
     "4384": {
       "title": "Emergency Alert", //"긴급 재난문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "4372": {
       "title": "Public Safety Alert", //"안전 안내문자",
@@ -1156,12 +1166,14 @@
     "4392": {
       "title": "Amber Alert", //"실종 경보문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "4385": {
       "title": "Public Safety Alert", //"안전 안내문자",
       "default_value": "true",
-      "toggle_avail": "true"
+      "toggle_avail": "true",
+      "filter_language": "language_setting"
     },
     "40960": {
       "title": "Public Safety Alert", //"안전 안내문자",
@@ -2489,6 +2501,11 @@
       "default_value": "false",
       "toggle_avail": "true",
       "alert_type":"notification"
+    },
+    "4400": {
+      "title": "",
+      "default_value": "true",
+      "toggle_avail": "false"
     }
   },
   "puertorico": {
@@ -4787,6 +4804,78 @@
     "4380": {
       "title": "Test Alert",
       "default_value": "true",
+      "toggle_avail": "true"
+    }
+  },
+  "Luxembourg": {
+    "4370": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4383": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4371": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4384": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4375": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4388": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4396": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4397": {
+      "title": "LU-Alert",
+      "default_value": "true",
+      "toggle_avail": "false"
+    },
+    "4379": {
+      "title": "LU-Alert : Kidnapping alert",
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "4392": {
+      "title": "LU-Alert : Kidnapping alert",
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "4380": {
+      "title": "LU-Alert Test",
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
+    "4393": {
+      "title": "LU-Alert Test",
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
+    "4381": {
+      "title": "LU-Alert Exercise",
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
+    "4394": {
+      "title": "LU-Alert Exercise",
+      "default_value": "false",
       "toggle_avail": "true"
     }
   }

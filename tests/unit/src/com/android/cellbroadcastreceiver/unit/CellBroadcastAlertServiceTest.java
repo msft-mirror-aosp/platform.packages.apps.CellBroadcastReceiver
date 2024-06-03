@@ -22,6 +22,7 @@ import static com.android.cellbroadcastreceiver.CellBroadcastAlertService.SHOW_N
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,13 +33,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import android.app.IActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IPowerManager;
@@ -70,6 +76,7 @@ import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,6 +88,9 @@ public class CellBroadcastAlertServiceTest extends
 
     @Mock
     SharedPreferences.Editor mMockEditor;
+
+    @Mock
+    IActivityManager mMockActivityManager;
 
     public CellBroadcastAlertServiceTest() {
         super(CellBroadcastAlertService.class);
@@ -109,6 +119,12 @@ public class CellBroadcastAlertServiceTest extends
                 0, 1);
     }
 
+    @Override
+    protected void setupService() {
+        super.setupService();
+        injectMockActivityManager(getService(), mMockActivityManager);
+    }
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -117,6 +133,10 @@ public class CellBroadcastAlertServiceTest extends
         doReturn(mMockEditor).when(mMockedSharedPreferences).edit();
         doReturn(mMockEditor).when(mMockEditor).putBoolean(anyString(), anyBoolean());
         doNothing().when(mMockEditor).apply();
+        Handler handler = new Handler(Looper.getMainLooper());
+        IPowerManager mockedPowerService = mock(IPowerManager.class);
+        mMockedPowerManager = new PowerManager(mContext, mockedPowerService, null, handler);
+        when(mResources.getText(anyInt())).thenReturn("text");
     }
 
     @After
@@ -472,6 +492,8 @@ public class CellBroadcastAlertServiceTest extends
                 .state_local_test_alert_range_strings, new String[]{
                     "0x112E:rat=gsm, emergency=true",
                     "0x112F:rat=gsm, emergency=true",
+                    "0x0032:rat=gsm, type=area, emergency=false",
+                    "0x0034:rat=gsm, type=area, emergency=true"
                 });
         sendMessage(1);
         waitForServiceIntent();
@@ -535,6 +557,22 @@ public class CellBroadcastAlertServiceTest extends
         assertTrue("Should enable local test channel",
                 cellBroadcastAlertService.shouldDisplayMessage(message2));
 
+        // area_info alert with no_emergency_alert should not show : return false
+        SmsCbMessage areaInfoNoEmergencyAlert = new SmsCbMessage(1, 2, 3, new SmsCbLocation(),
+                0x0032, "language", "body",
+                SmsCbMessage.MESSAGE_PRIORITY_NORMAL, null,
+                null, 0, 1);
+        assertFalse("Should not show area info with no emergency alert",
+                cellBroadcastAlertService.shouldDisplayMessage(areaInfoNoEmergencyAlert));
+
+        // area_info alert with no_emergency_alert should show : return true
+        SmsCbMessage areaInfoEmergencyAlert = new SmsCbMessage(1, 2, 3, new SmsCbLocation(),
+                0x0034, "language", "body",
+                SmsCbMessage.MESSAGE_PRIORITY_NORMAL, null,
+                null, 0, 1);
+        assertTrue("Should show area info with emergency alert",
+                cellBroadcastAlertService.shouldDisplayMessage(areaInfoEmergencyAlert));
+
         // roaming case
         Context mockContext = mock(Context.class);
         Resources mockResources = mock(Resources.class);
@@ -564,6 +602,129 @@ public class CellBroadcastAlertServiceTest extends
         assertTrue("Should enable local test channel",
                 cellBroadcastAlertService.shouldDisplayMessage(message2));
         ((TestContextWrapper) mContext).injectCreateConfigurationContext(null);
+    }
+
+    public void testShouldDisplayMessageWithMasterToggleState() {
+        Context mockContext = mock(Context.class);
+        doReturn(mResources).when(mockContext).getResources();
+        ((TestContextWrapper) mContext).injectCreateConfigurationContext(mockContext);
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .public_safety_messages_channels_range_strings, new String[]{
+                    "0x112C:rat=gsm, emergency=true",
+                    "0x112D:rat=gsm, emergency=true",
+                });
+        putResources(com.android.cellbroadcastreceiver.R.array
+                .cmas_alert_extreme_channels_range_strings, new String[]{
+                    "0x1113:rat=gsm, emergency=true, always_on=true",
+                });
+        sendMessage(1);
+        waitForServiceIntent();
+        CellBroadcastAlertService cellBroadcastAlertService =
+                (CellBroadcastAlertService) getService();
+        SmsCbMessage message = new SmsCbMessage(1, 2, 0, new SmsCbLocation(),
+                SmsCbConstants.MESSAGE_ID_CMAS_ALERT_PUBLIC_SAFETY,
+                "language", "body",
+                SmsCbMessage.MESSAGE_PRIORITY_EMERGENCY, null,
+                null, 0, 1);
+        SmsCbMessage message2 = new SmsCbMessage(1, 2, 1, new SmsCbLocation(),
+                0x1113, "language", "body",
+                SmsCbMessage.MESSAGE_PRIORITY_EMERGENCY, null,
+                null, 0, 1);
+
+        // master toggle on
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
+
+        // home network with master toggle on
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, false);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, true);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        // roaming or simless roaming with master toggle on
+        doReturn("123").when(mMockedSharedPreferences)
+                .getString(anyString(), anyString());
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, false);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, true);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        // master toggle off
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE);
+
+        // home network with master toggle off
+        doReturn("").when(mMockedSharedPreferences)
+                .getString(anyString(), anyString());
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, false);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, true);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        // roaming or simless roaming with master toggle off
+        doReturn("123").when(mMockedSharedPreferences)
+                .getString(anyString(), anyString());
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, false);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        putResources(com.android.cellbroadcastreceiver.R.bool
+                .public_safety_messages_enabled_default, true);
+        disablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
+
+        enablePreference(CellBroadcastSettings.KEY_ENABLE_PUBLIC_SAFETY_MESSAGES);
+        assertFalse(cellBroadcastAlertService.shouldDisplayMessage(message));
+        assertTrue(cellBroadcastAlertService.shouldDisplayMessage(message2));
     }
 
     public void testFilterLanguage() {
@@ -710,6 +871,7 @@ public class CellBroadcastAlertServiceTest extends
         verify(mMockedNotificationManager, times(1))
             .notify(eq(0x1112bbaa), notificationCaptor.capture());
         Notification notificationPosted = notificationCaptor.getValue();
+        assertEquals(Notification.VISIBILITY_PUBLIC, notificationPosted.visibility);
         assertTrue(notificationPosted.deleteIntent.isBroadcast());
         assertEquals(1, notificationPosted.actions.length);
         assertSame(notificationPosted.deleteIntent, notificationPosted.actions[0].actionIntent);
@@ -766,6 +928,8 @@ public class CellBroadcastAlertServiceTest extends
         waitForServiceIntent();
 
         verify(mMockedNotificationManager, never()).getActiveNotifications();
+        verify(mMockActivityManager).setServiceForeground(any(), any(), anyInt(), any(), anyInt(),
+                eq(ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED));
 
         // Verify to trigger playPendingAlert, when onCallStateChanged is called and PendingAlert
         // exist after Call is IDLE
@@ -777,12 +941,30 @@ public class CellBroadcastAlertServiceTest extends
         waitForServiceIntent();
 
         // Verify alert dialog activity intent
-        ArrayList<SmsCbMessage> newMessageList = mActivityIntentToVerify
-                .getParcelableArrayListExtra(CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA);
-        assertEquals(1, newMessageList.size());
-        assertEquals(Intent.FLAG_ACTIVITY_NO_USER_ACTION,
-                (mActivityIntentToVerify.getFlags() & Intent.FLAG_ACTIVITY_NO_USER_ACTION));
-        assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK,
-                (mActivityIntentToVerify.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK));
+        boolean isWatch = mContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_WATCH);
+        if (!isWatch) {
+            ArrayList<SmsCbMessage> newMessageList = mActivityIntentToVerify
+                    .getParcelableArrayListExtra(CellBroadcastAlertService.SMS_CB_MESSAGE_EXTRA);
+            assertEquals(1, newMessageList.size());
+            assertEquals(Intent.FLAG_ACTIVITY_NO_USER_ACTION,
+                    (mActivityIntentToVerify.getFlags() & Intent.FLAG_ACTIVITY_NO_USER_ACTION));
+            assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK,
+                    (mActivityIntentToVerify.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
+        verify(mMockActivityManager).setServiceForeground(any(), any(), anyInt(), any(),
+                eq(Service.STOP_FOREGROUND_DETACH), anyInt());
+    }
+
+    // Inject a mock activity manager to test setForeground functionality because ServiceTestCase
+    // by default set activity manager to null.
+    private void injectMockActivityManager(Service service, IActivityManager activityManager) {
+        try {
+            Field privateNameField = Service.class.getDeclaredField("mActivityManager");
+            privateNameField.setAccessible(true);
+            privateNameField.set(service, activityManager);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("failed to inject mock actiivty manager into service");
+        }
     }
 }
