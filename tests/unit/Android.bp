@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_fwk_telephony",
     // See: http://go/android-license-faq
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
@@ -28,13 +29,14 @@ java_defaults {
     static_libs: [
         "androidx.test.rules",
         "androidx.test.espresso.core",
+        "androidx.test.uiautomator_uiautomator",
         "mockito-target-minus-junit4",
-        "truth-prebuilt",
-        "ub-uiautomator",
+        "truth",
     ],
     // Include all test java files.
     srcs: [":cellbroadcastreceiver-shared-srcs-test"],
     platform_apis: true,
+    min_sdk_version: "30",
 }
 
 // in order to have our tests run on OEM devices, the test apk here includes
@@ -43,15 +45,14 @@ java_defaults {
 android_test {
     name: "CellBroadcastReceiverOemUnitTests",
     defaults: ["CellBroadcastTestCommon"],
-    srcs: [":cellbroadcastreceiver-sources"],
-    test_suites: ["device-tests", "mts-cellbroadcast"],
+    test_suites: [
+        "device-tests",
+        "mts-cellbroadcast",
+    ],
     manifest: "AndroidManifest_OemTesting.xml",
     test_config: "AndroidTest_Oem.xml",
-    resource_dirs: [
-        "main-res",
-    ],
     aaptflags: [
-        "--custom-package com.android.cellbroadcastreceiver"
+        "--custom-package com.android.cellbroadcastreceiver",
     ],
     static_libs: [
         "androidx.legacy_legacy-support-v4",
@@ -66,10 +67,10 @@ android_test {
         "SettingsLibTopIntroPreference",
         "modules-utils-build_system",
         "cellbroadcast-java-proto-lite",
+        "CellBroadcastCommon",
     ],
     min_sdk_version: "30",
 }
-
 
 // used to run mts coverage test
 android_test {
@@ -77,7 +78,10 @@ android_test {
     certificate: "networkstack",
     defaults: ["CellBroadcastTestCommon"],
     instrumentation_for: "CellBroadcastApp",
-    test_suites: ["device-tests", "mts-cellbroadcast"],
+    test_suites: [
+        "device-tests",
+        "mts-cellbroadcast",
+    ],
     manifest: "AndroidManifest.xml",
     test_config: "AndroidTest.xml",
 }
@@ -87,7 +91,10 @@ android_test {
     certificate: "networkstack",
     defaults: ["CellBroadcastTestCommon"],
     instrumentation_for: "CellBroadcastApp",
-    test_suites: ["device-tests", "mts-cellbroadcast"],
+    test_suites: [
+        "general-tests",
+        "mts-cellbroadcast",
+    ],
     manifest: "AndroidManifest.xml",
     test_config: "AndroidTest_PixelExperience.xml",
 }

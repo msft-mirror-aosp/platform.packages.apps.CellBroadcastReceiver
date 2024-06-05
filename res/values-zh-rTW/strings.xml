@@ -52,7 +52,7 @@
     <string name="cmas_operator_defined_alert" msgid="8755372450810011476">"緊急警報 (電信業者自訂)"</string>
     <string name="cb_other_message_identifiers" msgid="5790068194529377210">"廣播訊息"</string>
     <string name="public_safety_message" msgid="9119928798786998252">"公共安全訊息"</string>
-    <string name="state_local_test_alert" msgid="8003145745857480200">"州/地方政府的測試訊息"</string>
+    <string name="state_local_test_alert" msgid="8003145745857480200">"國家/地方政府的測試訊息"</string>
     <string name="emergency_alert" msgid="624783871477634263">"緊急警報"</string>
     <string name="emergency_alerts_title" msgid="6605036374197485429">"警示"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"廣播訊息"</string>
@@ -171,6 +171,6 @@
     <string name="message_copied" msgid="6922953753733166675">"已複製訊息"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"如果你正在漫遊或沒有使用中的 SIM 卡，可能會收到不屬於這些設定的警報"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"電信業者已變更設定"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"輕觸即可查看無線緊急警報設定"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"設定已變更"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"SIM 卡已更換，因此系統重設無線緊急警報設定"</string>
 </resources>

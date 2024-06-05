@@ -48,6 +48,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
@@ -71,6 +72,7 @@ import android.view.Display;
 
 import com.android.cellbroadcastreceiver.CellBroadcastChannelManager.CellBroadcastChannelRange;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.modules.utils.build.SdkLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -532,9 +534,10 @@ public class CellBroadcastAlertService extends Service {
         }
 
         // Check if all emergency alerts are disabled.
-        boolean emergencyAlertEnabled = checkAlertConfigEnabled(
-                subId, CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE,
-                res.getBoolean(R.bool.master_toggle_enabled_default));
+        boolean emergencyAlertEnabled = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE,
+                        res.getBoolean(R.bool.master_toggle_enabled_default));
+
         int channel = message.getServiceCategory();
         int resourcesKey = channelManager.getCellBroadcastChannelResourcesKey(channel);
         CellBroadcastChannelRange range = channelManager.getCellBroadcastChannelRange(channel);
@@ -844,9 +847,14 @@ public class CellBroadcastAlertService extends Service {
         if (isWatch) {
             pi = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         } else {
+            ActivityOptions options = ActivityOptions.makeBasic();
+            if (SdkLevel.isAtLeastU()) {
+                options.setPendingIntentCreatorBackgroundActivityStartMode(
+                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+            }
             pi = PendingIntent.getActivity(context, REQUEST_CODE_CONTENT_INTENT, intent,
                             PendingIntent.FLAG_UPDATE_CURRENT
-                            | PendingIntent.FLAG_IMMUTABLE);
+                            | PendingIntent.FLAG_IMMUTABLE, options.toBundle());
         }
         CellBroadcastChannelManager channelManager = new CellBroadcastChannelManager(
                 context, message.getSubscriptionId());
@@ -893,9 +901,14 @@ public class CellBroadcastAlertService extends Service {
             // sound, vibration and alert reminder.
             Intent deleteIntent = new Intent(intent);
             deleteIntent.putExtra(CellBroadcastAlertService.DISMISS_DIALOG, true);
+            ActivityOptions options = ActivityOptions.makeBasic();
+            if (SdkLevel.isAtLeastU()) {
+                options.setPendingIntentCreatorBackgroundActivityStartMode(
+                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+            }
             builder.setDeleteIntent(PendingIntent.getActivity(context, REQUEST_CODE_DELETE_INTENT,
                     deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT
-                            | PendingIntent.FLAG_IMMUTABLE));
+                            | PendingIntent.FLAG_IMMUTABLE, options.toBundle()));
 
             builder.setContentIntent(pi);
             // This will break vibration on FEATURE_WATCH, so use it for anything else
@@ -918,7 +931,20 @@ public class CellBroadcastAlertService extends Service {
                     .setStyle(new Notification.BigTextStyle().bigText(messageBody));
         }
 
-        notificationManager.notify(notificationId, builder.build());
+        // If alert is received during an active call, post notification only and do not play alert
+        // until call is disconnected. Use a foreground service to prevent CMAS process being
+        // frozen or removed by low memory killer
+        if (sRemindAfterCallFinish && context instanceof CellBroadcastAlertService) {
+            try {
+                ((CellBroadcastAlertService) context).startForeground(notificationId,
+                        builder.build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to start foreground " + e);
+            }
+        } else {
+            notificationManager.notify(notificationId, builder.build());
+        }
 
         // SysUI does not wake screen up when notification received. For emergency alert, manually
         // wakes up the screen for 1 second.
@@ -1090,6 +1116,12 @@ public class CellBroadcastAlertService extends Service {
                 }
             }
             CellBroadcastReceiverApp.clearNewMessageList();
+            // Stop the foreground service since call is now already disconnected.
+            try {
+                stopForeground(Service.STOP_FOREGROUND_DETACH);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to stop foreground");
+            }
         }
     }
 

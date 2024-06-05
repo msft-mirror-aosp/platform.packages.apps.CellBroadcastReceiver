@@ -241,14 +241,14 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
 
         int subId = 1;
         // Not starting ConfigService, as default subId is valid and subId are invalid
-        doReturn(subId).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(subId);
         mCellBroadcastReceiver.initializeSharedPreference(mContext,
                 SubscriptionManager.INVALID_SUBSCRIPTION_ID);
         verify(mContext, never()).startService(any());
         verify(mCellBroadcastReceiver, never()).saveCarrierIdForDefaultSub(anyInt());
 
         // Not starting ConfigService, as both default subId and subId are invalid
-        doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(SubscriptionManager.INVALID_SUBSCRIPTION_ID);
         mCellBroadcastReceiver.initializeSharedPreference(mContext,
                 SubscriptionManager.INVALID_SUBSCRIPTION_ID);
         verify(mContext, never()).startService(any());
@@ -274,17 +274,17 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         int subId = 1;
         int otherSubId = 2;
         // The subId has to match default sub for it to take action.
-        doReturn(SubscriptionManager.INVALID_SUBSCRIPTION_ID).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(SubscriptionManager.INVALID_SUBSCRIPTION_ID);
         mCellBroadcastReceiver.initializeSharedPreference(mContext, subId);
         verify(mContext, never()).startService(any());
 
         // Not starting ConfigService, not matching default subId.
-        doReturn(otherSubId).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(otherSubId);
         mCellBroadcastReceiver.initializeSharedPreference(mContext, subId);
         verify(mContext, never()).startService(any());
 
         // Not starting ConfigService, simCarrierId is UNKNOWN.
-        doReturn(subId).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(subId);
         doReturn(TelephonyManager.UNKNOWN_CARRIER_ID).when(mMockTelephonyManager)
                 .getSimCarrierId();
         mCellBroadcastReceiver.initializeSharedPreference(mContext, subId);
@@ -307,20 +307,20 @@ public class CellBroadcastReceiverTest extends CellBroadcastTest {
         int firstSubId = 1;
         int secondSubId = 2;
         // Initialize for first sub.
-        doReturn(firstSubId).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(firstSubId);
         doReturn(firstSubId).when(mMockTelephonyManager).getSimCarrierId();
         mCellBroadcastReceiver.initializeSharedPreference(mContext, firstSubId);
         verify(mContext, never()).startService(any());
 
         // InitializeSharedPreference for second sub.
         // Starting ConfigService, as there's a carrierId change.
-        doReturn(secondSubId).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(secondSubId);
         doReturn(secondSubId).when(mMockTelephonyManager).getSimCarrierId();
         mCellBroadcastReceiver.initializeSharedPreference(mContext, secondSubId);
         verify(mContext).startService(any());
 
         // Initialize for first sub and starting ConfigService as same carrierId change.
-        doReturn(firstSubId).when(mSubService).getDefaultSubId();
+        mockDefaultSubId(firstSubId);
         doReturn(secondSubId).when(mMockTelephonyManager).getSimCarrierId();
         mCellBroadcastReceiver.initializeSharedPreference(mContext, firstSubId);
         verify(mContext, times(2)).startService(any());

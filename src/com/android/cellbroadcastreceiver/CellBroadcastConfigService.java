@@ -22,6 +22,7 @@ import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_CHAN
 import static com.android.cellbroadcastservice.CellBroadcastMetrics.ERRTYPE_ENABLECHANNEL;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -145,11 +146,16 @@ public class CellBroadcastConfigService extends IntentService {
 
                 CellBroadcastAlertService.createNotificationChannels(c);
                 Intent settingsIntent = new Intent(c, CellBroadcastSettings.class);
+                ActivityOptions options = ActivityOptions.makeBasic();
+                if (SdkLevel.isAtLeastU()) {
+                    options.setPendingIntentCreatorBackgroundActivityStartMode(
+                            ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+                }
                 PendingIntent pi = PendingIntent.getActivity(c,
                         CellBroadcastAlertService.SETTINGS_CHANGED_NOTIFICATION_ID, settingsIntent,
                         PendingIntent.FLAG_ONE_SHOT
                                 | PendingIntent.FLAG_UPDATE_CURRENT
-                                | PendingIntent.FLAG_IMMUTABLE);
+                                | PendingIntent.FLAG_IMMUTABLE, options.toBundle());
 
                 Notification.Builder builder = new Notification.Builder(c,
                         CellBroadcastAlertService.NOTIFICATION_CHANNEL_SETTINGS_UPDATES)
@@ -170,12 +176,17 @@ public class CellBroadcastConfigService extends IntentService {
         } else if (ACTION_RESET_SETTINGS_AS_NEEDED.equals(intent.getAction())) {
             Resources res = getResources(intent.getIntExtra(
                     EXTRA_SUB, SubscriptionManager.DEFAULT_SUBSCRIPTION_ID), null);
-            if (!CellBroadcastSettings.hasAnyPreferenceChanged(getApplicationContext())
-                    && (isMasterToggleEnabled() != res.getBoolean(
-                            R.bool.master_toggle_enabled_default))) {
-                Log.d(TAG, "Reset all preferences as no user changes and master toggle is"
-                        + " different as the config");
-                resetAllPreferences();
+
+            /// TODO :: b/339644128 - Reset WEA preferences when user has not modified them
+            if (!CellBroadcastSettings.hasAnyPreferenceChanged(getApplicationContext())) {
+                if (isMasterToggleEnabled() != res.getBoolean(R.bool.master_toggle_enabled_default)
+                        || (isSpeechAlertMessageEnabled() != res.getBoolean(
+                        R.bool.enable_alert_speech_default))) {
+                    Log.d(TAG, "Reset all preferences as no user changes and "
+                            + "master toggle is different as the config or "
+                            + "alert speech toggle is different as the config");
+                    resetAllPreferences();
+                }
             }
         }
     }
@@ -259,8 +270,7 @@ public class CellBroadcastConfigService extends IntentService {
         // Note: If enableAlertsMasterToggle is false, it disables ALL emergency broadcasts
         // except for always-on alerts e.g, presidential. i.e. to receive CMAS severe alerts, both
         // enableAlertsMasterToggle AND enableCmasSevereAlerts must be true.
-        boolean enableAlertsMasterToggle = isRoaming
-                ? res.getBoolean(R.bool.master_toggle_enabled_default) : isMasterToggleEnabled();
+        boolean enableAlertsMasterToggle = isMasterToggleEnabled();
 
         boolean enableEtwsAlerts = enableAlertsMasterToggle;
 
@@ -687,6 +697,11 @@ public class CellBroadcastConfigService extends IntentService {
     private boolean isMasterToggleEnabled() {
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
                 CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE, true);
+    }
+
+    private boolean isSpeechAlertMessageEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+                CellBroadcastSettings.KEY_ENABLE_ALERT_SPEECH, true);
     }
 
     /**
