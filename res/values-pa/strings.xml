@@ -57,8 +57,8 @@
     <string name="emergency_alerts_title" msgid="6605036374197485429">"ਸੁਚੇਤਨਾਵਾਂ"</string>
     <string name="notification_channel_broadcast_messages" msgid="880704362482824524">"ਪ੍ਰਸਾਰਿਤ ਸੁਨੇਹੇ"</string>
     <string name="notification_channel_emergency_alerts" msgid="5008287980979183617">"ਸੰਕਟਕਾਲੀਨ ਚਿਤਾਵਨੀਆਂ"</string>
-    <string name="notification_channel_emergency_alerts_high_priority" msgid="3937475297436439073">"ਅਸਵੀਕਾਰ ਕੀਤੀਆਂ ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ"</string>
-    <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"ਅਵਾਜ਼ੀ ਕਾਲ ਵਿੱਚ ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ"</string>
+    <string name="notification_channel_emergency_alerts_high_priority" msgid="3937475297436439073">"ਅਸਵੀਕਾਰ ਕੀਤੇ ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
+    <string name="notification_channel_broadcast_messages_in_voicecall" msgid="3291001780110813190">"ਅਵਾਜ਼ੀ ਕਾਲ ਵਿੱਚ ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"ਸਿਮ ਦੇ ਆਧਾਰ \'ਤੇ ਸਵੈਚਲਿਤ WEA ਸੈਟਿੰਗਾਂ ਦੀਆਂ ਤਬਦੀਲੀਆਂ"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"ਅਲਰਟਾਂ ਦੀ ਆਗਿਆ ਦਿਓ"</string>
     <string name="enable_alerts_master_toggle_summary" msgid="5583168548073938617">"ਵਾਇਰਲੈੱਸ ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਸੰਬੰਧੀ ਸੂਚਨਾਵਾਂ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
@@ -86,7 +86,7 @@
     <string name="enable_state_local_test_alerts_summary" msgid="780298327377950187">"ਰਾਜ ਅਤੇ ਸਥਾਨਕ ਅਥਾਰਟੀਆਂ ਤੋਂ ਟੈਸਟ ਸੁਨੇਹੇ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
     <string name="enable_emergency_alerts_message_title" msgid="661894007489847468">"ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ"</string>
     <string name="enable_emergency_alerts_message_summary" msgid="7574617515441602546">"ਜਾਨ ਦੇ ਖਤਰੇ ਸੰਬੰਧੀ ਇਵੈਂਟਾਂ ਬਾਰੇ ਚਿਤਾਵਨੀ ਦਿਓ"</string>
-    <string name="enable_cmas_test_alerts_title" msgid="7194966927004755266">"ਜਾਂਚ ਸੁਚੇਤਨਾਵਾਂ"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="7194966927004755266">"ਜਾਂਚ ਅਲਰਟ"</string>
     <string name="enable_cmas_test_alerts_summary" msgid="2083089933271720217">"ਸੁਰੱਖਿਆ ਅਲਰਟ ਸਿਸਟਮ ਤੋਂ ਕੈਰੀਅਰ ਜਾਂਚਾਂ ਅਤੇ ਮਹੀਨਾਵਾਰ ਜਾਂਚਾਂ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
     <!-- no translation found for enable_exercise_test_alerts_title (6030780598569873865) -->
     <skip />
@@ -136,7 +136,7 @@
     <string name="notification_multiple_title" msgid="1523638925739947855">"ਨਵੀਆਂ ਚਿਤਾਵਨੀਆਂ"</string>
     <string name="show_cmas_opt_out_summary" msgid="6926059266585295440">"ਪਹਿਲਾ ਅਲਰਟ ਦਿਖਾਉਣ ਤੋਂ ਬਾਅਦ ਹਟਣ ਦੀ ਚੋਣ ਸੰਬੰਧੀ ਇੱਕ ਵਿੰਡੋ ਦਿਖਾਓ (ਪ੍ਰੈਜੀਡੈਂਸ਼ੀਅਲ ਅਲਰਟ ਤੋਂ ਇਲਾਵਾ)।"</string>
     <string name="show_cmas_opt_out_title" msgid="9182104842820171132">"ਹਟਣ ਦੀ ਚੋਣ ਵਾਲੀ ਵਿੰਡੋ ਦਿਖਾਓ"</string>
-    <string name="cmas_opt_out_dialog_text" msgid="4820577535626084938">"ਤੁਸੀਂ ਇਸ ਵੇਲੇ ਵਾਇਰਲੈੱਸ ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ ਪ੍ਰਾਪਤ ਕਰ ਰਹੇ ਹੋ। ਕੀ ਤੁਸੀਂ ਵਾਇਰਲੈੱਸ ਸੰਕਟਕਾਲੀਨ ਸੁਚੇਤਨਾਵਾਂ ਪ੍ਰਾਪਤ ਕਰਨਾ ਜਾਰੀ ਰੱਖਣਾ ਚਾਹੁੰਦੇ ਹੋ?"</string>
+    <string name="cmas_opt_out_dialog_text" msgid="4820577535626084938">"ਤੁਸੀਂ ਇਸ ਵੇਲੇ ਵਾਇਰਲੈੱਸ ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਪ੍ਰਾਪਤ ਕਰ ਰਹੇ ਹੋ। ਕੀ ਤੁਸੀਂ ਵਾਇਰਲੈੱਸ ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਪ੍ਰਾਪਤ ਕਰਨਾ ਜਾਰੀ ਰੱਖਣਾ ਚਾਹੁੰਦੇ ਹੋ?"</string>
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"ਹਾਂ"</string>
     <string name="cmas_opt_out_button_no" msgid="3110484064328538553">"ਨਹੀਂ"</string>
     <string name="cb_list_activity_title" msgid="1433502151877791724">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਦਾ ਇਤਿਹਾਸ"</string>
@@ -150,7 +150,7 @@
     <item msgid="7388573183644474611">"ਕਦੇ ਵੀ ਨਹੀਂ"</item>
   </string-array>
     <string name="emergency_alert_settings_title_watches" msgid="4477073412799894883">"ਵਾਇਰਲੈੱਸ ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
-    <string name="enable_cmas_presidential_alerts_title" msgid="7293800023375154256">"ਰਾਸ਼ਟਰਪਤੀ ਵੱਲੋਂ ਸੁਚੇਤਨਾਵਾਂ"</string>
+    <string name="enable_cmas_presidential_alerts_title" msgid="7293800023375154256">"ਰਾਸ਼ਟਰਪਤੀ ਵੱਲੋਂ ਅਲਰਟ"</string>
     <string name="enable_cmas_presidential_alerts_summary" msgid="7900094335808247024">"ਰਾਸ਼ਟਰਪਤੀ ਵੱਲੋਂ ਜਾਰੀ ਰਾਸ਼ਟਰੀ ਚਿਤਾਵਨੀ ਸੰਬੰਧੀ ਸੁਨੇਹੇ। ਇਨ੍ਹਾਂ ਨੂੰ ਬੰਦ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।"</string>
     <string name="receive_cmas_in_second_language_title" msgid="1223260365527361964"></string>
     <string name="receive_cmas_in_second_language_summary" msgid="7704105502782770718"></string>
@@ -170,7 +170,7 @@
     <string name="seconds" msgid="141450721520515025">"ਸਕਿੰਟ"</string>
     <string name="message_copied" msgid="6922953753733166675">"ਸੁਨੇਹਾ ਕਾਪੀ ਕੀਤਾ ਗਿਆ"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
-    <string name="top_intro_roaming_text" msgid="186872150397081032">"ਰੋਮਿੰਗ ਵਿੱਚ ਹੋਣ \'ਤੇ, ਤੁਹਾਨੂੰ ਕੁਝ ਸੁਚੇਤਨਾਵਾਂ ਮਿਲ ਸਕਦੀਆਂ ਹਨ ਜੋ ਇਨ੍ਹਾਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਸ਼ਾਮਲ ਨਹੀਂ ਹਨ"</string>
+    <string name="top_intro_roaming_text" msgid="5250650823028195358">"ਰੋਮਿੰਗ ਵਿੱਚ ਹੋਣ \'ਤੇ ਜਾਂ ਤੁਹਾਡੇ ਕੋਲ ਕਿਰਿਆਸ਼ੀਲ ਸਿਮ ਨਾ ਹੋਣ \'ਤੇ, ਤੁਹਾਨੂੰ ਕੁਝ ਅਲਰਟ ਮਿਲ ਸਕਦੇ ਹਨ ਜੋ ਇਨ੍ਹਾਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਸ਼ਾਮਲ ਨਹੀਂ ਹਨ"</string>
     <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"ਕੈਰੀਅਰ ਨੇ ਸੈਟਿੰਗਾਂ ਨੂੰ ਬਦਲਿਆ"</string>
     <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"ਵਾਇਰਲੈੱਸ ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਸੈਟਿੰਗਾਂ ਦੇਖਣ ਲਈ ਟੈਪ ਕਰੋ"</string>
 </resources>

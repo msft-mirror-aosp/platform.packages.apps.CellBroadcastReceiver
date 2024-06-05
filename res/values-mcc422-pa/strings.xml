@@ -16,5 +16,5 @@
     <string name="cmas_presidential_level_alert" msgid="6613961558395121121">"ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
     <string name="pws_other_message_identifiers" msgid="482796856521435227">"ਚਿਤਾਵਨੀ ਅਲਰਟ"</string>
     <string name="cmas_exercise_alert" msgid="4408794918342482664">"ਕਸਰਤਾਂ ਸੰਬੰਧੀ ਅਲਰਟ"</string>
-    <string name="enable_cmas_test_alerts_title" msgid="6262235749991861558">"ਕਸਰਤਾਂ ਸੰਬੰਧੀ ਸੁਚੇਤਨਾਵਾਂ"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="6262235749991861558">"ਕਸਰਤਾਂ ਸੰਬੰਧੀ ਅਲਰਟ"</string>
 </resources>
