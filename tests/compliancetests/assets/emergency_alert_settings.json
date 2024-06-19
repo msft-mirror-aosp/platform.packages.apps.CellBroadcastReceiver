@@ -412,67 +412,59 @@
     }
   },
   "korea": {
-    "긴급 재난문자": { //"Emergency Alert"
+    "Emergency Alert": { //"긴급 재난문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "안전 안내문자": { // "Public Safety Alert"
+    "Public Safety Alert": { // "안전 안내문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "실종 경보문자": { // "Amber Alert"
+    "Amber Alert": { // "실종 안내문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "진동": { //"Vibration"
+    "Vibration": { //"진동": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "경보 메시지를 음성으로 알림": { //"Speak alert message"
+    "Speak alert message": { //"경보 메시지를 음성으로 알림": {
       "default_value": "false",
       "toggle_avail": "true"
     }
   },
   "korea_skt": {
-    "긴급 재난문자": { //"Emergency Alert"
+    "Emergency Alert": { //"긴급 재난문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "안전 안내문자": { // "Public Safety Alert"
+    "Amber Alert": { // "실종 안내문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "실종 경보문자": { // "Amber Alert"
+    "Vibration": { //"진동": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "진동": { //"Vibration"
-      "default_value": "true",
-      "toggle_avail": "true"
-    },
-    "경보 메시지를 음성으로 알림": { //"Speak alert message"
+    "Speak alert message": { //"경보 메시지를 음성으로 알림": {
       "default_value": "false",
       "toggle_avail": "true"
     }
   },
   "korea_lgu": {
-    "긴급 재난문자": { //"Emergency Alert"
+    "Emergency Alert": { //"긴급 재난문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "안전 안내문자": { // "Public Safety Alert"
+    "Amber Alert": { // "실종 안내문자": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "실종 경보문자": { // "Amber Alert"
+    "Vibration": { //"진동": {
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "진동": { //"Vibration"
-      "default_value": "true",
-      "toggle_avail": "true"
-    },
-    "경보 메시지를 음성으로 알림": { //"Speak alert message"
+    "Speak alert message": { //"경보 메시지를 음성으로 알림": {
       "default_value": "false",
       "toggle_avail": "true"
     }
