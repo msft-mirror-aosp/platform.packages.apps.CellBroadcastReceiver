@@ -320,6 +320,8 @@ public class CellBroadcastResources {
                 return R.string.sms_cb_sender_name_emergency;
             case R.array.public_safety_messages_channels_range_strings:
                 return R.string.sms_cb_sender_name_public_safety;
+            case R.array.cmas_amber_alerts_channels_range_strings:
+                return R.string.sms_cb_sender_name_amber;
         }
 
         return R.string.sms_cb_sender_name_default;
