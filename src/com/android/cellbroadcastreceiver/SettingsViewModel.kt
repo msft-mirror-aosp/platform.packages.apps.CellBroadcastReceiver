@@ -151,6 +151,7 @@ class SettingsViewModel(
         if (!masterToggle.checked) {
             masterUpdateSubAlerts(false)
         }
+        presidentialCheckBox.setEnabled(false)
     }
 
     var preferenceChangedByUser by mutableStateOf(false)
