@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_fwk_telephony",
     // See: http://go/android-license-faq
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
@@ -25,7 +26,10 @@ android_test {
         "telephony-common",
         "android.test.base",
     ],
-    static_libs: ["junit"],
+    static_libs: [
+    "junit",
+    "modules-utils-build_system",
+    ],
     // Include all test java files.
     srcs: [
         "src/**/*.java",

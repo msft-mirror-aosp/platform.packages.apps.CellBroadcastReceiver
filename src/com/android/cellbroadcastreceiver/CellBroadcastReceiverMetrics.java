@@ -65,7 +65,6 @@ public class CellBroadcastReceiverMetrics {
     /**
      * Get instance of CellBroadcastReceiverMetrics.
      */
-    @VisibleForTesting
     public static CellBroadcastReceiverMetrics getInstance() {
         if (sCbrMetrics == null) {
             sCbrMetrics = new CellBroadcastReceiverMetrics();
@@ -389,7 +388,8 @@ public class CellBroadcastReceiverMetrics {
             throws IOException {
         Cellbroadcastmetric.CellBroadcastChannelRangesProto.Builder rangeListBuilder =
                 Cellbroadcastmetric.CellBroadcastChannelRangesProto.newBuilder();
-        rangeList.stream().sorted((o1, o2) -> o1.first == o2.first ? o1.second - o2.second
+        rangeList.stream().sorted((o1, o2) -> Objects.equals(o1.first, o2.first)
+                ? o1.second - o2.second
                 : o1.first - o2.first).forEach(pair -> {
             Cellbroadcastmetric.CellBroadcastChannelRangeProto.Builder rangeBuilder =
                     Cellbroadcastmetric.CellBroadcastChannelRangeProto.newBuilder();
