@@ -83,7 +83,7 @@
     <string name="enable_full_screen_public_safety_messages_title" msgid="1790574642368284876">"Mostra els missatges en pantalla completa"</string>
     <string name="enable_full_screen_public_safety_messages_summary" msgid="194171850169012897">"Quan estan desactivats, els missatges de seguretat pública se segueixen enviant com a notificació"</string>
     <string name="enable_state_local_test_alerts_title" msgid="1012930918171302720">"Proves locals i estatals"</string>
-    <string name="enable_state_local_test_alerts_summary" msgid="780298327377950187">"Vull rebre missatges de prova de les autoritats locals i estatals"</string>
+    <string name="enable_state_local_test_alerts_summary" msgid="780298327377950187">"Missatges de prova de les autoritats locals i estatals"</string>
     <string name="enable_emergency_alerts_message_title" msgid="661894007489847468">"Alertes d\'emergència"</string>
     <string name="enable_emergency_alerts_message_summary" msgid="7574617515441602546">"Avisa\'m quan hi hagi esdeveniments potencialment mortals"</string>
     <string name="enable_cmas_test_alerts_title" msgid="7194966927004755266">"Alertes de prova"</string>
@@ -171,6 +171,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Missatge copiat"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Quan utilitzes la itinerància o no tens una SIM activa, pot ser que rebis algunes alertes que no estan incloses en aquestes opcions de configuració"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"L\'operador ha canviat la configuració"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Toca per veure la configuració de les alertes d\'emergència sense fil"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"La configuració ha canviat"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"S\'ha restablert la configuració d\'alertes d\'emergència sense fil perquè s\'ha canviat la SIM"</string>
 </resources>

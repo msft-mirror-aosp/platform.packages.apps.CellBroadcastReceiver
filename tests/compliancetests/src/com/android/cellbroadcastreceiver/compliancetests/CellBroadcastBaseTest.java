@@ -26,9 +26,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.SystemProperties;
 import android.support.test.uiautomator.UiDevice;
+import android.telephony.ServiceState;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 import android.telephony.mockmodem.IRadioMessagingImpl;
 import android.telephony.mockmodem.MockModemConfigBase.SimInfoChangedResult;
@@ -38,6 +42,7 @@ import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.compatibility.common.util.ShellIdentityUtils;
 import com.android.internal.telephony.CellBroadcastUtils;
 import com.android.modules.utils.build.SdkLevel;
 
@@ -91,9 +96,27 @@ public class CellBroadcastBaseTest {
     protected static Instrumentation sInstrumentation = null;
     protected static UiDevice sDevice = null;
     protected static String sPackageName = null;
-
     protected static IRadioMessagingImpl.CallBackWithExecutor sCallBackWithExecutor = null;
-    protected static String sBackUpRoamingNetwork = "";
+    private static ServiceStateListener sServiceStateCallback;
+    private static int sServiceState = ServiceState.STATE_OUT_OF_SERVICE;
+    private static final Object OBJECT = new Object();
+    private static final int SERVICE_STATE_MAX_WAIT = 20 * 1000;
+    protected static CountDownLatch sServiceStateLatch =  new CountDownLatch(1);
+
+    private static class ServiceStateListener extends TelephonyCallback
+            implements TelephonyCallback.ServiceStateListener {
+        @Override
+        public void onServiceStateChanged(ServiceState serviceState) {
+            Log.d(TAG, "Callback: service state = " + serviceState.getVoiceRegState());
+            synchronized (OBJECT) {
+                sServiceState = serviceState.getVoiceRegState();
+                if (sServiceState == ServiceState.STATE_IN_SERVICE) {
+                    sServiceStateLatch.countDown();
+                    logd("countdown sServiceStateLatch");
+                }
+            }
+        }
+    }
 
     protected static Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getContext();
@@ -104,8 +127,9 @@ public class CellBroadcastBaseTest {
         @Override
         public void onGsmBroadcastActivated() {
             TelephonyManager tm = getContext().getSystemService(TelephonyManager.class);
-            logd("onGsmBroadcastActivated, mccmnc = " + tm.getSimOperator());
-            if (sInputMccMnc != null && sInputMccMnc.equals(tm.getSimOperator())) {
+            String mccmnc = tm.getSimOperator(SubscriptionManager.getDefaultSubscriptionId());
+            logd("onGsmBroadcastActivated, mccmnc = " + mccmnc);
+            if (sInputMccMnc != null && sInputMccMnc.equals(mccmnc)) {
                 sSetChannelIsDone.countDown();
                 logd("wait is released");
             }
@@ -119,8 +143,10 @@ public class CellBroadcastBaseTest {
     @BeforeClass
     public static void beforeAllTests() throws Exception {
         logd("CellBroadcastBaseTest#beforeAllTests()");
-        if (!SdkLevel.isAtLeastT()) {
-            Log.i(TAG, "sdk level is below T");
+        // TODO: Make cellbroadcastcompliancetest use old mockmodem lib so that test can be
+        // run on the previous platform as well.
+        if (!SdkLevel.isAtLeastV()) {
+            Log.i(TAG, "sdk level is below the latest platform");
             sPreconditionError = ERROR_SDK_VERSION;
             return;
         }
@@ -174,16 +200,12 @@ public class CellBroadcastBaseTest {
             getContext().registerReceiver(sReceiver, filter, Context.RECEIVER_EXPORTED);
         }
 
+        sInstrumentation = InstrumentationRegistry.getInstrumentation();
+        sDevice = UiDevice.getInstance(sInstrumentation);
+
         sMockModemManager = new MockModemManager();
         assertTrue(sMockModemManager.connectMockModemService(
                 MockSimService.MOCK_SIM_PROFILE_ID_TWN_CHT));
-        sSlotId = SubscriptionManager.getSlotIndex(SubscriptionManager.getDefaultSubscriptionId());
-
-        if (sSlotId == SubscriptionManager.INVALID_SIM_SLOT_INDEX) {
-            Log.i(TAG, "Error with invalid sim slot index");
-            sPreconditionError = ERROR_INVALID_SIM_SLOT_INDEX_ERROR;
-            return;
-        }
 
         if (SdkLevel.isAtLeastU()) {
             BroadcastChannelListener broadcastCallback = new BroadcastChannelListener();
@@ -193,42 +215,23 @@ public class CellBroadcastBaseTest {
         }
         waitForNotify();
 
+        enterService();
+
         String jsonCarrier = loadJsonFile(CARRIER_LISTS_JSON);
         sCarriersObject = new JSONObject(jsonCarrier);
         String jsonChannels = loadJsonFile(EXPECTED_RESULT_CHANNELS_JSON);
         sChannelsObject = new JSONObject(jsonChannels);
         String jsonSettings = loadJsonFile(EXPECTED_RESULT_SETTINGS_JSON);
         sSettingsObject = new JSONObject(jsonSettings);
-
-        sInstrumentation = InstrumentationRegistry.getInstrumentation();
-        sDevice = UiDevice.getInstance(sInstrumentation);
         sPackageName = CellBroadcastUtils
                 .getDefaultCellBroadcastReceiverPackageName(getContext());
-
-        setTestRoamingOperator(true);
-        enableAirplaneMode(true);
-        enableAirplaneMode(false);
     }
 
     private static void waitForNotify() {
-        while (sSetChannelIsDone.getCount() > 0) {
-            try {
-                sSetChannelIsDone.await(MAX_WAIT_TIME, TimeUnit.MILLISECONDS);
-                sSetChannelIsDone.countDown();
-            } catch (InterruptedException e) {
-                // do nothing
-            }
-        }
-    }
-
-    private static void waitForNotify(int milliSeconds) {
-        while (sSetChannelIsDone.getCount() > 0) {
-            try {
-                sSetChannelIsDone.await(milliSeconds, TimeUnit.MILLISECONDS);
-                sSetChannelIsDone.countDown();
-            } catch (InterruptedException e) {
-                // do nothing
-            }
+        try {
+            sSetChannelIsDone.await(MAX_WAIT_TIME, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            // do nothing
         }
     }
 
@@ -247,8 +250,7 @@ public class CellBroadcastBaseTest {
             assertTrue(sMockModemManager.disconnectMockModemService());
             sMockModemManager = null;
         }
-
-        setTestRoamingOperator(false);
+        sInputMccMnc = null;
     }
 
     @Rule
@@ -326,47 +328,6 @@ public class CellBroadcastBaseTest {
         return result.toArray(new Object[]{});
     }
 
-    protected static void enableDualSim(boolean enable) throws Exception {
-        if (enable) {
-            sDevice.executeShellCommand("root");
-            sDevice.executeShellCommand("setprop persist.radio.multisim.config ss");
-            sDevice.executeShellCommand("reboot");
-        } else {
-            sDevice.executeShellCommand("root");
-            sDevice.executeShellCommand("setprop persist.radio.multisim.config dsds");
-        }
-    }
-
-    protected static void enableAirplaneMode(boolean on) throws Exception {
-        if (on) {
-            logd("airplane mode on");
-            sDevice.executeShellCommand("settings put global airplane_mode_on 1");
-            sDevice.executeShellCommand("am broadcast -a android.intent.action.AIRPLANE_MODE");
-            waitForNotify(2000);
-        } else {
-            logd("airplane mode off");
-            sDevice.executeShellCommand("settings put global airplane_mode_on 0");
-            sDevice.executeShellCommand("am broadcast -a android.intent.action.AIRPLANE_MODE");
-            waitForNotify(2000);
-        }
-    }
-
-    protected static void setTestRoamingOperator(boolean save) throws Exception {
-        if (save) {
-            logd("setTestRoamingOperator: 00101");
-            sBackUpRoamingNetwork = sDevice.executeShellCommand(
-                    "getprop persist.cellbroadcast.roaming_plmn_supported");
-            logd("backup roaming network is " + sBackUpRoamingNetwork);
-            sDevice.executeShellCommand(
-                    "setprop persist.cellbroadcast.roaming_plmn_supported 00101");
-        } else {
-            logd("restore TestRoamingOperator: " + sBackUpRoamingNetwork);
-            sDevice.executeShellCommand(
-                    "setprop persist.cellbroadcast.roaming_plmn_supported "
-                            + sBackUpRoamingNetwork);
-        }
-    }
-
     protected void setSimInfo(String carrierName, String inputMccMnc) throws Throwable {
         String mcc = inputMccMnc.substring(0, 3);
         String mnc = inputMccMnc.substring(3);
@@ -416,5 +377,51 @@ public class CellBroadcastBaseTest {
 
     protected static void logd(String msg) {
         if (DEBUG) Log.d(TAG, msg);
+    }
+
+    protected static void enterService() throws Exception {
+        logd("enterService");
+        HandlerThread serviceStateChangeCallbackHandlerThread =
+                new HandlerThread("ServiceStateChangeCallback");
+        serviceStateChangeCallbackHandlerThread.start();
+        Handler serviceStateChangeCallbackHandler =
+                new Handler(serviceStateChangeCallbackHandlerThread.getLooper());
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        sSetChannelIsDone = new CountDownLatch(1);
+        // Register service state change callback
+        synchronized (OBJECT) {
+            sServiceState = ServiceState.STATE_OUT_OF_SERVICE;
+        }
+
+        serviceStateChangeCallbackHandler.post(
+                () -> {
+                    sServiceStateCallback = new ServiceStateListener();
+                    ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn(
+                            telephonyManager,
+                            (tm) -> tm.registerTelephonyCallback(
+                                    Runnable::run, sServiceStateCallback));
+                });
+
+        // Enter Service
+        logd("Enter Service");
+        sMockModemManager.changeNetworkService(sSlotId, MockSimService.MOCK_SIM_PROFILE_ID_TWN_CHT,
+                true);
+
+        // Expect: Home State
+        logd("Wait for service state change to in service");
+        waitForNotifyForServiceState();
+
+        // Unregister service state change callback
+        telephonyManager.unregisterTelephonyCallback(sServiceStateCallback);
+        sServiceStateCallback = null;
+    }
+
+    private static void waitForNotifyForServiceState() {
+        try {
+            sServiceStateLatch.await(SERVICE_STATE_MAX_WAIT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
     }
 }

@@ -21,10 +21,10 @@ package {
 java_defaults {
     name: "CellBroadcastTestCommon",
     libs: [
-        "android.test.runner",
+        "android.test.runner.stubs.system",
         "telephony-common",
-        "android.test.base",
-        "android.test.mock",
+        "android.test.base.stubs.system",
+        "android.test.mock.stubs.system",
     ],
     static_libs: [
         "androidx.test.rules",
@@ -36,6 +36,7 @@ java_defaults {
     // Include all test java files.
     srcs: [":cellbroadcastreceiver-shared-srcs-test"],
     platform_apis: true,
+    min_sdk_version: "30",
 }
 
 // in order to have our tests run on OEM devices, the test apk here includes
@@ -92,7 +93,7 @@ android_test {
     defaults: ["CellBroadcastTestCommon"],
     instrumentation_for: "CellBroadcastApp",
     test_suites: [
-        "device-tests",
+        "general-tests",
         "mts-cellbroadcast",
     ],
     manifest: "AndroidManifest.xml",
