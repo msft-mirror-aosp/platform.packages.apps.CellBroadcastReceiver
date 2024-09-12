@@ -21,7 +21,7 @@
     <string name="cmas_severe_alert" msgid="1394463869061650114">"BG-ALERT: Інфармацыя"</string>
     <string name="cmas_amber_alert" msgid="6042893309718893485">"BG-ALERT: Абвестка аб знікненні чалавека"</string>
     <string name="cmas_required_monthly_test" msgid="3241200045692496222">"BG-ALERT: Тэставая абвестка"</string>
-    <string name="enable_cmas_extreme_threat_alerts_title" msgid="2856233162192255821">"Надзвычайныя і сур\'ёзныя пагрозы"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="2856233162192255821">"Надзвычайныя і сур’ёзныя пагрозы"</string>
     <string name="enable_cmas_extreme_threat_alerts_summary" msgid="4399126631396210521">"Надзвычайныя і сур’ёзныя пагрозы для жыцця і маёмасці"</string>
     <string name="enable_cmas_severe_threat_alerts_title" msgid="7304511098720139598">"Інфармацыя"</string>
     <string name="enable_cmas_severe_threat_alerts_summary" msgid="4573406416500374588">"Інфармацыйныя паведамленні"</string>
