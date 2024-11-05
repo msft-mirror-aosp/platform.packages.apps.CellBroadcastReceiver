@@ -18,6 +18,7 @@ package com.android.cellbroadcastreceiver.unit;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -79,6 +80,10 @@ public class CellBroadcastSearchIndexableProviderTest extends CellBroadcastTest 
         doReturn(mVibrator).when(mContext).getSystemService("test");
         doReturn(true).when(mVibrator).hasVibrator();
         doReturn(false).when(mSearchIndexableProvider).isShowFullScreenMessageVisible(mResources);
+        doReturn(false).when(mSearchIndexableProvider)
+                .isExerciseTestAlertsToggleVisible(any());
+        doReturn(false).when(mSearchIndexableProvider)
+                .isOperatorTestAlertsToggleVisible(any());
         Cursor cursor = mSearchIndexableProvider.queryNonIndexableKeys(new String[]{""});
 
         //KEY_RECEIVE_CMAS_IN_SECOND_LANGUAGE
@@ -93,21 +98,32 @@ public class CellBroadcastSearchIndexableProviderTest extends CellBroadcastTest 
         //KEY_ENABLE_CMAS_EXTREME_THREAT_ALERTS
         //KEY_ENABLE_ALERT_SPEECH
         //KEY_ENABLE_CMAS_PRESIDENTIAL_ALERTS
-        assertThat(cursor.getCount()).isEqualTo(13);
+        //KEY_ENABLE_ALERTS_MASTER_TOGGLE
+        //KEY_OVERRIDE_DND
+        //KEY_ENABLE_EXERCISE_ALERTS
+        //KEY_OPERATOR_DEFINED_ALERTS
+        assertThat(cursor.getCount()).isEqualTo(17);
 
         doReturn(false).when(mVibrator).hasVibrator();
         //KEY_ENABLE_ALERT_VIBRATE
         cursor = mSearchIndexableProvider.queryNonIndexableKeys(new String[]{""});
-        assertThat(cursor.getCount()).isEqualTo(14);
+        assertThat(cursor.getCount()).isEqualTo(18);
 
         doReturn(true).when(mSearchIndexableProvider).isTestAlertsToggleVisible();
         //KEY_ENABLE_TEST_ALERTS
         cursor = mSearchIndexableProvider.queryNonIndexableKeys(new String[]{""});
-        assertThat(cursor.getCount()).isEqualTo(13);
+        assertThat(cursor.getCount()).isEqualTo(17);
 
         doReturn(true).when(mSearchIndexableProvider).isShowFullScreenMessageVisible(mResources);
         //KEY_ENABLE_TEST_ALERTS
         cursor = mSearchIndexableProvider.queryNonIndexableKeys(new String[]{""});
-        assertThat(cursor.getCount()).isEqualTo(12);
+        assertThat(cursor.getCount()).isEqualTo(16);
+
+        doReturn(true).when(mSearchIndexableProvider)
+                .isExerciseTestAlertsToggleVisible(any());
+        doReturn(true).when(mSearchIndexableProvider)
+                .isOperatorTestAlertsToggleVisible(any());
+        cursor = mSearchIndexableProvider.queryNonIndexableKeys(new String[]{""});
+        assertThat(cursor.getCount()).isEqualTo(14);
     }
 }
