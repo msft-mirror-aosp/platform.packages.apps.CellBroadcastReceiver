@@ -106,6 +106,32 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
 
     /**
      * this method is to make this class unit-testable, because
+     * CellBroadcastSettings.isExerciseTestAlertsToggleVisible is a static method and
+     * therefore not mockable
+     *
+     * @return true if test alerts toggle is Visible
+     */
+    @VisibleForTesting
+    public boolean isExerciseTestAlertsToggleVisible(CellBroadcastChannelManager channelManager) {
+        return CellBroadcastSettings.isExerciseTestAlertsToggleVisible(
+                getResourcesMethod(), getContext(), channelManager);
+    }
+
+    /**
+     * this method is to make this class unit-testable, because
+     * CellBroadcastSettings.isOperatorTestAlertsToggleVisible is a static method and
+     * therefore not mockable
+     *
+     * @return true if test alerts toggle is Visible
+     */
+    @VisibleForTesting
+    public boolean isOperatorTestAlertsToggleVisible(CellBroadcastChannelManager channelManager) {
+        return CellBroadcastSettings.isOperatorTestAlertsToggleVisible(
+                getResourcesMethod(), getContext(), channelManager);
+    }
+
+    /**
+     * this method is to make this class unit-testable, because
      * CellBroadcastSettings.isShowFullScreenMessageVisible is a static method and therefore not
      * able to mock
      *
@@ -200,6 +226,20 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
         Resources res = getResourcesMethod();
         Object[] ref;
 
+        if (!res.getBoolean(R.bool.show_main_switch_settings)) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_ENABLE_ALERTS_MASTER_TOGGLE;
+            cursor.addRow(ref);
+        }
+
+        if (!res.getBoolean(R.bool.show_override_dnd_settings)) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_OVERRIDE_DND;
+            cursor.addRow(ref);
+        }
+
         if (!res.getBoolean(R.bool.show_presidential_alerts_settings)) {
             ref = new Object[1];
             ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
@@ -284,6 +324,20 @@ public class CellBroadcastSearchIndexableProvider extends SearchIndexablesProvid
             ref = new Object[1];
             ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
                     CellBroadcastSettings.KEY_ENABLE_TEST_ALERTS;
+            cursor.addRow(ref);
+        }
+
+        if (!isExerciseTestAlertsToggleVisible(channelManager)) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS;
+            cursor.addRow(ref);
+        }
+
+        if (!isOperatorTestAlertsToggleVisible(channelManager)) {
+            ref = new Object[1];
+            ref[COLUMN_INDEX_NON_INDEXABLE_KEYS_KEY_VALUE] =
+                    CellBroadcastSettings.KEY_OPERATOR_DEFINED_ALERTS;
             cursor.addRow(ref);
         }
 
