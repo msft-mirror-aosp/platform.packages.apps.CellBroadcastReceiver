@@ -797,8 +797,8 @@ public class CellBroadcastConfigServiceTest extends CellBroadcastTest {
         setPreference(CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS, false);
 
         CbConfig[] disableConfigs = new CbConfig[]{
-                new CbConfig(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_STATE_LOCAL_TEST,
-                        SmsCbConstants.MESSAGE_ID_CMAS_ALERT_STATE_LOCAL_TEST,
+                new CbConfig(SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXERCISE,
+                        SmsCbConstants.MESSAGE_ID_CMAS_ALERT_EXERCISE,
                         SmsCbMessage.MESSAGE_FORMAT_3GPP, false),
         };
         mConfigService.enableCellBroadcastChannels(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID);
