@@ -255,7 +255,13 @@ public class CellBroadcastAlertService extends Service {
         TelephonyManager tm = ((TelephonyManager) mContext.getSystemService(
                 Context.TELEPHONY_SERVICE)).createForSubscriptionId(message.getSubscriptionId());
 
-        if (tm.getEmergencyCallbackMode() && CellBroadcastSettings.getResourcesByOperator(
+        boolean isEmergencyCallbackMode = false;
+        try {
+            isEmergencyCallbackMode = tm.getEmergencyCallbackMode();
+        } catch (UnsupportedOperationException e) {
+            Log.d(TAG, "telephony calling feature is not available");
+        }
+        if (isEmergencyCallbackMode && CellBroadcastSettings.getResourcesByOperator(
                 mContext, message.getSubscriptionId(),
                         CellBroadcastReceiver.getRoamingOperatorSupported(mContext))
                 .getBoolean(R.bool.ignore_messages_in_ecbm)) {
@@ -490,7 +496,9 @@ public class CellBroadcastAlertService extends Service {
         if (channelManager.isEmergencyMessage(cbm) && !sRemindAfterCallFinish) {
             // start alert sound / vibration / TTS and display full-screen alert
             openEmergencyAlertNotification(cbm);
-            Resources res = CellBroadcastSettings.getResources(mContext, cbm.getSubscriptionId());
+            Resources res = CellBroadcastSettings.getResourcesByOperator(mContext,
+                    cbm.getSubscriptionId(),
+                    CellBroadcastReceiver.getRoamingOperatorSupported(mContext));
 
             CellBroadcastChannelRange range = channelManager
                     .getCellBroadcastChannelRangeFromMessage(cbm);
@@ -618,14 +626,20 @@ public class CellBroadcastAlertService extends Service {
 
         if (resourcesKey == R.array.exercise_alert_range_strings
                 && res.getBoolean(R.bool.show_separate_exercise_settings)) {
-            return emergencyAlertEnabled && checkAlertConfigEnabled(
+            return emergencyAlertEnabled
+                    && CellBroadcastSettings.isExerciseTestAlertsToggleVisible(
+                    res, getApplicationContext(), channelManager)
+                    && checkAlertConfigEnabled(
                     subId, CellBroadcastSettings.KEY_ENABLE_EXERCISE_ALERTS,
                     res.getBoolean(R.bool.test_exercise_alerts_enabled_default));
         }
 
         if (resourcesKey == R.array.operator_defined_alert_range_strings
                 && res.getBoolean(R.bool.show_separate_operator_defined_settings)) {
-            return emergencyAlertEnabled && checkAlertConfigEnabled(
+            return emergencyAlertEnabled
+                    && CellBroadcastSettings.isOperatorTestAlertsToggleVisible(
+                    res, getApplicationContext(), channelManager)
+                    && checkAlertConfigEnabled(
                     subId, CellBroadcastSettings.KEY_OPERATOR_DEFINED_ALERTS,
                     res.getBoolean(R.bool.test_operator_defined_alerts_enabled_default));
         }
