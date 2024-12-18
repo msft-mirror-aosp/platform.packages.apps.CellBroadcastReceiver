@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Бездротові екстрені сповіщення"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Бездротові екстрені сповіщення"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Інформаційне сповіщення"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"Налаштування бездротових екстрених сповіщень недоступні для цього користувача"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"OK"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Немає попередніх сповіщень"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Повідомлення скопійовано"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Коли ви користуєтеся роумінгом або у вас немає активної SIM-карти, ви можете отримувати деякі сповіщення, відсутні в цих налаштуваннях"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Налаштування змінив оператор"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Натисніть, щоб переглянути налаштування бездротових екстрених сповіщень"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Ваші налаштування змінено"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"Налаштування бездротових екстрених сповіщень скинуто, оскільки змінилася ваша SIM-карта"</string>
 </resources>

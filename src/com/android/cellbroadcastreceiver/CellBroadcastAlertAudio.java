@@ -51,7 +51,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.telephony.PhoneStateListener;
@@ -59,6 +58,8 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.preference.PreferenceManager;
 
 import com.android.cellbroadcastreceiver.CellBroadcastAlertService.AlertType;
 import com.android.internal.annotations.VisibleForTesting;
@@ -124,7 +125,8 @@ public class CellBroadcastAlertAudio extends Service implements TextToSpeech.OnI
 
     private int mState;
 
-    private TextToSpeech mTts;
+    @VisibleForTesting
+    public TextToSpeech mTts;
     private boolean mTtsEngineReady;
 
     private AlertType mAlertType;

@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Aholini ogohlantirish"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Aholini ogohlantirish"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Axborotli bildirishnoma"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"Simsiz tarmoqlar orqali favqulodda ogohlantirish sozlamalari bu foydalanuvchi uchun yopiq"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"OK"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Hech qanday ogohlantirish topilmadi"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Xabar nusxalandi"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Roumingda ekaningizda yoki faol SIM-karta solinmaganida, bu sozlamalarga kiritilmagan ayrim ogohlantirishlar yuborilishi mumkin"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Sozlamalar operator tomonidan oʻzgartirildi"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Favqulodda simsiz ogohlantirish sozlamalarini ochish uchun bosing"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Sozlamalar oʻzgartirildi"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"SIM karta almashgani sababli aholini favqulodda ogohlantirish sozlamalari asliga qaytarildi"</string>
 </resources>

@@ -44,6 +44,9 @@ import android.widget.LinearLayout;
 
 import com.android.internal.util.HexDump;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -51,9 +54,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Iterator;
-
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
 public class CellBroadcastUiTest extends CellBroadcastBaseTest {
@@ -69,6 +69,10 @@ public class CellBroadcastUiTest extends CellBroadcastBaseTest {
     private static final int MESSAGE_ID_ETWS_TYPE = 0x1100; // 4352
     private static final String CELL_BROADCAST_LIST_ACTIVITY =
             "com.android.cellbroadcastreceiver.CellBroadcastSettings";
+    private static final BySelector SYSUI_FULL_SCREEN_DIALOG =
+            By.res("com.android.systemui", "immersive_cling_title");
+    private static final BySelector SYSUI_CLOSE_BUTTON =
+            By.res("com.android.systemui", "ok");
     private static final BySelector FULL_SCREEN_DIALOG =
             By.res("android:id/immersive_cling_title");
     private static final BySelector CLOSE_BUTTON =
@@ -102,6 +106,19 @@ public class CellBroadcastUiTest extends CellBroadcastBaseTest {
         }
         if ("testEmergencyAlertSettingsUi".equals(mTestNameRule.getMethodName())
                 || "testAlertUiOnReceivedAlert".equals(mTestNameRule.getMethodName())) {
+            // close disturbing dialog if exist
+            UiObject2 yesButton = sDevice.wait(Until.findObject(YES_BUTTON), 100);
+            if (yesButton != null) {
+                logd("dismiss disturbing dialog");
+                yesButton.click();
+            }
+            // if left alertdialog exist, close it
+            UiObject2 okItem = sDevice.wait(Until.findObject(
+                    By.res(sPackageName, "dismissButton")), 100);
+            if (okItem != null) {
+                logd("dismiss left alertdialog");
+                okItem.click();
+            }
             sDevice.pressHome();
         }
     }
@@ -124,6 +141,11 @@ public class CellBroadcastUiTest extends CellBroadcastBaseTest {
                     mIsOptOutDialogHandled = true;
                 }
             }
+        }
+
+        if ("testEmergencyAlertSettingsUi".equals(mTestNameRule.getMethodName())) {
+            sDevice.pressBack();
+            sDevice.pressHome();
         }
 
         if ("testEmergencyAlertSettingsUi".equals(mTestNameRule.getMethodName())
@@ -318,7 +340,6 @@ public class CellBroadcastUiTest extends CellBroadcastBaseTest {
                     assertTrue("carrier=" + carrierName + ", settingName="
                             + settingName, false);
                 }
-                return;
             }
             UiObject itemSwitch = null;
             try {
@@ -343,7 +364,6 @@ public class CellBroadcastUiTest extends CellBroadcastBaseTest {
                     + ", expectedSwitchValue=" + settingInfo.mIsToggleAvailability,
                     settingInfo.mExpectedSwitchValue, itemSwitch.isChecked());
         }
-        sDevice.pressBack();
     }
 
     private void dismissKeyGuard() throws Exception {
@@ -357,14 +377,27 @@ public class CellBroadcastUiTest extends CellBroadcastBaseTest {
         UiObject2 viewObject = sDevice.wait(Until.findObject(FULL_SCREEN_DIALOG),
                 UI_TIMEOUT);
         if (viewObject != null) {
-            logd("Found full screen dialog, dismissing.");
-            UiObject2 okButton = sDevice.wait(Until.findObject(CLOSE_BUTTON), UI_TIMEOUT);
-            if (okButton != null) {
-                okButton.click();
-                return true;
+            return dismissFullScreenGuide(CLOSE_BUTTON);
+        } else {
+            logd("check systemui's fullscreen guide");
+            viewObject = sDevice.wait(Until.findObject(SYSUI_FULL_SCREEN_DIALOG), UI_TIMEOUT);
+            if (viewObject != null) {
+                return dismissFullScreenGuide(SYSUI_CLOSE_BUTTON);
             } else {
-                logd("Unable to dismiss full screen dialog");
+                logd("failed to find fullscreen guide");
+                return false;
             }
+        }
+    }
+
+    private boolean dismissFullScreenGuide(BySelector closeButton) {
+        logd("Found full screen dialog, dismissing.");
+        UiObject2 okButton = sDevice.wait(Until.findObject(closeButton), UI_TIMEOUT);
+        if (okButton != null) {
+            okButton.click();
+            return true;
+        } else {
+            logd("Unable to dismiss full screen dialog");
         }
         return false;
     }

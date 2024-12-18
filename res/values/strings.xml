@@ -39,6 +39,9 @@
     <!-- Required Korean (kr) translation for this message: 안전 안내 문자-->
     <string name="sms_cb_sender_name_public_safety">Informational notification</string>
 
+    <!-- Value of sms sender display name to be shown in SMS inbox for amber alerts -->
+    <string name="sms_cb_sender_name_amber">@string/sms_cb_sender_name_default</string>
+
     <!-- Error message for users that aren't allowed to modify Cell broadcast settings [CHAR LIMIT=none] -->
     <string name="cell_broadcast_settings_not_available">Wireless emergency alert settings are not available for this user</string>
 
@@ -390,6 +393,6 @@
     <string name="top_intro_roaming_text">When you\'re roaming or don\'t have an active SIM, you may get some alerts that aren\'t included in these settings</string>
 
     <!-- Notification title and text when alerting user that their CB settings have changed -->
-    <string name="notification_cb_settings_changed_title">Settings changed by carrier</string>
-    <string name="notification_cb_settings_changed_text">Tap to see wireless emergency alert settings</string>
+    <string name="notification_cb_settings_changed_title">Your settings changed</string>
+    <string name="notification_cb_settings_changed_text">Wireless emergency alert settings were reset because your SIM changed</string>
 </resources>
