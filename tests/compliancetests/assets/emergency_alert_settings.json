@@ -412,55 +412,67 @@
     }
   },
   "korea": {
-    "긴급 재난 문자": { //"Emergency alerts": {
+    "긴급 재난문자": { //"Emergency Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "안전 안내 문자": { // "Public safety messages": {
+    "안전 안내문자": { // "Public Safety Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "진동": { //"Vibration": {
+    "실종 경보문자": { // "Amber Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "경보 메시지를 음성으로 알림": { //"Speak alert message": {
+    "진동": { //"Vibration"
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "경보 메시지를 음성으로 알림": { //"Speak alert message"
       "default_value": "false",
       "toggle_avail": "true"
     }
   },
   "korea_skt": {
-    "긴급 재난 문자": { //"Emergency alerts": {
+    "긴급 재난문자": { //"Emergency Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "안전 안내 문자": { // "Public safety messages": {
+    "안전 안내문자": { // "Public Safety Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "진동": { //"Vibration": {
+    "실종 경보문자": { // "Amber Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "경보 메시지를 음성으로 알림": { //"Speak alert message": {
+    "진동": { //"Vibration"
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "경보 메시지를 음성으로 알림": { //"Speak alert message"
       "default_value": "false",
       "toggle_avail": "true"
     }
   },
   "korea_lgu": {
-    "긴급 재난 문자": { //"Emergency alerts": {
+    "긴급 재난문자": { //"Emergency Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "안전 안내 문자": { // "Public safety messages": {
+    "안전 안내문자": { // "Public Safety Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "진동": { //"Vibration": {
+    "실종 경보문자": { // "Amber Alert"
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "경보 메시지를 음성으로 알림": { //"Speak alert message": {
+    "진동": { //"Vibration"
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "경보 메시지를 음성으로 알림": { //"Speak alert message"
       "default_value": "false",
       "toggle_avail": "true"
     }
@@ -510,28 +522,40 @@
     }
   },
   "bulgaria": {
-    "Extreme and Severe Threats": {
+    "Extreme and Severe Threats": { // Сериозни опасности
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Information": {
+    "Information": { // Информация
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Missing Person Alerts": {
+    "Missing Person Alerts": { // Сигнали за човек в неизвестност
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Test Alerts": {
+    "Test Alerts": { // Тестови сигнали
       "default_value": "false",
       "toggle_avail": "true"
+    },
+    "Exercise Alerts": { // Сигнали за упражнения
+      "default_value": "false",
+      "toggle_avail": "false"
+    },
+    "EU-Reserved": { // EU-Reserved
+      "default_value": "false",
+      "toggle_avail": "false"
+    },
+    "Technical Test Alerts": { // Технически тестови сигнали
+      "default_value": "false",
+      "toggle_avail": "false"
     },
     "Vibration": {
       "default_value": "true",
       "toggle_avail": "true"
     },
     "Speak alert message": {
-      "default_value": "true",
+      "default_value": "false",
       "toggle_avail": "true"
     }
   },
@@ -1211,23 +1235,23 @@
     }
   },
   "austria_tmobile": {
-    "Extreme threat": {
+    "Extreme threat": {  // Extreme Gefahr
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Severe threat": {
+    "Severe threat": {  // Erhebliche Gefahr
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Missing persons": {
+    "Missing persons": {  // Abgängige Personen
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Threat information": {
+    "Threat information": { // Gefahreninformation
       "default_value": "true",
       "toggle_avail": "true"
     },
-    "Test alert": {
+    "Test alert": {  // Testwarnung
       "default_value": "false",
       "toggle_avail": "true"
     },
@@ -1322,6 +1346,24 @@
   },
   "bahamas": {
     "Test Alert": {
+      "default_value": "true",
+      "toggle_avail": "true"
+    }
+  },
+  "Luxembourg": {
+    "Kidnapping alert": {  // Entführungswarnung
+      "default_value": "true",
+      "toggle_avail": "true"
+    },
+    "LU-Alert Test": {  // LU-Alert Test
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
+    "LU-Alert Exercise": { // LU-Alert Übung
+      "default_value": "false",
+      "toggle_avail": "true"
+    },
+    "Vibration": {  // Vibration
       "default_value": "true",
       "toggle_avail": "true"
     }

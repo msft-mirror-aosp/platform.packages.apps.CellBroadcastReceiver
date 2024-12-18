@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Arifa za dharura kupitia vifaa visivyotumia waya"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Arifa za dharura kupitia vifaa visivyotumia waya"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Arifa ya maelezo"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"Mipangilio ya arifa za dharura kupitia vifaa visivyotumia waya haipatikani kwa mtumiaji huyu"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"Sawa"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Hakuna arifa za awali"</string>
@@ -170,7 +172,7 @@
     <string name="seconds" msgid="141450721520515025">"sekunde"</string>
     <string name="message_copied" msgid="6922953753733166675">"Ujumbe umenakiliwa"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
-    <string name="top_intro_roaming_text" msgid="5250650823028195358">"Wakati unatumia mitandao ya ng\'ambo au huna SIM inayotumika, huenda ukapata arifa fulani ambazo hazijajumuisha katika mipangilio hii"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Mipangilio imebadilishwa na mtoa huduma"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Gusa ili uangalie mipangilio ya arifa za dharura kupitia vifaa visivyotumia waya"</string>
+    <string name="top_intro_roaming_text" msgid="5250650823028195358">"Wakati unatumia mitandao ya ng\'ambo au huna SIM inayotumika, huenda ukapata arifa fulani ambazo hazijajumuishwa katika mipangilio hii"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Mipangilio yako imebadilika"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"Mipangilio ya tahadhari za dharura kupitia vifaa vya mkononi imewekwa upya kwa sababu umebadilisha SIM yako"</string>
 </resources>

@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -76,6 +77,8 @@ public class CellBroadcastAlertAudioTest extends
     private static final int STATE_ALERTING = 1;
     private static final int STATE_STOPPING = 4;
 
+    private boolean mNewTtsInstance = true;
+
     public CellBroadcastAlertAudioTest() {
         super(CellBroadcastAlertAudio.class);
     }
@@ -121,6 +124,7 @@ public class CellBroadcastAlertAudioTest extends
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        mNewTtsInstance = true;
         MockitoAnnotations.initMocks(this);
         doReturn(mConfiguration).when(mResources).getConfiguration();
         doReturn(mDevices).when(mMockedAudioManager).getDevices(anyInt());
@@ -139,6 +143,20 @@ public class CellBroadcastAlertAudioTest extends
         intent.putExtra(CellBroadcastAlertAudio.ALERT_AUDIO_VIBRATION_PATTERN_EXTRA,
                 TEST_VIBRATION_PATTERN);
         return intent;
+    }
+
+    private void setUpTtsInstance() {
+        CellBroadcastAlertAudio audio = getService();
+        audio.mTts = mock(TextToSpeech.class);
+    }
+
+    @Override
+    protected void startService(Intent intent) {
+        if (mNewTtsInstance) {
+            setupService();
+            setUpTtsInstance();
+        }
+        super.startService(intent);
     }
 
     public void testStartService() throws Throwable {
@@ -336,11 +354,6 @@ public class CellBroadcastAlertAudioTest extends
         CellBroadcastAlertAudio audio = (CellBroadcastAlertAudio) getService();
         audio.stop();
 
-        Field fieldTts = CellBroadcastAlertAudio.class.getDeclaredField("mTts");
-        fieldTts.setAccessible(true);
-        TextToSpeech mockTts = mock(TextToSpeech.class);
-        fieldTts.set(audio, mockTts);
-
         Field fieldTtsEngineReady = CellBroadcastAlertAudio.class
                 .getDeclaredField("mTtsEngineReady");
         fieldTtsEngineReady.setAccessible(true);
@@ -369,7 +382,7 @@ public class CellBroadcastAlertAudioTest extends
             Thread.sleep(100);
         }
 
-        verify(mockTts, times(2)).speak(any(), queueMode.capture(), any(), any());
+        verify(audio.mTts, times(2)).speak(any(), queueMode.capture(), any(), any());
         assertEquals(TextToSpeech.QUEUE_FLUSH, queueMode.getAllValues().get(0).intValue());
         assertEquals(2, queueMode.getAllValues().get(1).intValue());
 
@@ -404,15 +417,10 @@ public class CellBroadcastAlertAudioTest extends
 
         CellBroadcastAlertAudio audio = (CellBroadcastAlertAudio) getService();
 
-        Field fieldTts = CellBroadcastAlertAudio.class.getDeclaredField("mTts");
-        fieldTts.setAccessible(true);
-        TextToSpeech mockTts = mock(TextToSpeech.class);
-        fieldTts.set(audio, mockTts);
-
         audio.onInit(TextToSpeech.SUCCESS);
 
         ArgumentCaptor<Locale> localeArgumentCaptor = ArgumentCaptor.forClass(Locale.class);
-        verify(mockTts, times(1)).setLanguage(localeArgumentCaptor.capture());
+        verify(audio.mTts, times(1)).setLanguage(localeArgumentCaptor.capture());
         assertEquals(Locale.UK, localeArgumentCaptor.getValue());
 
         Locale.setDefault(original_locale);
@@ -431,11 +439,13 @@ public class CellBroadcastAlertAudioTest extends
                 TEST_VIBRATION_PATTERN);
         doReturn(AudioManager.RINGER_MODE_NORMAL).when(
                 mMockedAudioManager).getRingerMode();
+        doNothing().when(mMockedAlarmManager).setExact(anyInt(), anyLong(), any());
 
         PhoneStateListenerHandler phoneStateListenerHandler = new PhoneStateListenerHandler(
                 "testStartServiceStop",
                 () -> {
                     startService(intent);
+                    mNewTtsInstance = false;
                     startService(intent);
                 });
         phoneStateListenerHandler.start();
@@ -505,13 +515,13 @@ public class CellBroadcastAlertAudioTest extends
 
         ArgumentCaptor<Long> capTime = ArgumentCaptor.forClass(Long.class);
         InOrder inOrder = inOrder(mockMediaPlayer, mockHandler);
-        long expTime = SystemClock.uptimeMillis() + duration;
         audio.handleStartIntent(intent);
 
         inOrder.verify(mockMediaPlayer).prepare();
         inOrder.verify(mockHandler).sendMessageAtTime(any(), capTime.capture());
         inOrder.verify(mockMediaPlayer).start();
-        assertTrue((capTime.getValue() - expTime) < tolerance);
+        long expTime = SystemClock.uptimeMillis() + duration;
+        assertTrue((expTime - capTime.getValue()) < tolerance);
     }
 
     public void testCallConnectedDuringPlayAlert() throws Throwable {

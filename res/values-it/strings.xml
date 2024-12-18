@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Avvisi di emergenza wireless"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Avvisi di emergenza wireless"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Notifica informativa"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"Le impostazioni per gli avvisi di emergenza wireless non sono disponibili per questo utente"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"OK"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Nessuna allerta precedente"</string>
@@ -62,7 +64,7 @@
     <string name="notification_channel_settings_updates" msgid="6779759372516475085">"Le impostazioni WEA automatiche cambiano in base alla SIM"</string>
     <string name="enable_alerts_master_toggle_title" msgid="1457904343636699446">"Consenti avvisi"</string>
     <string name="enable_alerts_master_toggle_summary" msgid="5583168548073938617">"Ricevi notifiche per avvisi di emergenza wireless"</string>
-    <string name="alert_reminder_interval_title" msgid="3283595202268218149">"Promemoria allerte"</string>
+    <string name="alert_reminder_interval_title" msgid="3283595202268218149">"Promemoria avvisi"</string>
     <string name="enable_alert_speech_title" msgid="8052104771053526941">"Leggimi messaggio di allerta"</string>
     <string name="enable_alert_speech_summary" msgid="2855629032890937297">"Usa la sintesi vocale per leggermi i messaggi degli avvisi di emergenza wireless"</string>
     <string name="alert_reminder_dialog_title" msgid="2299010977651377315">"Verrà riprodotto un suono di promemoria a volume normale"</string>
@@ -86,8 +88,8 @@
     <string name="enable_state_local_test_alerts_summary" msgid="780298327377950187">"Ricevi messaggi di prova da autorità statali e locali"</string>
     <string name="enable_emergency_alerts_message_title" msgid="661894007489847468">"Avvisi di emergenza"</string>
     <string name="enable_emergency_alerts_message_summary" msgid="7574617515441602546">"Avvisi relativi a eventi potenzialmente letali"</string>
-    <string name="enable_cmas_test_alerts_title" msgid="7194966927004755266">"Allerte di prova"</string>
-    <string name="enable_cmas_test_alerts_summary" msgid="2083089933271720217">"Ricevi test dell\'operatore e test mensili dal sistema di allerte relative alla sicurezza"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="7194966927004755266">"Avvisi di prova"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="2083089933271720217">"Ricevi test dell\'operatore e test mensili dal sistema di avvisi relativi alla sicurezza"</string>
     <!-- no translation found for enable_exercise_test_alerts_title (6030780598569873865) -->
     <skip />
     <string name="enable_exercise_test_alerts_summary" msgid="4276766794979567304">"Ricevi avviso di emergenza: messaggio di esercitazione"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Messaggio copiato"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Se stai usando il roaming o non hai una SIM attiva, potresti ricevere alcuni avvisi non inclusi in queste impostazioni"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Impostazioni modificate dall\'operatore"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Tocca per visualizzare le impostazioni per gli avvisi di emergenza wireless"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Le tue impostazioni sono state modificate"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"Le impostazioni degli avvisi di emergenza wireless sono state ripristinate a causa del cambio della SIM"</string>
 </resources>

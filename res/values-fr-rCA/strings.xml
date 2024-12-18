@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Alertes d\'urgence sans fil"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Alertes d\'urgence sans fil"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Notification informative"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"Les paramètres des alertes d\'urgence sans fil ne sont pas accessibles pour cet utilisateur"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"OK"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Aucune alerte précédente"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Message copié"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Lorsque vous êtes en itinérance ou que vous n\'avez pas de carte SIM active, vous pourriez recevoir des alertes qui ne sont pas incluses dans ces paramètres"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Les paramètres ont été modifiés par le fournisseur de services"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Touchez pour voir les paramètres des alertes d\'urgence sans fil"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Vos paramètres sont modifiés"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"Les paramètres des alertes d\'urgence sans fil ont été réinitialisés à la suite d\'un changement de carte SIM"</string>
 </resources>

@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="cmas_presidential_level_alert" msgid="28280561773493762">"Hätätilahälytys"</string>
+    <string name="cmas_presidential_level_alert" msgid="1635895961813101610">"Hätävaroitus"</string>
     <string name="cmas_extreme_alert" msgid="9122792746957924456">"Äärimmäinen uhka"</string>
     <string name="cmas_severe_alert" msgid="628940584325136759">"Vakava uhka"</string>
     <string name="public_safety_message" msgid="8084690288011309280">"Uhan tiedot"</string>
@@ -29,7 +29,11 @@
     <string name="enable_cmas_amber_alerts_title" msgid="3125202178531035580">"Kadonneet henkilöt"</string>
     <string name="enable_cmas_amber_alerts_summary" msgid="5252326889751639729">"Kadonneiden henkilöiden etsintä"</string>
     <string name="enable_public_safety_messages_title" msgid="3974955568145658404">"Uhan tiedot"</string>
+    <string name="enable_public_safety_messages_summary" msgid="1865721958409326701">"Tietoa uhista"</string>
     <string name="enable_state_local_test_alerts_title" msgid="1795129352473584681">"Testihälytys"</string>
+    <string name="enable_state_local_test_alerts_summary" msgid="2611084212363095735">"Testihälytykset toimivaltaisilta viranomaisilta"</string>
     <string name="enable_exercise_test_alerts_title" msgid="569839026995925829">"Hälytyksen testaaminen"</string>
+    <string name="enable_exercise_test_alerts_summary" msgid="9221851253406484290">"Testaa hälytyksiä harjoitusten aikana"</string>
     <string name="enable_cmas_test_alerts_title" msgid="3897522692038895778">"Solulähetyksen testaaminen"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="3008029598281530835">"Solulähetysjärjestelmän testit"</string>
 </resources>

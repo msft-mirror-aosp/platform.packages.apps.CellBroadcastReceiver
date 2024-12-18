@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"无线紧急警报"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"无线紧急警报"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"信息类通知"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"这位用户无法使用无线紧急警报设置"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"确定"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"还没有任何警报"</string>
@@ -134,7 +136,7 @@
     <string name="delivery_time_heading" msgid="5980836543433619329">"接收时间："</string>
     <string name="notification_multiple" msgid="5121978148152124860">"<xliff:g id="COUNT">%s</xliff:g> 条未读警报。"</string>
     <string name="notification_multiple_title" msgid="1523638925739947855">"新警报"</string>
-    <string name="show_cmas_opt_out_summary" msgid="6926059266585295440">"在显示第一条警报（国家级警报除外）后，显示是否停收警报的对话框。"</string>
+    <string name="show_cmas_opt_out_summary" msgid="6926059266585295440">"在显示第一条警报后，显示是否停收警报的对话框（国家级警报除外）。"</string>
     <string name="show_cmas_opt_out_title" msgid="9182104842820171132">"显示警报停收对话框"</string>
     <string name="cmas_opt_out_dialog_text" msgid="4820577535626084938">"您目前已设置接收无线紧急警报。要继续接收无线紧急警报吗？"</string>
     <string name="cmas_opt_out_button_yes" msgid="7248930667195432936">"是"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"已复制消息"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"如果您正在漫游或没有使用中的 SIM 卡，可能会收到这些设置中不包含的一些提醒"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"运营商已更改设置"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"点按即可查看无线紧急警报设置"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"您的设置更改了"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"无线紧急警报设置已重置，因为您的 SIM 卡更换了"</string>
 </resources>

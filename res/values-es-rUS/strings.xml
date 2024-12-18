@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Alertas de emergencia inalámbricas"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Alertas de emergencia inalámbricas"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Notificación informativa"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"La configuración de alertas de emergencia inalámbricas no está disponible para este usuario"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"Aceptar"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Sin alertas anteriores"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Se copió el mensaje"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Cuando usas roaming, o bien no tienes una tarjeta SIM activa, es posible que recibas alertas que no se incluyan en estos parámetros de configuración"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"El proveedor cambió la configuración"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Presiona para ver la configuración de alertas de emergencia inalámbricas"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Cambió la configuración"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"Se restableció la configuración de alertas de emergencia inalámbricas porque cambió la SIM"</string>
 </resources>

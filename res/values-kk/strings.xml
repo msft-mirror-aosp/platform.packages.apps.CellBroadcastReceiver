@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"Сымсыз шұғыл хабарландырулар"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"Төтенше жағдай туралы сымсыз хабарландырулар"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"Ақпараттық хабарландыру"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"Төтенше жағдай туралы сымсыз хабарландыру параметрлері бұл пайдаланушы үшін қолжетімді емес."</string>
     <string name="button_dismiss" msgid="1234221657930516287">"Жарайды"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"Бұрын хабарландыру берілмеген."</string>
@@ -70,10 +72,10 @@
     <string name="alert_preferences_title" msgid="6001469026393248468">"Хабарландыру параметрлері"</string>
     <string name="enable_etws_test_alerts_title" msgid="3593533226735441539">"ETWS сынақ таратылымдары"</string>
     <string name="enable_etws_test_alerts_summary" msgid="8746155402612927306">"Earthquake Tsunami Warning System жүйесі үшін сынақ таратылымдарын көрсету"</string>
-    <string name="enable_cmas_extreme_threat_alerts_title" msgid="5416260219062637770">"Үлкен қауіптер"</string>
-    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="5832146246627518123">"Өмірге және мүлікке төнген үлкен қауіптер"</string>
-    <string name="enable_cmas_severe_threat_alerts_title" msgid="1066172973703410042">"Ауыр қауіптер"</string>
-    <string name="enable_cmas_severe_threat_alerts_summary" msgid="5292443310309039223">"Өмірге және мүлікке төнген ауыр қауіптер"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="5416260219062637770">"Аса үлкен қауіптер"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="5832146246627518123">"Өмірге және мүлікке төнген аса үлкен қауіптер"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="1066172973703410042">"Үлкен қауіптер"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="5292443310309039223">"Өмірге және мүлікке төнген үлкен қауіптер"</string>
     <string name="enable_cmas_amber_alerts_title" msgid="1475030503498979651">"AMBER хабарландырулары"</string>
     <string name="enable_cmas_amber_alerts_summary" msgid="4495233280416889667">"Жоғалған балалар туралы хабарлар"</string>
     <string name="enable_alert_message_title" msgid="2939830587633599352">"Ескерту хабарлары"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"Хабар көшірілді"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"Роумингіде болсаңыз немесе сізде белсенді SIM картасы болмаса, сізге осы параметрлерде көрсетілмеген хабарландырулар берілуі мүмкін."</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"Параметрлерді оператор өзгерткен"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"Төтенше жағдай туралы сымсыз хабарландыру параметрлерін көру үшін түртіңіз."</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"Параметрлер өзгертілді"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"SIM картасы өзгертілгендіктен, сымсыз жіберілетін шұғыл хабарландырулар параметрлері бастапқы күйге қайтарылды."</string>
 </resources>

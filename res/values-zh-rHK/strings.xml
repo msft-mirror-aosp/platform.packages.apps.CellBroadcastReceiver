@@ -22,6 +22,8 @@
     <string name="sms_cb_sender_name_presidential" msgid="5302753979711319380">"無線緊急警示"</string>
     <string name="sms_cb_sender_name_emergency" msgid="2937067842997478965">"無線緊急警示"</string>
     <string name="sms_cb_sender_name_public_safety" msgid="5230033387708907922">"資訊通知"</string>
+    <!-- no translation found for sms_cb_sender_name_amber (9124939966591107501) -->
+    <skip />
     <string name="cell_broadcast_settings_not_available" msgid="3908142962162375221">"此使用者無法使用無線緊急警示設定"</string>
     <string name="button_dismiss" msgid="1234221657930516287">"確定"</string>
     <string name="no_cell_broadcasts" msgid="7554779730107421769">"沒有任何過往警示"</string>
@@ -74,7 +76,7 @@
     <string name="enable_cmas_extreme_threat_alerts_summary" msgid="5832146246627518123">"極嚴重的生命財產威脅"</string>
     <string name="enable_cmas_severe_threat_alerts_title" msgid="1066172973703410042">"嚴重威脅"</string>
     <string name="enable_cmas_severe_threat_alerts_summary" msgid="5292443310309039223">"嚴重的生命財產威脅"</string>
-    <string name="enable_cmas_amber_alerts_title" msgid="1475030503498979651">"安珀警示"</string>
+    <string name="enable_cmas_amber_alerts_title" msgid="1475030503498979651">"安珀警報"</string>
     <string name="enable_cmas_amber_alerts_summary" msgid="4495233280416889667">"誘拐兒童緊急事件公告"</string>
     <string name="enable_alert_message_title" msgid="2939830587633599352">"警示訊息"</string>
     <string name="enable_alert_message_summary" msgid="6525664541696985610">"對即將發生的安全威脅發出警告"</string>
@@ -171,6 +173,6 @@
     <string name="message_copied" msgid="6922953753733166675">"已複製訊息"</string>
     <string name="top_intro_default_text" msgid="1922926733152511202"></string>
     <string name="top_intro_roaming_text" msgid="5250650823028195358">"如果你正在漫遊或沒有使用中的 SIM 卡，可能會收到不屬於這些設定的警示"</string>
-    <string name="notification_cb_settings_changed_title" msgid="7664799881479966932">"流動網絡供應商已變更設定"</string>
-    <string name="notification_cb_settings_changed_text" msgid="1397646219615654933">"輕按以查看無線緊急警示設定"</string>
+    <string name="notification_cb_settings_changed_title" msgid="8404224790323899805">"設定已變更"</string>
+    <string name="notification_cb_settings_changed_text" msgid="8722470940705858715">"由於 SIM 卡已變更，系統已重設無線緊急警示設定"</string>
 </resources>
