@@ -45,7 +45,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
-import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
@@ -54,6 +53,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.modules.utils.build.SdkLevel;
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 import com.android.settingslib.widget.MainSwitchPreference;
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -215,7 +215,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                 com.android.settingslib.collapsingtoolbar.R.id.content_frame);
         if (fragment == null) {
             mCellBroadcastSettingsFragment = new CellBroadcastSettingsFragment();
-            getFragmentManager()
+            getSupportFragmentManager()
                     .beginTransaction()
                     .add(com.android.settingslib.collapsingtoolbar.R.id.content_frame,
                             mCellBroadcastSettingsFragment)
@@ -301,7 +301,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
     /**
      * New fragment-style implementation of preferences.
      */
-    public static class CellBroadcastSettingsFragment extends PreferenceFragment {
+    public static class CellBroadcastSettingsFragment extends SettingsBasePreferenceFragment {
 
         private TwoStatePreference mExtremeCheckBox;
         private TwoStatePreference mSevereCheckBox;
@@ -458,7 +458,16 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                                 notifyAreaInfoUpdate(isEnabledAlert);
                             }
 
-                            onPreferenceChangedByUser(getContext());
+                            onPreferenceChangedByUser(getContext(), true);
+                            return true;
+                        }
+                    };
+
+            Preference.OnPreferenceChangeListener alertPreferenceToggleListener =
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference pref, Object newValue) {
+                            onPreferenceChangedByUser(getContext(), false);
                             return true;
                         }
                     };
@@ -474,12 +483,13 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                             (MainSwitchPreference) mMasterToggle;
                     final OnCheckedChangeListener mainSwitchListener =
                             new OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            setAlertsEnabled(isChecked);
-                            onPreferenceChangedByUser(getContext());
-                        }
-                    };
+                                @Override
+                                public void onCheckedChanged(CompoundButton buttonView,
+                                        boolean isChecked) {
+                                    setAlertsEnabled(isChecked);
+                                    onPreferenceChangedByUser(getContext(), true);
+                                }
+                            };
                     mainSwitchPreference.addOnSwitchChangeListener(mainSwitchListener);
                 } else {
                     Preference.OnPreferenceChangeListener mainSwitchListener =
@@ -488,7 +498,7 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                                 public boolean onPreferenceChange(
                                         Preference pref, Object newValue) {
                                     setAlertsEnabled((Boolean) newValue);
-                                    onPreferenceChangedByUser(getContext());
+                                    onPreferenceChangedByUser(getContext(), true);
                                     return true;
                                 }
                             };
@@ -569,6 +579,10 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
                             startActivity(intent);
                             return true;
                         });
+            }
+
+            if (mSpeechCheckBox != null) {
+                mSpeechCheckBox.setOnPreferenceChangeListener(alertPreferenceToggleListener);
             }
 
             updateVibrationPreference(sp.getBoolean(CellBroadcastSettings.KEY_OVERRIDE_DND,
@@ -902,11 +916,13 @@ public class CellBroadcastSettings extends CollapsingToolbarBaseActivity {
          *
          * @param context Context to use
          */
-        public void onPreferenceChangedByUser(Context context) {
-            CellBroadcastReceiver.startConfigService(context,
-                    CellBroadcastConfigService.ACTION_ENABLE_CHANNELS);
+        public void onPreferenceChangedByUser(Context context, boolean enableChannels) {
+            if (enableChannels) {
+                Log.d(TAG, "onPreferenceChangedByUser: enable channels");
+                CellBroadcastReceiver.startConfigService(context,
+                        CellBroadcastConfigService.ACTION_ENABLE_CHANNELS);
+            }
             setPreferenceChanged(context, true);
-
             // Notify backup manager a backup pass is needed.
             new BackupManager(context).dataChanged();
         }
